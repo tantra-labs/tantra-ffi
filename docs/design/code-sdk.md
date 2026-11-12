@@ -1,20 +1,20 @@
-# `vyapaar-ffi` — Python SDK Reference
+# `tantra-ffi` — Python SDK Reference
 
-Documents `python/vyapaar/`: the idiomatic Python layer on top of the compiled
-`vyapaar._vyapaar` extension.
+Documents `python/tantra/`: the idiomatic Python layer on top of the compiled
+`tantra._tantra` extension.
 
 ## Package Layout
 
 | Module | Purpose |
 |--------|---------|
-| `__init__.py` | Public API surface: re-exports the compiled types + the pure-Python modules (`strategy`, `indicators`, `sizing`, `session`, `data`, `types`; `cli` importable as `import vyapaar.cli`) |
+| `__init__.py` | Public API surface: re-exports the compiled types + the pure-Python modules (`strategy`, `indicators`, `sizing`, `session`, `data`, `types`; `cli` importable as `import tantra.cli`) |
 | `types.py` | Re-exports the compiled value objects; `to_decimal(value)` (accepts `Decimal`, `str`, `Price`/`Quantity` via `.to_str()`), `instrument_id("EXCHANGE:SYMBOL"` or `"SYMBOL"`) |
 | `strategy.py` | `Strategy`, `Parameter`, `BacktestResult`, `run(strategy, bars, *, algo_id, on_start=True)` |
 | `indicators.py` | `SMA`, `EMA`, `RSI` — pure-Python exact-`Decimal` indicators with `crosses_above`/`crosses_below` |
 | `sizing.py` | `Sizer`, `fixed_quantity`, `fractional`, `risk_budget` — exact `Decimal` sizing, rounded down |
 | `session.py` | `Session`, `SessionWindow`, `PRE_MARKET`/`LIVE`/`POST_MARKET`, `current_session`, `is_live` (IST) |
 | `data.py` | Arrow bridge helpers: `bars_to_arrow`, `ticks_to_arrow`, `bars_to_polars` |
-| `cli.py` | `python -m vyapaar.cli` — `version`, `backtest` (stub), `serve`/`stub` placeholders |
+| `cli.py` | `python -m tantra.cli` — `version`, `backtest` (stub), `serve`/`stub` placeholders |
 
 ## `Strategy` & `run` (strategy.py)
 
@@ -27,7 +27,7 @@ issue orders with `self.buy(symbol, quantity, *, limit_price=None, tag=None)`
 
 1. attaches the strategy to a compiled `StrategyRunner` and registers `algo_id`
    on its risk gate,
-2. sets `strategy.indicators = vyapaar.indicators`,
+2. sets `strategy.indicators = tantra.indicators`,
 3. calls `on_start()` once,
 4. runs `runner.run_bars(bars)` with the GIL released per batch,
 5. flushes any orders buffered during callbacks (the compiled runner holds a

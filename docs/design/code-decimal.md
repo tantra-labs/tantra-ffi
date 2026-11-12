@@ -1,6 +1,6 @@
-# `vyapaar-ffi` — Decimal Conversion Reference
+# `tantra-ffi` — Decimal Conversion Reference
 
-Documents `crates/vyapaar-ffi-py/src/decimal.rs`: `decimal.Decimal` ↔ `rust_decimal::Decimal`
+Documents `crates/tantra-ffi-py/src/decimal.rs`: `decimal.Decimal` ↔ `rust_decimal::Decimal`
 conversion helpers enforcing the Zero Floats Policy across the FFI boundary.
 
 ## Conversion Direction
@@ -29,5 +29,5 @@ Money is always exchanged as exact decimal strings. Both `decimal.Decimal` and
 
 ## Related
 
-- `crates/vyapaar-ffi-py/src/types.rs` — `Price`, `Quantity` pyclasses use these helpers.
-- `crates/vyapaar-ffi-py/src/market.rs` — `Bar`, `Tick` use these for price/volume columns.
+- `crates/tantra-ffi-py/src/types.rs` — `Price`, `Quantity` pyclasses use these helpers.
+- `crates/tantra-ffi-py/src/market.rs` — `Bar`, `Tick` use these for price/volume columns.

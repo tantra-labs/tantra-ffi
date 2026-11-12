@@ -1098,6 +1098,61 @@ dependencies = [
 ]
 
 [[package]]
+name = "tantra-core"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "rust_decimal",
+ "schemars",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
+name = "tantra-ffi-codegen"
+version = "0.1.0"
+dependencies = [
+ "schemars",
+ "serde",
+ "serde_json",
+ "tantra-core",
+]
+
+[[package]]
+name = "tantra-ffi-py"
+version = "0.1.0"
+dependencies = [
+ "arrow",
+ "chrono",
+ "pyo3",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+ "tantra-core",
+ "tantra-risk",
+ "thiserror",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "tantra-risk"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "prometheus",
+ "rust_decimal",
+ "schemars",
+ "serde",
+ "serde_json",
+ "tantra-core",
+ "thiserror",
+ "tracing",
+]
+
+[[package]]
 name = "target-lexicon"
 version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1227,61 +1282,6 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
-
-[[package]]
-name = "vyapaar-core"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "rust_decimal",
- "schemars",
- "serde",
- "serde_json",
- "thiserror",
- "uuid",
-]
-
-[[package]]
-name = "vyapaar-ffi-codegen"
-version = "0.1.0"
-dependencies = [
- "schemars",
- "serde",
- "serde_json",
- "vyapaar-core",
-]
-
-[[package]]
-name = "vyapaar-ffi-py"
-version = "0.1.0"
-dependencies = [
- "arrow",
- "chrono",
- "pyo3",
- "rust_decimal",
- "serde",
- "serde_json",
- "thiserror",
- "tracing",
- "uuid",
- "vyapaar-core",
- "vyapaar-risk",
-]
-
-[[package]]
-name = "vyapaar-risk"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "prometheus",
- "rust_decimal",
- "schemars",
- "serde",
- "serde_json",
- "thiserror",
- "tracing",
- "vyapaar-core",
-]
 
 [[package]]
 name = "wasi"

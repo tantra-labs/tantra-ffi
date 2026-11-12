@@ -1,0 +1,24 @@
+[package]
+name = "tantra-ffi-py"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "PyO3 ABI3 extension module (tantra._tantra): canonical decimal types, tantra-risk pre-trade gating, GIL-safe strategy runner, and Apache Arrow zero-copy bridges"
+
+[lib]
+name = "tantra_ffi_py"
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+tantra-core = { workspace = true }
+tantra-risk = { workspace = true }
+pyo3 = { workspace = true }
+arrow = { workspace = true }
+rust_decimal = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }

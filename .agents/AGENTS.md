@@ -1,13 +1,13 @@
-# `vyapaar-ffi` Agent Guidelines & Architecture Invariants
+# `tantra-ffi` Agent Guidelines & Architecture Invariants
 
 **Subsystem**: Soul (Python FFI Bridge & Wheel Compiler)
 **Language**: Rust (PyO3) + Python
-**Primary Responsibility**: Compiles the `vyapaar` PyPI wheel, Apache Arrow zero-copy memory bridge, and smart GIL management.
+**Primary Responsibility**: Compiles the `tantra` PyPI wheel, Apache Arrow zero-copy memory bridge, and smart GIL management.
 
 ---
 
 ## 1. Role & Architectural Hints
-* `vyapaar-ffi` is the bridge between the high-performance Rust core and the Python-first developer plane:
+* `tantra-ffi` is the bridge between the high-performance Rust core and the Python-first developer plane:
   1. **PyO3 FFI Layer**: Exposes canonical Rust types (`Price`, `Quantity`, `Bar`, `Tick`, `Order`, `Decision`) to Python.
   2. **Zero-Copy Arrow Memory Bridge**: High-volume tick batches and historical bars transfer between Rust and Python via Apache Arrow RecordBatches / PyCapsule protocol with zero deserialization overhead.
   3. **Smart GIL Management**: Long-running Rust simulation steps, indicator loops, and network I/O release the Python GIL (`py.allow_threads`). The GIL is acquired strictly when invoking Python user strategy callbacks (`on_bar`, `on_tick`, `on_order_event`).

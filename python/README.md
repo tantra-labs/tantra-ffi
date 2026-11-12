@@ -1,3 +1,3 @@
 # व्यापार
 
-Python SDK for the Vyapaar trading core (compiled via PyO3; see README).
+Python SDK for the Tantra trading core (compiled via PyO3; see README).

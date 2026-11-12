@@ -4,8 +4,8 @@ from decimal import Decimal
 
 import pytest
 
-import vyapaar
-from vyapaar import indicators, session, sizing, strategy
+import tantra
+from tantra import indicators, session, sizing, strategy
 
 IST = timezone(timedelta(hours=5, minutes=30))
 
@@ -108,6 +108,6 @@ def test_rsi_wilder():
 # --- top-level package -------------------------------------------------------
 
 def test_top_level_exports():
-    assert vyapaar.Decimal is Decimal
-    assert vyapaar.SCHEMA_VERSION >= 1
-    assert vyapaar.Price is not None
+    assert tantra.Decimal is Decimal
+    assert tantra.SCHEMA_VERSION >= 1
+    assert tantra.Price is not None

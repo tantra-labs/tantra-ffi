@@ -1,4 +1,4 @@
-# Gaps Index — `vyapaar-ffi`
+# Gaps Index — `tantra-ffi`
 
 Per workspace rule `.agents/rules/gap-tracking.md`:
 - **Gaps** (`docs/gaps/XXXX-*.md`) are individual missing features, endpoints, or stubs.
@@ -10,8 +10,8 @@ Per workspace rule `.agents/rules/gap-tracking.md`:
 
 | # | Title | Scope | Status |
 |---|-------|-------|--------|
-| [0001](0001-cli-stub-subcommands.md) | `vyapaar` CLI `backtest` is a stub; `serve`/`stub` subcommands are placeholders | `python/vyapaar/cli.py` | Stub |
-| [0002](0002-unused-market-data-workspace-deps.md) | Workspace declares `vyapaar-market-{finance,feed,store}` dependencies but no crate uses them | `Cargo.toml` `[workspace.dependencies]` | Declared-but-unused |
+| [0001](0001-cli-stub-subcommands.md) | `tantra` CLI `backtest` is a stub; `serve`/`stub` subcommands are placeholders | `python/tantra/cli.py` | Stub |
+| [0002](0002-unused-market-data-workspace-deps.md) | Workspace declares `tantra-market-{finance,feed,store}` dependencies but no crate uses them | `Cargo.toml` `[workspace.dependencies]` | Declared-but-unused |
 
 ## Closed Gaps
 

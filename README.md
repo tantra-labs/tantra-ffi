@@ -1,24 +1,24 @@
-# व्यापार・桥接 vyapaar-ffi
+# व्यापार・桥接 tantra-ffi
 
-> *Python FFI Bridge: PyO3 ABI3 bindings, Apache Arrow zero-copy memory bridge, and the `vyapaar` PyPI wheel.*
+> *Python FFI Bridge: PyO3 ABI3 bindings, Apache Arrow zero-copy memory bridge, and the `tantra` PyPI wheel.*
 
-`vyapaar-ffi` compiles the canonical Rust trading core (from `vyapaar-core`, `vyapaar-ledger`, `vyapaar-risk`) into a native Python extension module via **PyO3** (ABI3, so one wheel serves CPython 3.10+). It is the "Soul" bounded context: the zero-copy bridge between the low-latency Rust plane and the Python-first developer plane.
+`tantra-ffi` compiles the canonical Rust trading core (from `tantra-core`, `tantra-ledger`, `tantra-risk`) into a native Python extension module via **PyO3** (ABI3, so one wheel serves CPython 3.10+). It is the "Soul" bounded context: the zero-copy bridge between the low-latency Rust plane and the Python-first developer plane.
 
 What it provides:
 
 - **Exact-decimal domain types** — `Price`, `Quantity`, `Currency`, `Bar`, `Tick`, `OrderRequest`, `FillReport`, `Decision`, all round-tripping as Python `decimal.Decimal` (Zero Floats Policy).
-- **SEBI pre-trade risk gate** — `RiskEngine` exposes the full `vyapaar-risk` surface: algo-ID registration, price bands, OTR counters, and a synchronous, non-bypassable `check_order` before any order reaches execution.
+- **SEBI pre-trade risk gate** — `RiskEngine` exposes the full `tantra-risk` surface: algo-ID registration, price bands, OTR counters, and a synchronous, non-bypassable `check_order` before any order reaches execution.
 - **Arrow zero-copy capsule bridge** — `bars_to_stream` / `ticks_to_stream` export Rust-side Arrow `FFI_ArrowArrayStream` buffers as Python `PyCapsule`s that `pyarrow` can consume with zero deserialization.
 - **Smart GIL management** — long-running Rust simulation steps run without the GIL; the GIL is acquired only when invoking Python strategy callbacks (`on_bar`, `on_tick`, `on_order_event`) via `StrategyRunner`.
-- **Single source of truth** — `make codegen` regenerates `schema/` and the `python/vyapaar/_vyapaar.pyi` type stubs directly from Rust types.
+- **Single source of truth** — `make codegen` regenerates `schema/` and the `python/tantra/_tantra.pyi` type stubs directly from Rust types.
 
 ## Layout
 
 | Path | Contents |
 | :--- | :--- |
-| `crates/vyapaar-ffi-codegen/` | Deterministic code generator: JSON Schema, OpenAPI 3.1, and `.pyi` stub emitter (binary `vyapaar-codegen`). |
-| `crates/vyapaar-ffi-py/` | PyO3 extension module (ABI3) compiled into the `vyapaar` wheel. |
-| `python/vyapaar/` | Python package source (`python-source`): `__init__.py` re-exports plus the compiled `_vyapaar` extension and generated `_vyapaar.pyi`. |
+| `crates/tantra-ffi-codegen/` | Deterministic code generator: JSON Schema, OpenAPI 3.1, and `.pyi` stub emitter (binary `tantra-codegen`). |
+| `crates/tantra-ffi-py/` | PyO3 extension module (ABI3) compiled into the `tantra` wheel. |
+| `python/tantra/` | Python package source (`python-source`): `__init__.py` re-exports plus the compiled `_tantra` extension and generated `_tantra.pyi`. |
 | `python/tests/` | Python test suite (`pytest`). |
 | `schema/` | Generated artifacts: `domain_schema.json`, `openapi.json`. |
 | `.cargo/config.toml` | Pins `PYO3_PYTHON` to a full CPython 3.12 for building/testing the Py crate. |
@@ -29,10 +29,10 @@ What it provides:
 # 1. One-time: create .venv and install maturin, pytest, pyarrow
 make bootstrap-python
 
-# 2. Regenerate schema/ + python/vyapaar/_vyapaar.pyi from Rust types
+# 2. Regenerate schema/ + python/tantra/_tantra.pyi from Rust types
 make codegen
 
-# 3. Build the vyapaar extension into .venv (editable)
+# 3. Build the tantra extension into .venv (editable)
 make py-build
 
 # 4. Run the Python test suite
@@ -52,7 +52,7 @@ Everything at once: `make all` (fmt → clippy → Rust tests → codegen → wh
 ```python
 from decimal import Decimal
 
-from vyapaar import (
+from tantra import (
     Bar,
     InstrumentId,
     Price,

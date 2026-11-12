@@ -1,7 +1,7 @@
-# `vyapaar-ffi` — Risk Engine PyClass Reference
+# `tantra-ffi` — Risk Engine PyClass Reference
 
-Documents `crates/vyapaar-ffi-py/src/risk.rs`: the `RiskEngine` pyclass
-wrapping the synchronous, non-bypassable `vyapaar_risk::RiskEngine`.
+Documents `crates/tantra-ffi-py/src/risk.rs`: the `RiskEngine` pyclass
+wrapping the synchronous, non-bypassable `tantra_risk::RiskEngine`.
 
 ## `RiskEngine`
 
@@ -14,7 +14,7 @@ RFC3339 UTC strings (`ts_iso`) so the domain crates stay deterministic.
 
 | Method | Purpose |
 |--------|---------|
-| `new()` | Construct an empty gate (`vyapaar_risk::RiskEngine::default()`) |
+| `new()` | Construct an empty gate (`tantra_risk::RiskEngine::default()`) |
 | `register_algo` / `is_algo_registered` / `unregister_algo` | SEBI algo-ID registry |
 | `suspend_algo(algo_id, reason)` / `reactivate_algo` | SEBI Retail Algo Circular |
 | `halt_global(reason, ts_iso)` / `resume_global` | Platform-wide kill switch |
@@ -45,4 +45,4 @@ the machine-readable rule: `"rule=<rule>: <display>"` (see `error.rs`).
 * `code-runner.md` — `StrategyRunner` owns a private `RiskEngine` for
   `submit_order`.
 * `code-orders.md` — the `OrderRequest`/`FillReport` types the gate consumes.
-* `vyapaar-risk` — the underlying `RiskEngine`.
+* `tantra-risk` — the underlying `RiskEngine`.

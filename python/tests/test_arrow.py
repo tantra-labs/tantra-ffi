@@ -1,4 +1,4 @@
-"""Tests for the Arrow zero-copy data bridge (vyapaar.data)."""
+"""Tests for the Arrow zero-copy data bridge (tantra.data)."""
 from decimal import Decimal
 
 import pytest
@@ -6,18 +6,18 @@ import pytest
 pyarrow = pytest.importorskip("pyarrow")
 import pyarrow as pa
 
-import vyapaar
-from vyapaar import _vyapaar
+import tantra
+from tantra import _tantra
 
 
 def make_bars():
-    iid = _vyapaar.InstrumentId("NSE", "RELIANCE")
+    iid = _tantra.InstrumentId("NSE", "RELIANCE")
     return [
-        _vyapaar.Bar(
+        _tantra.Bar(
             iid, "2450.75", "2455.00", "2448.00", "2452.00", "1000",
             "2026-11-05T09:30:00+05:30",
         ),
-        _vyapaar.Bar(
+        _tantra.Bar(
             iid, "2452.00", "2460.00", "2450.00", "2458.00", "1200",
             "2026-11-05T09:35:00+05:30",
         ),
@@ -25,8 +25,8 @@ def make_bars():
 
 
 def test_bars_to_stream_capsule_imports_as_arrow():
-    capsule = _vyapaar.bars_to_stream(make_bars())
-    assert _vyapaar.stream_capsule_name() == "arrow_array_stream"
+    capsule = _tantra.bars_to_stream(make_bars())
+    assert _tantra.stream_capsule_name() == "arrow_array_stream"
     reader = pa.RecordBatchReader._import_from_c_capsule(capsule)
     table = reader.read_all()
     assert table.num_rows == 2
@@ -36,7 +36,7 @@ def test_bars_to_stream_capsule_imports_as_arrow():
 
 
 def test_bars_to_arrow_helper():
-    reader = vyapaar.data.bars_to_arrow(make_bars())
+    reader = tantra.data.bars_to_arrow(make_bars())
     assert isinstance(reader, pa.RecordBatchReader)
     table = reader.read_all()
     assert table.num_rows == 2
@@ -44,14 +44,14 @@ def test_bars_to_arrow_helper():
 
 
 def test_ticks_to_arrow():
-    iid = _vyapaar.InstrumentId("NSE", "RELIANCE")
+    iid = _tantra.InstrumentId("NSE", "RELIANCE")
     ticks = [
-        _vyapaar.Tick.ltp(
+        _tantra.Tick.ltp(
             iid, "2450.75", "100",
             "2026-11-05T09:30:00+05:30", "2026-11-05T09:30:00+05:30",
         )
     ]
-    reader = vyapaar.data.ticks_to_arrow(ticks)
+    reader = tantra.data.ticks_to_arrow(ticks)
     table = reader.read_all()
     assert table.num_rows == 1
     assert table.column_names == ["instrument", "kind", "price", "volume", "exchange_ts", "receive_ts"]

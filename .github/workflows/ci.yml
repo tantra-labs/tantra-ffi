@@ -14,7 +14,7 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
-      # `cargo test --workspace` builds crates/vyapaar-ffi-py, whose PyO3 build
+      # `cargo test --workspace` builds crates/tantra-ffi-py, whose PyO3 build
       # script requires a CPython with development headers. setup-python
       # provides one; PYO3_PYTHON exported here overrides the repo-local
       # default in .cargo/config.toml.
@@ -53,7 +53,7 @@ jobs:
       - name: Point PyO3 at the CI CPython
         run: echo "PYO3_PYTHON=$(which python)" >> "$GITHUB_ENV"
       - name: Codegen crate tests
-        run: cargo test -p vyapaar-ffi-codegen
+        run: cargo test -p tantra-ffi-codegen
       - name: Build & install editable wheel
         run: maturin develop
       - name: Run pytest suite

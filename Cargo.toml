@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/vyapaar-ffi-codegen",
-  "crates/vyapaar-ffi-py",
+  "crates/tantra-ffi-codegen",
+  "crates/tantra-ffi-py",
 ]
 
 [workspace.package]
@@ -10,19 +10,19 @@ version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
 license = "AGPL-3.0"
-repository = "https://github.com/vyapaar-labs/vyapaar-ffi"
+repository = "https://github.com/tantra-labs/tantra-ffi"
 
 [workspace.dependencies]
 # Canonical shared kernel and regulatory risk gate (sibling bounded contexts).
-vyapaar-core = { path = "../vyapaar-core" }
-vyapaar-risk = { path = "../vyapaar-risk" }
+tantra-core = { path = "../tantra-core" }
+tantra-risk = { path = "../tantra-risk" }
 
 # Indian market microstructure pack (NseCalendar, statutory costs, F&O grammar)
 # and live-feed/lakehouse store — declared per the Tier-4 playbook so the SDK
 # can bridge market data into Python; consumed by future data-bridge features.
-vyapaar-market-finance = { path = "../vyapaar-market/crates/vyapaar-market-finance" }
-vyapaar-market-feed = { path = "../vyapaar-market/crates/vyapaar-market-feed" }
-vyapaar-market-store = { path = "../vyapaar-market/crates/vyapaar-market-store" }
+tantra-market-finance = { path = "../tantra-market/crates/tantra-market-finance" }
+tantra-market-feed = { path = "../tantra-market/crates/tantra-market-feed" }
+tantra-market-store = { path = "../tantra-market/crates/tantra-market-store" }
 
 # Serialization & schema generation.
 serde = { version = "1", features = ["derive"] }

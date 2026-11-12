@@ -1,26 +1,26 @@
-"""Tests for core domain value classes and helpers (vyapaar.types)."""
+"""Tests for core domain value classes and helpers (tantra.types)."""
 from decimal import Decimal
 
 import pytest
 
-from vyapaar import _vyapaar
-from vyapaar import types
+from tantra import _tantra
+from tantra import types
 
 
 def test_price_roundtrip():
-    p = _vyapaar.Price("2450.75")
+    p = _tantra.Price("2450.75")
     assert p.value == Decimal("2450.75")
     assert p.to_str() == "2450.75"
-    assert _vyapaar.Price(p.to_str()).to_str() == "2450.75"
+    assert _tantra.Price(p.to_str()).to_str() == "2450.75"
 
 
 def test_price_rejects_negative():
-    with pytest.raises(_vyapaar.ConversionError):
-        _vyapaar.Price("-5")
+    with pytest.raises(_tantra.ConversionError):
+        _tantra.Price("-5")
 
 
 def test_quantity_roundtrip():
-    q = _vyapaar.Quantity("10")
+    q = _tantra.Quantity("10")
     assert q.value == Decimal("10")
     assert q.to_str() == "10"
 
@@ -28,14 +28,14 @@ def test_quantity_roundtrip():
 def test_to_decimal_accepts_all_inputs():
     assert types.to_decimal("2450.75") == Decimal("2450.75")
     assert types.to_decimal(Decimal("10")) == Decimal("10")
-    assert types.to_decimal(_vyapaar.Price("2450.75")) == Decimal("2450.75")
-    assert types.to_decimal(_vyapaar.Quantity("10")) == Decimal("10")
+    assert types.to_decimal(_tantra.Price("2450.75")) == Decimal("2450.75")
+    assert types.to_decimal(_tantra.Quantity("10")) == Decimal("10")
 
 
 def test_instrument_id_roundtrip():
-    iid = _vyapaar.InstrumentId("NSE", "RELIANCE")
+    iid = _tantra.InstrumentId("NSE", "RELIANCE")
     assert iid.to_str() == "NSE:RELIANCE"
-    parsed = _vyapaar.InstrumentId.from_str("NSE:RELIANCE")
+    parsed = _tantra.InstrumentId.from_str("NSE:RELIANCE")
     assert parsed.exchange == "NSE"
     assert parsed.symbol == "RELIANCE"
 
@@ -46,15 +46,15 @@ def test_instrument_id_helper():
 
 
 def test_order_side_opposite():
-    assert _vyapaar.OrderSide("BUY").opposite().code == "SELL"
-    assert _vyapaar.OrderSide("SELL").opposite().code == "BUY"
+    assert _tantra.OrderSide("BUY").opposite().code == "SELL"
+    assert _tantra.OrderSide("SELL").opposite().code == "BUY"
 
 
 def test_order_request_limit_with_decimal_quantity():
-    iid = _vyapaar.InstrumentId("NSE", "RELIANCE")
-    order = _vyapaar.OrderRequest(
+    iid = _tantra.InstrumentId("NSE", "RELIANCE")
+    order = _tantra.OrderRequest(
         iid,
-        _vyapaar.OrderSide("BUY"),
+        _tantra.OrderSide("BUY"),
         "LIMIT",
         Decimal("10"),
         "algo-1",
@@ -67,8 +67,8 @@ def test_order_request_limit_with_decimal_quantity():
 
 
 def test_bar_construction():
-    iid = _vyapaar.InstrumentId("NSE", "RELIANCE")
-    bar = _vyapaar.Bar(
+    iid = _tantra.InstrumentId("NSE", "RELIANCE")
+    bar = _tantra.Bar(
         iid, "2450.75", "2455.00", "2448.00", "2452.00", "1000",
         "2026-11-05T09:30:00+05:30",
     )
@@ -78,11 +78,11 @@ def test_bar_construction():
 
 
 def test_decision_from_json():
-    decision = _vyapaar.Decision.from_json('{"action":"hold","reason":"x"}')
+    decision = _tantra.Decision.from_json('{"action":"hold","reason":"x"}')
     assert decision.action == "hold"
     assert decision.to_dict()["action"] == "hold"
 
 
 def test_decision_bad_json_raises_conversion_error():
-    with pytest.raises(_vyapaar.ConversionError):
-        _vyapaar.Decision.from_json("{nope")
+    with pytest.raises(_tantra.ConversionError):
+        _tantra.Decision.from_json("{nope")

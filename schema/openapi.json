@@ -5,7 +5,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -138,7 +138,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -255,7 +255,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -591,7 +591,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Currency": {
-            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `vyapaar._vyapaar.currency_minor_units`) reads one table instead of keeping its own copy.",
+            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `tantra._tantra.currency_minor_units`) reads one table instead of keeping its own copy.",
             "oneOf": [
               {
                 "description": "Indian Rupee",
@@ -624,7 +624,7 @@
             ]
           },
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -664,7 +664,7 @@
             ]
           },
           "FeeBreakdown": {
-            "description": "Itemized Indian equity/F&O transaction cost breakdown for a single fill.\n\nEach component is computed by `vyapaar-market-finance::india::costs`'s statutory calculators; this type is just the shared wire shape they fill in.",
+            "description": "Itemized Indian equity/F&O transaction cost breakdown for a single fill.\n\nEach component is computed by `tantra-market-finance::india::costs`'s statutory calculators; this type is just the shared wire shape they fill in.",
             "properties": {
               "brokerage": {
                 "allOf": [
@@ -769,7 +769,7 @@
                   "amount": "0",
                   "currency": "Inr"
                 },
-                "description": "Total transaction cost charged on this fill (brokerage, statutory levies, and exchange charges combined), in the fill's currency.\n\nDefaults to zero for callers that don't yet have cost data (e.g. a simulated/paper fill). The statutory calculation itself lives in `vyapaar-market` (`vyapaar-market-finance::india::costs`); this crate only owns the contract."
+                "description": "Total transaction cost charged on this fill (brokerage, statutory levies, and exchange charges combined), in the fill's currency.\n\nDefaults to zero for callers that don't yet have cost data (e.g. a simulated/paper fill). The statutory calculation itself lives in `tantra-market` (`tantra-market-finance::india::costs`); this crate only owns the contract."
               },
               "fee_breakdown": {
                 "anyOf": [
@@ -1858,7 +1858,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Currency": {
-            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `vyapaar._vyapaar.currency_minor_units`) reads one table instead of keeping its own copy.",
+            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `tantra._tantra.currency_minor_units`) reads one table instead of keeping its own copy.",
             "oneOf": [
               {
                 "description": "Indian Rupee",
@@ -1914,7 +1914,7 @@
             "type": "object"
           }
         },
-        "description": "Itemized Indian equity/F&O transaction cost breakdown for a single fill.\n\nEach component is computed by `vyapaar-market-finance::india::costs`'s statutory calculators; this type is just the shared wire shape they fill in.",
+        "description": "Itemized Indian equity/F&O transaction cost breakdown for a single fill.\n\nEach component is computed by `tantra-market-finance::india::costs`'s statutory calculators; this type is just the shared wire shape they fill in.",
         "properties": {
           "brokerage": {
             "allOf": [
@@ -1980,7 +1980,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Currency": {
-            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `vyapaar._vyapaar.currency_minor_units`) reads one table instead of keeping its own copy.",
+            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `tantra._tantra.currency_minor_units`) reads one table instead of keeping its own copy.",
             "oneOf": [
               {
                 "description": "Indian Rupee",
@@ -2013,7 +2013,7 @@
             ]
           },
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -2053,7 +2053,7 @@
             ]
           },
           "FeeBreakdown": {
-            "description": "Itemized Indian equity/F&O transaction cost breakdown for a single fill.\n\nEach component is computed by `vyapaar-market-finance::india::costs`'s statutory calculators; this type is just the shared wire shape they fill in.",
+            "description": "Itemized Indian equity/F&O transaction cost breakdown for a single fill.\n\nEach component is computed by `tantra-market-finance::india::costs`'s statutory calculators; this type is just the shared wire shape they fill in.",
             "properties": {
               "brokerage": {
                 "allOf": [
@@ -2275,7 +2275,7 @@
               "amount": "0",
               "currency": "Inr"
             },
-            "description": "Total transaction cost charged on this fill (brokerage, statutory levies, and exchange charges combined), in the fill's currency.\n\nDefaults to zero for callers that don't yet have cost data (e.g. a simulated/paper fill). The statutory calculation itself lives in `vyapaar-market` (`vyapaar-market-finance::india::costs`); this crate only owns the contract."
+            "description": "Total transaction cost charged on this fill (brokerage, statutory levies, and exchange charges combined), in the fill's currency.\n\nDefaults to zero for callers that don't yet have cost data (e.g. a simulated/paper fill). The statutory calculation itself lives in `tantra-market` (`tantra-market-finance::india::costs`); this crate only owns the contract."
           },
           "fee_breakdown": {
             "anyOf": [
@@ -2390,7 +2390,7 @@
             ]
           },
           "Currency": {
-            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `vyapaar._vyapaar.currency_minor_units`) reads one table instead of keeping its own copy.",
+            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `tantra._tantra.currency_minor_units`) reads one table instead of keeping its own copy.",
             "oneOf": [
               {
                 "description": "Indian Rupee",
@@ -2423,7 +2423,7 @@
             ]
           },
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -2649,7 +2649,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -2729,7 +2729,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -2854,7 +2854,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Currency": {
-            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `vyapaar._vyapaar.currency_minor_units`) reads one table instead of keeping its own copy.",
+            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `tantra._tantra.currency_minor_units`) reads one table instead of keeping its own copy.",
             "oneOf": [
               {
                 "description": "Indian Rupee",
@@ -3078,7 +3078,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Currency": {
-            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `vyapaar._vyapaar.currency_minor_units`) reads one table instead of keeping its own copy.",
+            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `tantra._tantra.currency_minor_units`) reads one table instead of keeping its own copy.",
             "oneOf": [
               {
                 "description": "Indian Rupee",
@@ -3111,7 +3111,7 @@
             ]
           },
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -3151,7 +3151,7 @@
             ]
           },
           "FeeBreakdown": {
-            "description": "Itemized Indian equity/F&O transaction cost breakdown for a single fill.\n\nEach component is computed by `vyapaar-market-finance::india::costs`'s statutory calculators; this type is just the shared wire shape they fill in.",
+            "description": "Itemized Indian equity/F&O transaction cost breakdown for a single fill.\n\nEach component is computed by `tantra-market-finance::india::costs`'s statutory calculators; this type is just the shared wire shape they fill in.",
             "properties": {
               "brokerage": {
                 "allOf": [
@@ -3558,7 +3558,7 @@
                   "amount": "0",
                   "currency": "Inr"
                 },
-                "description": "Total transaction cost charged on this fill (brokerage, statutory levies, and exchange charges combined), in the fill's currency.\n\nDefaults to zero for callers that don't yet have cost data (e.g. a simulated/paper fill). The statutory calculation itself lives in `vyapaar-market` (`vyapaar-market-finance::india::costs`); this crate only owns the contract."
+                "description": "Total transaction cost charged on this fill (brokerage, statutory levies, and exchange charges combined), in the fill's currency.\n\nDefaults to zero for callers that don't yet have cost data (e.g. a simulated/paper fill). The statutory calculation itself lives in `tantra-market` (`tantra-market-finance::india::costs`); this crate only owns the contract."
               },
               "fee_breakdown": {
                 "anyOf": [
@@ -3698,7 +3698,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -4051,7 +4051,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Currency": {
-            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `vyapaar._vyapaar.currency_minor_units`) reads one table instead of keeping its own copy.",
+            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `tantra._tantra.currency_minor_units`) reads one table instead of keeping its own copy.",
             "oneOf": [
               {
                 "description": "Indian Rupee",
@@ -4084,7 +4084,7 @@
             ]
           },
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -4520,7 +4520,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Currency": {
-            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `vyapaar._vyapaar.currency_minor_units`) reads one table instead of keeping its own copy.",
+            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `tantra._tantra.currency_minor_units`) reads one table instead of keeping its own copy.",
             "oneOf": [
               {
                 "description": "Indian Rupee",
@@ -4553,7 +4553,7 @@
             ]
           },
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -4945,7 +4945,7 @@
         "$schema": "http://json-schema.org/draft-07/schema#",
         "definitions": {
           "Currency": {
-            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `vyapaar._vyapaar.currency_minor_units`) reads one table instead of keeping its own copy.",
+            "description": "Currency enum.\n\nThe minor-unit table lives here, in the kernel, so every consumer (Rust crates, the Python SDK through `tantra._tantra.currency_minor_units`) reads one table instead of keeping its own copy.",
             "oneOf": [
               {
                 "description": "Indian Rupee",
@@ -4978,7 +4978,7 @@
             ]
           },
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -5219,7 +5219,7 @@
             "type": "object"
           },
           "Exchange": {
-            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`vyapaar-ledger`, `vyapaar-market`, `vyapaar-exec`) must never redefine their own exchange enums, only re-use this one.",
+            "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
             "oneOf": [
               {
                 "description": "National Stock Exchange of India",
@@ -5548,8 +5548,8 @@
     }
   },
   "info": {
-    "description": "Generated deterministically by vyapaar-ffi-codegen; do not edit by hand.",
-    "title": "vyapaar runtime API",
+    "description": "Generated deterministically by tantra-ffi-codegen; do not edit by hand.",
+    "title": "tantra runtime API",
     "version": "v1"
   },
   "openapi": "3.1.0",

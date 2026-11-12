@@ -1,6 +1,6 @@
-# `vyapaar-ffi` — Apache Arrow Zero-Copy Bridge Reference
+# `tantra-ffi` — Apache Arrow Zero-Copy Bridge Reference
 
-Documents `crates/vyapaar-ffi-py/src/arrow_bridge.rs`: exports `RecordBatch` streams
+Documents `crates/tantra-ffi-py/src/arrow_bridge.rs`: exports `RecordBatch` streams
 of bars/ticks as a `PyCapsule` implementing the Arrow C Stream Interface.
 
 ## Capsule Protocol
@@ -43,5 +43,5 @@ All money/quantity columns are exact `Decimal128(38, 8)` scalars — zero floats
 
 ## Related
 
-- `crates/vyapaar-ffi-py/src/market.rs` — `Bar`, `Tick` Rust structs.
+- `crates/tantra-ffi-py/src/market.rs` — `Bar`, `Tick` Rust structs.
 - `python/tests/test_arrow.py` — Python-side capsule consumption tests.

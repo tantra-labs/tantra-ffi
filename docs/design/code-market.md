@@ -1,7 +1,7 @@
-# `vyapaar-ffi` — Market-Data PyClasses Reference
+# `tantra-ffi` — Market-Data PyClasses Reference
 
-Documents `crates/vyapaar-ffi-py/src/market.rs`: `DepthLevel`, `Bar`, and
-`Tick` pyclasses exposing the canonical `vyapaar_core` market types. Prices and
+Documents `crates/tantra-ffi-py/src/market.rs`: `DepthLevel`, `Bar`, and
+`Tick` pyclasses exposing the canonical `tantra_core` market types. Prices and
 quantities cross as exact `decimal.Decimal`; timestamps are RFC3339 UTC
 strings (an empty string means the deterministic Unix epoch, the
 Nautilus-style "zero time" convention).

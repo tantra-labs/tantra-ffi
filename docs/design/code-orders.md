@@ -1,7 +1,7 @@
-# `vyapaar-ffi` — Order PyClasses Reference
+# `tantra-ffi` — Order PyClasses Reference
 
-Documents `crates/vyapaar-ffi-py/src/orders.rs`: order pyclasses exposing
-`vyapaar_core` order types to Python. Every order carries the SEBI-mandated
+Documents `crates/tantra-ffi-py/src/orders.rs`: order pyclasses exposing
+`tantra_core` order types to Python. Every order carries the SEBI-mandated
 `algo_id`; prices/quantities cross as exact `decimal.Decimal`.
 
 ## PyClasses
@@ -40,7 +40,7 @@ OrderRequest(
 * `FillReport(fill_id, order_id, client_order_id, instrument, side, price,
   quantity, algo_id, timestamp)` — getters mirror the core `FillReport`;
   `to_dict()`.
-* `OrderEvent` — read-only wrapper over `vyapaar_core::OrderEvent` with
+* `OrderEvent` — read-only wrapper over `tantra_core::OrderEvent` with
   `kind` (`acked`/`filled`/`rejected`/`cancelled`), `order_id`, and a
   string-valued `payload` dict.
 

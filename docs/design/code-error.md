@@ -1,9 +1,9 @@
-# `vyapaar-ffi` — Error & Exception Reference
+# `tantra-ffi` — Error & Exception Reference
 
-Documents `crates/vyapaar-ffi-py/src/error.rs` and the module-level exceptions
+Documents `crates/tantra-ffi-py/src/error.rs` and the module-level exceptions
 in `lib.rs`.
 
-## Exceptions (registered on `vyapaar._vyapaar`)
+## Exceptions (registered on `tantra._tantra`)
 
 | Exception | Purpose |
 |-----------|---------|

@@ -1,4 +1,4 @@
-# Plans Index — `vyapaar-ffi`
+# Plans Index — `tantra-ffi`
 
 Per workspace rule `.agents/rules/gap-tracking.md`:
 - Gaps are individual features (`docs/gaps/XXXX-*.md`).
@@ -14,4 +14,4 @@ Per workspace rule `.agents/rules/gap-tracking.md`:
 
 | # | Title | Target Scope | Implemented In |
 |---|-------|--------------|----------------|
-| 0001 | Python-First Quant Engine Bridge Policy | `vyapaar-ffi` | Adopted standing policy in commit `c7bc420` |
+| 0001 | Python-First Quant Engine Bridge Policy | `tantra-ffi` | Adopted standing policy in commit `c7bc420` |

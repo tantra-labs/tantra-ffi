@@ -41,7 +41,7 @@ clean:
 	cargo clean
 	rm -rf target
 
-# --- Python FFI bridge (vyapaar wheel) --------------------------------------
+# --- Python FFI bridge (tantra wheel) --------------------------------------
 
 # Create the local virtualenv (if missing) and install the Python build/test
 # toolchain. Note: PYO3_PYTHON defaults to the interpreter pinned in
@@ -54,15 +54,15 @@ bootstrap-python:
 	@echo "Override with PYO3_PYTHON=/path/to/python3 to build against another CPython."
 
 # Regenerate schema/ (domain_schema.json, openapi.json) and the
-# python/vyapaar/_vyapaar.pyi type stubs from vyapaar-core wire types.
+# python/tantra/_tantra.pyi type stubs from tantra-core wire types.
 codegen:
-	cargo run -q -p vyapaar-ffi-codegen --bin vyapaar-codegen
+	cargo run -q -p tantra-ffi-codegen --bin tantra-codegen
 	@echo "Codegen wrote:"
-	@for f in schema/domain_schema.json schema/openapi.json python/vyapaar/_vyapaar.pyi; do \
+	@for f in schema/domain_schema.json schema/openapi.json python/tantra/_tantra.pyi; do \
 		test -f "$$f" && echo "  $$f"; \
 	done
 
-# Build the `vyapaar` extension module into the local virtualenv (editable).
+# Build the `tantra` extension module into the local virtualenv (editable).
 py-build:
 	.venv/bin/maturin develop
 
