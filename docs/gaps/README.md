@@ -11,13 +11,12 @@ Per workspace rule `.agents/rules/gap-tracking.md`:
 | # | Title | Scope | Status |
 |---|-------|-------|--------|
 | [0001](0001-cli-stub-subcommands.md) | `tantra` CLI `backtest` is a stub; `serve`/`stub` subcommands are placeholders | `python/tantra/cli.py` | Stub |
-| [0002](0002-unused-market-data-workspace-deps.md) | Workspace declares `tantra-market-{finance,feed,store}` dependencies but no crate uses them | `Cargo.toml` `[workspace.dependencies]` | Declared-but-unused |
 
 ## Closed Gaps
 
 | # | Title | Closed In |
 |---|-------|-----------|
-| — | *(none)* | — |
+| 0002 | Unused `tantra-market-{finance,feed,store}` workspace deps (declared, nothing consumes them) | Removed 2026-11-13 (root plan 0003 Phase 4 / task T0.5) |
 
 ## Related
 

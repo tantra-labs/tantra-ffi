@@ -1,0 +1,12 @@
+[package]
+name = "tantra-ffi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+description = "Facade of the tantra-ffi bounded context (Soul): re-exports the member crates"
+
+[dependencies]
+tantra-ffi-codegen = { workspace = true }
+tantra-ffi-py = { workspace = true }

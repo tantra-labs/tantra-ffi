@@ -1111,6 +1111,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "tantra-ffi"
+version = "0.1.0"
+dependencies = [
+ "tantra-ffi-codegen",
+ "tantra-ffi-py",
+]
+
+[[package]]
 name = "tantra-ffi-codegen"
 version = "0.1.0"
 dependencies = [

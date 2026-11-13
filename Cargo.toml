@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+  "crates/tantra-ffi",
   "crates/tantra-ffi-codegen",
   "crates/tantra-ffi-py",
 ]
@@ -16,13 +17,10 @@ repository = "https://github.com/tantra-labs/tantra-ffi"
 # Canonical shared kernel and regulatory risk gate (sibling bounded contexts).
 tantra-core = { path = "../tantra-core" }
 tantra-risk = { path = "../tantra-risk" }
-
-# Indian market microstructure pack (NseCalendar, statutory costs, F&O grammar)
-# and live-feed/lakehouse store — declared per the Tier-4 playbook so the SDK
-# can bridge market data into Python; consumed by future data-bridge features.
-tantra-market-finance = { path = "../tantra-market/crates/tantra-market-finance" }
-tantra-market-feed = { path = "../tantra-market/crates/tantra-market-feed" }
-tantra-market-store = { path = "../tantra-market/crates/tantra-market-store" }
+# Facade of this workspace (repo-named convention, root plan 0003 Phase 4).
+tantra-ffi = { path = "crates/tantra-ffi" }
+tantra-ffi-codegen = { path = "crates/tantra-ffi-codegen" }
+tantra-ffi-py = { path = "crates/tantra-ffi-py" }
 
 # Serialization & schema generation.
 serde = { version = "1", features = ["derive"] }
