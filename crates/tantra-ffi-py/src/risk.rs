@@ -11,7 +11,7 @@ use pyo3::prelude::*;
 use pyo3::types::PyModule;
 
 use crate::orders::{FillReport, OrderRequest};
-use crate::types::{InstrumentId, price_from_any, quantity_from_any};
+use crate::types::{InstrumentId, OrderSide, price_from_any, quantity_from_any};
 
 /// Resolve the evaluation timestamp: an explicit RFC3339 UTC string wins;
 /// otherwise the FFI boundary (the wall-clock owner) supplies `Utc::now()`.
@@ -121,11 +121,15 @@ impl RiskEngine {
     }
 
     /// Zero-allocation hot-path order gate (<15 µs target).
-    #[pyo3(signature = (algo_id, instrument, quantity, limit_price=None, ts_iso=None))]
+    ///
+    /// `side` is required so reduce-only mode (`set_reduce_only`) can approve a
+    /// reducing SELL while refusing an order-opening BUY, matching `check_order`.
+    #[pyo3(signature = (algo_id, instrument, side, quantity, limit_price=None, ts_iso=None))]
     fn check_order_fast(
         &mut self,
         algo_id: &str,
         instrument: &Bound<'_, InstrumentId>,
+        side: &Bound<'_, OrderSide>,
         quantity: &Bound<'_, PyAny>,
         limit_price: Option<&Bound<'_, PyAny>>,
         ts_iso: Option<&str>,
@@ -140,6 +144,7 @@ impl RiskEngine {
             .check_order_fast(
                 algo_id,
                 &instrument.borrow().inner,
+                side.borrow().inner,
                 quantity,
                 limit_price,
                 now,

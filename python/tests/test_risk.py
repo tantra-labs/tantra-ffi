@@ -46,9 +46,30 @@ def test_price_band_enforced():
     engine.register_algo("algo-1")
     iid = _tantra.InstrumentId.from_str(SYMBOL)
     engine.set_price_band(iid, "2400", "2500", "2450")
-    engine.check_order_fast("algo-1", iid, "10", "2450.00", TS)
+    engine.check_order_fast("algo-1", iid, _tantra.OrderSide("BUY"), "10", "2450.00", TS)
     with pytest.raises(_tantra.RiskRefused):
-        engine.check_order_fast("algo-1", iid, "10", "2550.00", TS)
+        engine.check_order_fast(
+            "algo-1", iid, _tantra.OrderSide("BUY"), "10", "2550.00", TS
+        )
+
+
+def test_reduce_only_refuses_buy_allows_sell():
+    engine = _tantra.RiskEngine()
+    engine.register_algo("algo-1")
+    iid = _tantra.InstrumentId.from_str(SYMBOL)
+    engine.set_reduce_only()
+    assert engine.global_state() == "REDUCE_ONLY"
+    with pytest.raises(_tantra.RiskRefused):
+        engine.check_order_fast(
+            "algo-1", iid, _tantra.OrderSide("BUY"), "10", None, TS
+        )
+    engine.check_order_fast(
+        "algo-1", iid, _tantra.OrderSide("SELL"), "10", None, TS
+    )
+    engine.resume_global()
+    engine.check_order_fast(
+        "algo-1", iid, _tantra.OrderSide("BUY"), "10", None, TS
+    )
 
 
 def test_check_decision_hold_passes():

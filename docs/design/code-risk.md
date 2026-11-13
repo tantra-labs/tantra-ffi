@@ -22,7 +22,7 @@ RFC3339 UTC strings (`ts_iso`) so the domain crates stay deterministic.
 | `is_halted` / `global_state` | `ACTIVE` / `REDUCE_ONLY` / `HALTED` |
 | `set_price_band(instrument, lower, upper, reference)` | Operational circuit band |
 | `check_order(order, ts_iso=None)` | Gate an `OrderRequest`; raises `RiskRefused` on refusal |
-| `check_order_fast(algo_id, instrument, quantity, limit_price=None, ts_iso=None)` | Zero-allocation hot path (<15 µs target) |
+| `check_order_fast(algo_id, instrument, side, quantity, limit_price=None, ts_iso=None)` | Zero-allocation hot path (<15 µs target); `side` (required) lets reduce-only mode refuse order-opening BUYs while approving reducing SELLs |
 | `check_decision(decision_json, ts_iso=None)` | Gate a closed-grammar AI `Decision` |
 | `record_fill(fill)` | Update OTR + cumulative-turnover trackers |
 | `otr_for_algo(algo_id)` | Outstanding-turnover ratio as a decimal string |
