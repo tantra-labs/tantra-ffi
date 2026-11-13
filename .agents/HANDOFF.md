@@ -14,6 +14,12 @@ Roadmap milestones are DONE; their status now lives in `docs/design/code-migrati
 and the per-module design docs. Gaps index added at `docs/gaps/` (CLI stub subcommands
 `0001`, unused `tantra-market-*` workspace deps `0002`).
 
+2026-11-13: `RiskEngine.check_order_fast` gained a required `side: OrderSide` (tantra-risk
+plan 0002 — side-aware reduce-only). Mirrored in the pyclass, codegen stub, `_tantra.pyi`,
+`docs/design/code-risk.md`, and `python/tests/test_risk.py` (new reduce-only test). Rust
+`cargo check --workspace` green; the Python suite needs a `maturin develop` rebuild before
+`pytest` (see "Immediate Next Step").
+
 ## Decisions & Discoveries
 - **pyo3 0.30 API**: `Python::attach`/`detach` replace the removed `with_gil`/`allow_threads` surface; `#[pyclass]` items are private by default and must be made public explicitly; extension modules use `abi3-py310`.
 - **pyo3 0.22 is incompatible with rustc 1.95** — the workspace pins `pyo3 = "0.30"` (see workspace `Cargo.toml`).
