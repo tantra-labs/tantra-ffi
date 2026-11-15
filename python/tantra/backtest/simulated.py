@@ -730,10 +730,11 @@ def make_simulator(
       ``settlement_days`` is required (intraday ``timeframe`` values need one anyway
       because the port counts bars, not trading days). ``auction.delay_bars`` (Balch
       pitfall #8) also counts driving bars, so it needs an intraday ``timeframe``.
-    * ``"l2"``: the L2 simulator (``tantra.backtest.l2_sim``), matching orders against a
-      ``QuoteTick`` / ``TradeTick`` stream — ships in a later ex 0006 wave.
-    * ``"bar_close"``: the single-price conformance simulator
-      (``BarCloseFills``) — ships in a later ex 0006 wave.
+    * ``"l2"``: :class:`tantra.backtest.l2_sim.L2Execution` (ADR 0030), matching orders
+      against a ``QuoteTick`` / ``TradeTick`` stream at the top of book.
+    * ``"bar_close"``: :class:`tantra.backtest.bar_close_fills.BarCloseFills`, the
+      single-price conformance simulator (fills at the latest bar close; ``flat_cost`` /
+      ``cost_bps`` costs).
     """
     if fill == "next_open":
         if auction is not None and auction.delay_bars > 0 and not is_intraday(timeframe):
@@ -773,10 +774,12 @@ def make_simulator(
                 "auction= requires fill='next_open': the L2 simulator has no "
                 "opening-auction model"
             )
-        # l2_sim ships in a later ex 0006 wave.
-        raise NotImplementedError(
-            "fill='l2' needs tantra.backtest.l2_sim, which ships in a later ex 0006 wave"
+        from tantra.backtest.l2_sim import (
+            L2Execution,  # gap 0006: backtest simulator mirror
         )
+
+        cost_fn = resolve_fill_costs(costs) if isinstance(costs, str) else costs
+        return L2Execution(cash=cash, costs=cost_fn, long_only=long_only, lot_sizes=lot_sizes)
     if fill == "bar_close":
         if impact is not None:
             raise ValueError(
@@ -788,8 +791,7 @@ def make_simulator(
                 "auction= requires fill='next_open': the bar-close conformance simulator has "
                 "no opening-auction model"
             )
-        # BarCloseFills ships in a later ex 0006 wave.
-        raise NotImplementedError(
-            "fill='bar_close' needs BarCloseFills, which ships in a later ex 0006 wave"
-        )
+        from tantra.backtest.bar_close_fills import BarCloseFills
+
+        return BarCloseFills(currency=cash.currency)
     raise ValueError(f"unknown fill model {fill!r}; expected 'next_open', 'l2' or 'bar_close'")

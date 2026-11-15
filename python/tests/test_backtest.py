@@ -11,21 +11,26 @@ from decimal import Decimal
 import pytest
 
 from tantra.backtest import (
+    BarCloseFills,
+    L2Execution,
     MarketImpact,
     NextOpenExecution,
     OpeningAuction,
     SessionOpen,
+    TopOfBook,
     group_sessions,
     make_simulator,
     resolve_fill_costs,
     zero_costs,
 )
+from tantra.backtest.bar_close_fills import FillCostsError
 from tantra.backtest.simulated import is_intraday, session_date
 from tantra.bar import Bar
-from tantra.execution import Cancelled, Fill, Rejected
+from tantra.execution import CancelRequested, Cancelled, Expired, Fill, Rejected
 from tantra.instrument import InstrumentId
 from tantra.money import Currency, Money
-from tantra.order import OrderIntent, OrderSide, OrderType
+from tantra.order import OrderIntent, OrderSide, OrderType, TimeInForce
+from tantra.tick import AggressorSide, QuoteTick, TradeTick
 
 
 def _iid(symbol: str = "RELIANCE") -> InstrumentId:
@@ -295,11 +300,15 @@ def test_make_simulator_without_settlement_days_raises() -> None:
         make_simulator(fill="next_open", cash=Money("100000"), timeframe="1m")
 
 
-def test_make_simulator_later_waves_raise_not_implemented() -> None:
-    with pytest.raises(NotImplementedError):
-        make_simulator(fill="l2", cash=Money("100000"))
-    with pytest.raises(NotImplementedError):
-        make_simulator(fill="bar_close", cash=Money("100000"))
+def test_make_simulator_l2_and_bar_close() -> None:
+    sim = make_simulator(fill="l2", cash=Money("100000"))
+    assert isinstance(sim, L2Execution)
+    assert sim.backend == "python"
+    sim2 = make_simulator(fill="bar_close", cash=Money("100000"))
+    assert isinstance(sim2, BarCloseFills)
+
+
+def test_make_simulator_impact_auction_misuse_raises() -> None:
     with pytest.raises(ValueError):
         make_simulator(fill="l2", cash=Money("100000"), impact=MarketImpact())
     with pytest.raises(ValueError):
@@ -311,6 +320,292 @@ def test_make_simulator_later_waves_raise_not_implemented() -> None:
 def test_make_simulator_unknown_fill_raises() -> None:
     with pytest.raises(ValueError):
         make_simulator(fill="bogus", cash=Money("100000"))
+
+
+# -- TopOfBook ----------------------------------------------------------------------------
+
+
+def test_top_of_book_is_namedtuple_with_decimal_fields() -> None:
+    iid = _iid()
+    sim = L2Execution(cash=Money("1000000"))
+    sim.on_event(
+        QuoteTick(iid, 1_000, Decimal("99"), Decimal("100"), Decimal("10"), Decimal("20")),
+        1_000,
+    )
+    book = sim.book(iid)
+    assert isinstance(book, TopOfBook)
+    assert isinstance(book, tuple)
+    assert book.bid == Decimal("99")
+    assert book.ask == Decimal("100")
+    assert isinstance(book.bid_size, Decimal)
+    assert isinstance(book.ask_size, Decimal)
+    assert sim.book(_iid("OTHER")) is None
+
+
+# -- L2Execution -------------------------------------------------------------------------
+
+
+def test_l2_market_buy_fills_at_ask_and_remainder_continues() -> None:
+    iid = _iid()
+    sim = L2Execution(cash=Money("1000000"))
+    sim.submit("o1", OrderIntent(iid, OrderSide.BUY, Decimal("20")), ts=1_000)
+    sim.on_event(
+        QuoteTick(iid, 1_100, Decimal("99"), Decimal("100"), Decimal("10"), Decimal("5")),
+        1_100,
+    )
+    events = sim.drain_events()
+    assert len(events) == 1
+    fill = events[0]
+    assert isinstance(fill, Fill)
+    assert fill.trade.quantity == Decimal("5")  # ask_size
+    assert fill.trade.price == Decimal("100")  # the ask
+    assert fill.cum_qty == Decimal("5")
+    assert fill.complete is False
+    assert sim.positions[iid] == Decimal("5")
+    assert isinstance(sim.positions[iid], Decimal)
+    assert sim.working_orders == ["o1"]  # the remainder keeps working
+    # a later quote fills the remainder at the new ask
+    sim.on_event(
+        QuoteTick(iid, 2_000, Decimal("99"), Decimal("101"), Decimal("30"), Decimal("20")),
+        2_000,
+    )
+    events = sim.drain_events()
+    assert len(events) == 1
+    fill = events[0]
+    assert fill.trade.quantity == Decimal("15")
+    assert fill.trade.price == Decimal("101")
+    assert fill.complete is True
+    assert sim.positions[iid] == Decimal("20")
+    assert sim.working_orders == []
+    assert sim.cash.amount == Decimal("997985")  # 1000000 - 5*100 - 15*101
+
+
+def test_l2_resting_limit_fills_when_trade_prints_through() -> None:
+    iid = _iid()
+    sim = L2Execution(cash=Money("1000000"))
+    sim.on_event(
+        QuoteTick(iid, 1_000, Decimal("99"), Decimal("101"), Decimal("10"), Decimal("10")),
+        1_000,
+    )
+    # a buy limit at 100 rests against a 101 ask
+    sim.submit(
+        "o1",
+        OrderIntent(iid, OrderSide.BUY, Decimal("10"), OrderType.LIMIT, Decimal("100")),
+        1_500,
+    )
+    assert sim.working_orders == ["o1"]
+    # a trade prints through 100 -> the resting buy fills at its limit, sharing the size
+    sim.on_event(
+        TradeTick(iid, 2_000, Decimal("100"), Decimal("4"), AggressorSide.SELLER, "t1"),
+        2_000,
+    )
+    events = sim.drain_events()
+    assert len(events) == 1
+    fill = events[0]
+    assert isinstance(fill, Fill)
+    assert fill.trade.price == Decimal("100")
+    assert fill.trade.quantity == Decimal("4")
+    assert fill.complete is False
+    assert sim.positions[iid] == Decimal("4")
+    assert sim.cash.amount == Decimal("999600")  # 1000000 - 4*100
+
+
+def test_l2_ioc_fills_the_touch_and_cancels_the_rest() -> None:
+    iid = _iid()
+    sim = L2Execution(cash=Money("1000000"))
+    sim.on_event(
+        QuoteTick(iid, 1_000, Decimal("99"), Decimal("100"), Decimal("10"), Decimal("2")),
+        1_000,
+    )
+    sim.submit(
+        "o1",
+        OrderIntent(iid, OrderSide.BUY, Decimal("10"), OrderType.MARKET, time_in_force=TimeInForce.IOC),
+        1_500,
+    )
+    events = sim.drain_events()
+    assert len(events) == 2
+    fill, cancelled = events
+    assert isinstance(fill, Fill)
+    assert fill.trade.quantity == Decimal("2")
+    assert fill.complete is False
+    assert isinstance(cancelled, Cancelled)
+    assert cancelled.order_id == "o1"
+    assert cancelled.intent.quantity == Decimal("8")
+    assert sim.working_orders == []
+
+
+def test_l2_cancel_emits_requested_then_cancelled() -> None:
+    iid = _iid()
+    sim = L2Execution(cash=Money("1000000"))
+    sim.submit("o1", OrderIntent(iid, OrderSide.BUY, Decimal("10")), 1_000)
+    sim.cancel("o1", now=7_777)
+    events = sim.drain_events()
+    assert len(events) == 2
+    assert isinstance(events[0], CancelRequested)
+    assert events[0].order_id == "o1"
+    assert events[0].ts == 7_777
+    assert isinstance(events[1], Cancelled)
+    assert events[1].order_id == "o1"
+    assert events[1].ts == 7_777
+    assert sim.working_orders == []
+
+
+def test_l2_day_order_expires_at_session_close() -> None:
+    iid = _iid()
+    sim = L2Execution(cash=Money("1000000"))
+    sim.submit(
+        "o1",
+        OrderIntent(iid, OrderSide.BUY, Decimal("10"), OrderType.LIMIT, Decimal("50")),
+        0,
+    )
+    close_ns = 86_340_000_000_000  # 23:59:00 UTC of day 0
+    sim.advance_to(close_ns)
+    events = sim.drain_events()
+    assert len(events) == 1
+    ev = events[0]
+    assert isinstance(ev, Expired)
+    assert ev.order_id == "o1"
+    assert ev.ts == close_ns
+    assert sim.working_orders == []
+    # an explicit on_session_close expires a later working day order too
+    sim.submit(
+        "o2",
+        OrderIntent(iid, OrderSide.BUY, Decimal("10"), OrderType.LIMIT, Decimal("50")),
+        close_ns,
+    )
+    sim.on_session_close(close_ns + 1)
+    events = sim.drain_events()
+    assert len(events) == 1
+    assert isinstance(events[0], Expired)
+    assert events[0].order_id == "o2"
+
+
+def test_l2_long_only_sell_beyond_position_is_capped() -> None:
+    iid = _iid()
+    sim = L2Execution(cash=Money("1000000"))
+    sim.set_position(iid, Decimal("10"))
+    sim.on_event(
+        QuoteTick(iid, 1_000, Decimal("99"), Decimal("101"), Decimal("50"), Decimal("50")),
+        1_000,
+    )
+    sim.submit("o1", OrderIntent(iid, OrderSide.SELL, Decimal("15")), 1_500)
+    events = sim.drain_events()
+    assert len(events) == 2
+    fill, rejected = events
+    assert isinstance(fill, Fill)
+    assert fill.trade.quantity == Decimal("10")
+    assert fill.trade.price == Decimal("99")  # sells at the bid
+    assert fill.complete is False
+    assert isinstance(rejected, Rejected)
+    assert rejected.order_id == "o1"
+    assert rejected.reason == "no_position"
+    assert rejected.intent.quantity == Decimal("5")
+    assert iid not in sim.positions  # the whole holding was sold
+    assert sim.cash.amount == Decimal("1000990")  # 1000000 + 10*99
+
+
+def test_l2_trailing_stop_is_rejected() -> None:
+    iid = _iid()
+    sim = L2Execution(cash=Money("1000000"))
+    sim.submit(
+        "o1",
+        OrderIntent(
+            iid,
+            OrderSide.SELL,
+            Decimal("10"),
+            OrderType.TRAILING_STOP,
+            trail_amount=Decimal("1"),
+        ),
+        1_000,
+    )
+    events = sim.drain_events()
+    assert len(events) == 1
+    ev = events[0]
+    assert isinstance(ev, Rejected)
+    assert ev.reason == "unsupported_order_type"
+    assert sim.working_orders == []
+
+
+# -- BarCloseFills ------------------------------------------------------------------------
+
+
+def test_bar_close_fills_at_latest_close() -> None:
+    iid = _iid()
+    sim = BarCloseFills()
+    sim.on_event(_bar(1_000, "100", iid), 1_000)
+    sim.submit("o1", OrderIntent(iid, OrderSide.BUY, Decimal("10")), 1_500)
+    fills = sim.drain_fills()
+    assert len(fills) == 1
+    trade = fills[0]
+    assert isinstance(trade.quantity, Decimal)
+    assert trade.quantity == Decimal("10")
+    assert isinstance(trade.price, Decimal)
+    assert trade.price == Decimal("100")
+    assert trade.ts == 1_500  # fill_ts = max(next_ts, ts)
+    assert trade.order_id == "o1"
+
+
+def test_bar_close_costs_round_each_leg_to_minor_units() -> None:
+    iid = _iid()
+    sim = BarCloseFills(flat_cost=Decimal("0.005"), cost_bps=Decimal("0.5"))
+    sim.on_event(_bar(1_000, "100", iid), 1_000)
+    sim.submit("o1", OrderIntent(iid, OrderSide.BUY, Decimal("1")), 1_500)
+    fills = sim.drain_fills()
+    trade = fills[0]
+    assert isinstance(trade.costs, Money)
+    assert trade.costs.currency is Currency.INR
+    # each leg rounds once: flat 0.005 -> 0.01, bps 1*100*0.5/10000 = 0.005 -> 0.01
+    assert trade.costs.amount == Decimal("0.02")
+
+
+def test_bar_close_invalid_costs_raise_fill_costs_error() -> None:
+    with pytest.raises(FillCostsError):
+        BarCloseFills(flat_cost=Decimal("-1"))
+    with pytest.raises(FillCostsError):
+        BarCloseFills(flat_cost=Decimal("1e10"))  # above MAX_FLAT_COST
+    with pytest.raises(FillCostsError):
+        BarCloseFills(cost_bps=Decimal("10001"))
+
+
+def test_bar_close_order_before_any_bar_raises() -> None:
+    sim = BarCloseFills()
+    with pytest.raises(RuntimeError):
+        sim.submit("o1", OrderIntent(_iid(), OrderSide.BUY, Decimal("10")), 1_000)
+
+
+def test_bar_close_trailing_stop_rests_until_trigger() -> None:
+    iid = _iid()
+    sim = BarCloseFills()
+    sim.on_event(_bar(1_000, "100", iid), 1_000)
+    sim.submit(
+        "o1",
+        OrderIntent(
+            iid,
+            OrderSide.SELL,
+            Decimal("5"),
+            OrderType.TRAILING_STOP,
+            trail_amount=Decimal("2"),
+        ),
+        1_000,
+    )
+    assert sim.drain_fills() == []
+    # a bar that does not trigger: peak 101 -> trigger 99, low 100.5 stays above
+    sim.on_event(
+        Bar(iid, 2_000, Decimal("100"), Decimal("101"), Decimal("100.5"), Decimal("100.5"), Decimal("100")),
+        2_000,
+    )
+    assert sim.drain_fills() == []
+    # a bar that triggers: peak 105 -> trigger 103 <= low 102, fill at the trigger
+    sim.on_event(
+        Bar(iid, 3_000, Decimal("104"), Decimal("105"), Decimal("102"), Decimal("104.5"), Decimal("100")),
+        3_000,
+    )
+    fills = sim.drain_fills()
+    assert len(fills) == 1
+    trade = fills[0]
+    assert trade.order_id == "o1"
+    assert trade.price == Decimal("103")
+    assert trade.ts == 3_000
 
 
 # -- helpers ---------------------------------------------------------------------------------
