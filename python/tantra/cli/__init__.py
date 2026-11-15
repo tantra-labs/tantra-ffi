@@ -4,14 +4,17 @@ Subcommands:
   version   print SDK + schema versions
   backtest  run a backtest from a bars JSON file (via tantra.strategy.run)
 """
+
 import argparse
 import importlib
 import json
 import sys
-from typing import Any, List, Optional, Sequence, Type
+from collections.abc import Sequence
+from typing import Any
 
 from tantra import _tantra
-from tantra.strategy import Strategy, run as strategy_run
+from tantra.strategy import Strategy
+from tantra.strategy import run as strategy_run
 
 
 class _SmaCrossStrategy(Strategy):
@@ -44,7 +47,9 @@ class _SmaCrossStrategy(Strategy):
             self.buy(symbol, quantity="10", limit_price=str(bar.close), tag="sma-cross")
         elif fast.crosses_below(slow) and symbol in self._long:
             self._long.discard(symbol)
-            self.sell(symbol, quantity="10", limit_price=str(bar.close), tag="sma-cross")
+            self.sell(
+                symbol, quantity="10", limit_price=str(bar.close), tag="sma-cross"
+            )
 
 
 def _instrument_id(symbol: str) -> _tantra.InstrumentId:
@@ -57,14 +62,14 @@ def _instrument_id(symbol: str) -> _tantra.InstrumentId:
 _BAR_KEYS = ("instrument", "ts", "open", "high", "low", "close", "volume")
 
 
-def _parse_bars(data: Any) -> List[_tantra.Bar]:
+def _parse_bars(data: Any) -> list[_tantra.Bar]:
     """Validate and convert a parsed JSON bars payload into _tantra.Bar objects."""
     if not isinstance(data, list):
-        raise ValueError("bars JSON must be a list of bar objects")
-    bars: List[_tantra.Bar] = []
+        raise ValueError("bars JSON must be a list of bar objects")  # noqa: TRY004 - CLI contract
+    bars: list[_tantra.Bar] = []
     for index, raw in enumerate(data):
         if not isinstance(raw, dict):
-            raise ValueError(f"bar #{index}: expected a JSON object")
+            raise ValueError(f"bar #{index}: expected a JSON object")  # noqa: TRY004 - CLI contract
         missing = [key for key in _BAR_KEYS if key not in raw]
         if missing:
             raise ValueError(f"bar #{index}: missing key(s) {missing}")
@@ -88,7 +93,7 @@ def _parse_bars(data: Any) -> List[_tantra.Bar]:
     return bars
 
 
-def _load_strategy(value: Optional[str]) -> Type[Strategy]:
+def _load_strategy(value: str | None) -> type[Strategy]:
     """Resolve MODULE:CLASS into a Strategy subclass (or the built-in default)."""
     if value is None:
         return _SmaCrossStrategy
@@ -102,9 +107,13 @@ def _load_strategy(value: Optional[str]) -> Type[Strategy]:
     try:
         cls = getattr(module, class_name)
     except AttributeError as exc:
-        raise ValueError(f"module {module_name!r} has no attribute {class_name!r}") from exc
+        raise ValueError(
+            f"module {module_name!r} has no attribute {class_name!r}"
+        ) from exc
     if not (isinstance(cls, type) and issubclass(cls, Strategy)):
-        raise ValueError(f"{value!r} does not name a tantra.Strategy subclass")
+        raise ValueError(  # noqa: TRY004 - CLI contract: subcommand returns rc=2 on any parse error
+            f"{value!r} does not name a tantra.Strategy subclass"
+        )
     return cls
 
 
@@ -134,15 +143,18 @@ def _cmd_backtest(args: argparse.Namespace) -> int:
     return 0
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="tantra", description="Tantra Python SDK CLI")
     sub = parser.add_subparsers(dest="command", required=True)
 
-    p_version = sub.add_parser("version", help="print the SDK version and schema version")
+    p_version = sub.add_parser(
+        "version", help="print the SDK version and schema version"
+    )
     p_version.set_defaults(func=_cmd_version)
 
     p_backtest = sub.add_parser(
-        "backtest", help="run a backtest from a bars JSON file (via tantra.strategy.run)"
+        "backtest",
+        help="run a backtest from a bars JSON file (via tantra.strategy.run)",
     )
     p_backtest.add_argument(
         "--bars-json", required=True, metavar="PATH", help="path to a JSON bars file"
@@ -153,7 +165,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help="dotted module path and Strategy subclass to run (default: built-in SMA cross)",
     )
     p_backtest.add_argument(
-        "--algo-id", default="cli-backtest", metavar="ID", help="algo identifier for the run"
+        "--algo-id",
+        default="cli-backtest",
+        metavar="ID",
+        help="algo identifier for the run",
     )
     p_backtest.set_defaults(func=_cmd_backtest)
 
