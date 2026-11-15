@@ -1,6 +1,15 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
 ## Latest Batch
+- Wheel `tantra.execution` (ex 0006 slice): Decimal-canonical `ExecutionPort`
+  surface — frozen `OrderRejection` + the 7 `ExecutionEvent` dataclasses,
+  `order_event`/`events_from_native` (Decimal qty/price/cum_qty,
+  `Money.from_minor` costs), `rejection_from_event`/`event_from_rejection`,
+  runtime-checkable `ExecutionPort`/`LegacyExecutionPort`/
+  `RejectingExecutionPort`, `adapt_port`/`AdaptedPort`/`LegacyPortEvents`,
+  `BaseExecutionPort` buffered legacy drains, deprecated
+  `drain_port_rejections`/`cancel_order`. Added `Money.from_minor` to
+  `money.py`. 21 new tests (`test_execution.py`).
 - Wheel `tantra.bar` + `tantra.tick` (ex 0006 slice): Decimal-canonical
   `Bar` (OHLCV/volume Decimal, prices >= 0, high >= low) and
   `AggressorSide`/`QuoteTick`/`TradeTick` (exact `mid_price`), mirroring the
@@ -12,12 +21,13 @@
   mirror-parity `can_transition` table: illegal transitions raise
   `IllegalStatusTransition`, terminal no-ops return False). 18 new tests
   (`test_order.py` + `test_order_state.py`).
-- Both slices wired into the `tantra` top-level package (`bar`/`tick`/
-  `order`/`order_state` modules + `__all__`); compiled top-level `Bar`/
-  `OrderSide`/`OrderStatus` untouched (same documented split as `money.Currency`).
+- ex 0006 slices wired into the `tantra` top-level package (`bar`/`tick`/
+  `order`/`order_state`/`execution` modules + `__all__`); compiled top-level
+  `Bar`/`OrderSide`/`OrderStatus` untouched (same documented split as
+  `money.Currency`).
 - Pytest green except the 2 pre-existing stale-wheel `test_risk.py` failures
-  (`check_order_fast` signature) — out of scope, no wheel rebuild. 127 wheel
-  tests collected (125 green), +34 new this batch.
+  (`check_order_fast` signature) — out of scope, no wheel rebuild. 148 wheel
+  tests collected (146 green), +55 new across the ex 0006 slices.
 - Prior batch: Decimal-canonical domain core (`money`/`position`/`trade`/
   `instrument`/`entities`) + freeze-slicer + algo_analytics/quant/optimizer
   (gaps 0005/0001/0006 root slice).
@@ -52,9 +62,8 @@ plan 0002 — side-aware reduce-only). Mirrored in the pyclass, codegen stub, `_
 
 ## Immediate Next Step
 - Continue the ex 0006 Decimal-canonical wheel slices (gap 0006, root of the
-  tantra-examples 8-gap cascade): `execution` (the `ExecutionPort` event stream
-  + `adapt_port` shims, Decimal `Trade`/`Money`), then `indicators` (87-file
-  mirror), then `portfolio_strategy`/`wire`/`store`/`backtest` sims. Map:
+  tantra-examples 8-gap cascade): `indicators` (87-file mirror), then
+  `portfolio_strategy`/`wire`/`store`/`backtest` sims. Map:
   `tantra-examples/docs/design/gap-cascade-kernel-mirror.md`.
 - Verify with `make all` (fmt → clippy → `cargo test --workspace` → codegen →
   wheel → pytest) before tagging the milestone.

@@ -85,6 +85,13 @@ class Money:
         return Money(major, currency)
 
     @staticmethod
+    def from_minor(
+        minor: Decimal | int | str, currency: Currency = Currency.INR
+    ) -> "Money":
+        """Exact ``minor`` minor-unit count in major units (``amount = minor / 100``)."""
+        return Money(Decimal(minor) / currency.minor_per_major, currency)
+
+    @staticmethod
     def zero(currency: Currency = Currency.INR) -> "Money":
         return Money(Decimal(0), currency)
 
