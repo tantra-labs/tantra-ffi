@@ -1,0 +1,29 @@
+# wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
+# stand-in closure for tantra-examples gap 0006
+
+"""Up/Down volume ratio (breadth family)."""
+# mirror: kernel-verbatim port (gap 0006)
+
+from __future__ import annotations
+
+from decimal import Decimal
+
+from tantra.indicators._base import Indicator, indicator
+from tantra.types import to_decimal
+
+
+@indicator(
+    "updown_volume_ratio",
+    "breadth",
+    inputs=("adv_volume", "dec_volume"),
+    warmup=lambda s: 1,
+)
+class UpDownVolumeRatio(Indicator):
+    """Advancing volume / declining volume; neutral 1.0 when declining volume is <= 0."""
+
+    def __init__(self) -> None:
+        pass
+
+    def update(self, adv_volume: Decimal, dec_volume: Decimal) -> Decimal:
+        adv_volume, dec_volume = to_decimal(adv_volume), to_decimal(dec_volume)
+        return adv_volume / dec_volume if dec_volume > 0 else Decimal("1")

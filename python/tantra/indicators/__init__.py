@@ -16,8 +16,11 @@ from typing import Any  # mirror accommodation (gap 0006)
 from tantra.indicators import (  # noqa: F401  (importing registers the indicators)
     _base,
     bank,
+    breadth,
     momentum,
     moving_average,
+    statistical,
+    support_resistance,
     trend,
     volatility,
     volume,
@@ -29,6 +32,10 @@ from tantra.indicators.trend import Ichimoku, Macd, MacdValue
 from tantra.indicators.momentum import Kdj, Rsi
 from tantra.indicators.volatility import Atr, Bollinger, BollingerValue, Donchian, DonchianValue
 from tantra.indicators._legacy import SMA, EMA, RSI
+
+# case-compat alias: the statistical family class is ``ZScore``, but the
+# ``zscore`` kind is commonly imported as ``Zscore`` (mirror accommodation, gap 0006)
+Zscore = statistical.ZScore
 
 
 def indicator_family(kind: str) -> str:
@@ -56,7 +63,6 @@ def build_indicator(kind: str, **params: Any) -> Any:  # mirror accommodation (g
     return _base.get(kind)(**params)
 
 
-# remaining families (support_resistance, breadth, statistical) ship in later ex 0006 waves
 __all__ = [
     "FAMILIES",
     "Atr",

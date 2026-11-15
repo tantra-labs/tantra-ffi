@@ -42,7 +42,30 @@ from tantra.indicators import (
     make_ma,
 )
 from tantra.indicators._base import indicator
+from tantra.indicators._rolling import RollingMoments, RollingPairMoments
 from tantra.indicators.moving_average import Hma, Vwma
+from tantra.indicators.breadth import (
+    AdvanceDeclineLine,
+    McClellanOscillator,
+    PutCallRatio,
+    Trin,
+    UpDownVolumeRatio,
+)
+from tantra.indicators.statistical import (
+    Beta,
+    Correlation,
+    Covariance,
+    HurstExponent,
+    ZScore,
+)
+from tantra.indicators.support_resistance import (
+    FibonacciRetracement,
+    FibonacciRetracementValue,
+    PivotPoints,
+    PivotPointsValue,
+    WilliamsFractals,
+    WilliamsFractalsValue,
+)
 from tantra.indicators.trend.adx import AdxValue
 from tantra.indicators.trend.aroon import AroonValue
 from tantra.indicators.trend.supertrend import SupertrendValue
@@ -646,4 +669,260 @@ def test_atr_import_and_registry_same_class() -> None:
 def test_atr_standin_removed() -> None:
     with pytest.raises(ModuleNotFoundError):
         import tantra.indicators._atr  # noqa: F401
+
+
+# --- support_resistance / breadth / statistical families (ex 0006, final wave) ----
+
+
+def test_list_indicators_final_three_families() -> None:
+    all_kinds = set(list_indicators())
+    for family in ("support_resistance", "breadth", "statistical"):
+        kinds = set(list_indicators(family))
+        assert kinds
+        assert kinds <= all_kinds
+    assert {
+        "fibonacci_retracement",
+        "pivot_points",
+        "williams_fractals",
+    } <= set(list_indicators("support_resistance"))
+    assert {
+        "advance_decline_line",
+        "mcclellan_oscillator",
+        "put_call_ratio",
+        "trin",
+        "updown_volume_ratio",
+    } <= set(list_indicators("breadth"))
+    assert {"beta", "correlation", "covariance", "hurst_exponent", "zscore"} <= set(
+        list_indicators("statistical")
+    )
+
+
+def test_registry_total_matches_kernel() -> None:
+    """The wheel registry mirrors the kernel: identical kind sets across all 8 families."""
+    import os
+    import sys
+    import types
+
+    examples_root = "/project1/vyapaar-labs/tantra-examples"
+    if not os.path.isdir(examples_root):
+        pytest.skip("kernel checkout not mounted at " + examples_root)
+    sys.path.insert(0, examples_root)
+    saved = {
+        name: sys.modules.get(name)
+        for name in ("tantra_examples", "tantra_examples._kernel")
+    }
+    try:
+        # Stub the parent packages so importing the kernel indicators package does
+        # not run tantra_examples/__init__.py (which pulls in pydantic-dependent modules).
+        for name, path in (
+            ("tantra_examples", os.path.join(examples_root, "tantra_examples")),
+            (
+                "tantra_examples._kernel",
+                os.path.join(examples_root, "tantra_examples", "_kernel"),
+            ),
+        ):
+            mod = types.ModuleType(name)
+            mod.__path__ = [path]
+            sys.modules[name] = mod
+        import tantra_examples._kernel.indicators._base as _kernel_base
+
+        assert sorted(list_indicators()) == sorted(_kernel_base._REGISTRY)
+    finally:
+        sys.path.remove(examples_root)
+        for name, mod in saved.items():
+            if mod is None:
+                sys.modules.pop(name, None)
+            else:
+                sys.modules[name] = mod
+
+
+def test_flat_access_case_compat_zscore() -> None:
+    from tantra.indicators import Zscore
+
+    assert Zscore is ZScore
+
+
+def test_williams_fractals_warm_then_value() -> None:
+    f = WilliamsFractals()
+    assert f.warmup == 5
+    assert f.update("10", "8") is None
+    assert f.update("11", "9") is None
+    assert f.update("12", "7") is None
+    assert f.update("9", "10") is None
+    v = f.update("8", "11")  # window 10,11,12,9,8 / 8,9,7,10,11
+    assert isinstance(v, WilliamsFractalsValue)
+    assert isinstance(v.up, Decimal) and isinstance(v.down, Decimal)
+    assert v.up == Decimal("1")  # high[2] = 12 is the strict window high
+    assert v.down == Decimal("1")  # low[2] = 7 is the strict window low
+    v2 = f.update("13", "6")  # window slides: 11,12,9,8,13 / 9,7,10,11,6
+    assert v2.up == Decimal("0")
+    assert v2.down == Decimal("0")
+
+
+def test_pivot_points_session_anchor() -> None:
+    p = PivotPoints()
+    assert p.warmup is None
+    assert p.update("20", "10", "15", 100) is None  # day 1, first bar
+    assert p.update("22", "12", "21", 200) is None  # day 1 still accumulating
+    day2 = 100 + 86_400_000_000_000
+    v = p.update("25", "14", "24", day2)  # day 2: levels from day 1 H/L/C
+    assert isinstance(v, PivotPointsValue)
+    pp = (Decimal("22") + Decimal("10") + Decimal("21")) / 3
+    rng = Decimal("22") - Decimal("10")
+    assert v.pp == pp
+    assert v.r1 == 2 * pp - Decimal("10")
+    assert v.s1 == 2 * pp - Decimal("22")
+    assert v.r2 == pp + rng
+    assert v.s2 == pp - rng
+    assert v.r3 == Decimal("22") + 2 * (pp - Decimal("10"))
+    assert v.s3 == Decimal("10") - 2 * (Decimal("22") - pp)
+    # levels stay fixed for the rest of the session (same object)
+    assert p.update("26", "13", "25", day2) is v
+    with pytest.raises(ValueError):
+        PivotPoints(mode="bogus")
+
+
+def test_fibonacci_retracement_levels() -> None:
+    f = FibonacciRetracement(3)
+    assert f.warmup == 3
+    assert f.update("10", "4") is None
+    assert f.update("20", "6") is None
+    v = f.update("15", "5")
+    assert isinstance(v, FibonacciRetracementValue)
+    assert isinstance(v.l0, Decimal)
+    hi, lo, rng = Decimal("20"), Decimal("4"), Decimal("16")
+    assert v.l0 == hi
+    assert v.l1000 == lo
+    assert v.l236 == hi - rng * Decimal("0.236")
+    assert v.l500 == hi - rng * Decimal("0.5")
+
+
+def test_advance_decline_line_accumulates() -> None:
+    a = AdvanceDeclineLine()
+    assert a.update("10", "6") == Decimal("4")
+    assert a.update("12", "14") == Decimal("2")
+    assert a.update("3", "1") == Decimal("4")
+
+
+def test_mcclellan_oscillator_returns_decimal() -> None:
+    m = McClellanOscillator(3, 9)  # alphas 2/4 = 0.5 and 2/10 = 0.2 (both exact)
+    assert m.update("10", "8") == Decimal("0")  # net 2 seeds both EMAs at 2
+    v = m.update("20", "16")  # net 4
+    assert isinstance(v, Decimal)
+    assert v == Decimal("0.6")  # (4*0.5 + 2*0.5) - (4*0.2 + 2*0.8)
+    with pytest.raises(ValueError):
+        McClellanOscillator(5, 5)
+
+
+def test_put_call_ratio_and_breadth_ratios() -> None:
+    p = PutCallRatio(1)
+    assert p.update("2", "4") == Decimal("0.5")
+    assert p.update("3", "3") == Decimal("1")
+    assert p.update("5", "0") == Decimal("1")  # neutral when call volume <= 0
+    t = Trin()
+    assert t.update("100", "50", "200", "100") == Decimal("1")
+    assert t.update("100", "25", "200", "100") == Decimal("2")
+    assert t.update("100", "0", "200", "100") == Decimal("1")
+    u = UpDownVolumeRatio()
+    assert u.update("300", "100") == Decimal("3")
+    assert u.update("300", "0") == Decimal("1")
+
+
+def test_zscore_returns_decimal() -> None:
+    z = ZScore(3)
+    assert z.warmup == 3
+    assert z.update("10") is None
+    assert z.update("20") is None
+    v = z.update("30")
+    assert isinstance(v, Decimal)
+    sd = (Decimal("200") / Decimal("3")).sqrt()  # population stdev of 10, 20, 30
+    assert v == Decimal("10") / sd
+    z2 = ZScore(2)
+    assert z2.update("5") is None
+    assert z2.update("5") == Decimal("0")  # zero stdev -> 0
+
+
+def test_correlation_exact_and_nan() -> None:
+    c = Correlation(4)
+    assert c.warmup == 4
+    assert c.update("1", "2") is None
+    assert c.update("2", "1") is None
+    assert c.update("3", "4") is None
+    v = c.update("4", "3")  # window [1,2],[2,1],[3,4],[4,3]
+    assert isinstance(v, Decimal)
+    assert v == Decimal("0.6")  # Pearson r = 3/4 / sqrt(25/16) = 0.6
+    c2 = Correlation(4)
+    c2.update("1", "2")
+    c2.update("2", "4")
+    c2.update("3", "6")
+    assert c2.update("4", "8") == Decimal("1")  # perfectly correlated
+    # zero variance -> 0.0 (kernel formula)
+    c3 = Correlation(3)
+    c3.update("5", "1")
+    c3.update("5", "2")
+    assert c3.update("5", "3") == Decimal("0")
+    # non-finite value in the window -> Decimal NaN
+    c4 = Correlation(3)
+    c4.update("1", "2")
+    c4.update("2", "4")
+    v4 = c4.update(Decimal("NaN"), "8")
+    assert isinstance(v4, Decimal)
+    assert v4.is_nan()
+
+
+def test_beta_and_covariance_exact() -> None:
+    b = Beta(2)
+    assert b.warmup == 3
+    assert b.update("1", "1") is None
+    assert b.update("5", "3") is None
+    v = b.update("11", "6")
+    assert isinstance(v, Decimal)
+    assert v == Decimal("2.8")  # cov/var over the return pairs [(4,2),(6/5,1)]
+    b2 = Beta(2)
+    b2.update("2", "1")
+    b2.update("4", "2")
+    assert b2.update("8", "4") == Decimal("0")  # zero benchmark variance -> 0
+    c = Covariance(2)
+    assert c.warmup == 3
+    assert c.update("1", "1") is None
+    assert c.update("2", "4") is None
+    vc = c.update("5", "10")
+    assert isinstance(vc, Decimal)
+    assert vc == Decimal("-0.375")  # ddof=1 sample covariance of [(1,3),(1.5,1.5)]
+
+
+def test_hurst_exponent_warm_then_decimal() -> None:
+    h = HurstExponent(8)
+    assert h.warmup == 8
+    for i in range(1, 8):
+        assert h.update(str(i)) is None
+    v = h.update("8")
+    assert isinstance(v, Decimal)
+    assert v == Decimal("0.5")  # linear ramp: zero stdev -> random-walk 0.5
+    h2 = HurstExponent(8)
+    for close in ("1", "2", "4", "8", "16", "32", "64"):
+        h2.update(close)
+    v2 = h2.update("128")  # exponential ramp: positive stdev and range
+    assert isinstance(v2, Decimal)
+    assert Decimal("0") <= v2 <= Decimal("1")
+
+
+def test_cross_family_rolling_consumers() -> None:
+    z = ZScore(3)
+    assert isinstance(z._m, RollingMoments)  # consumes RollingMoments
+    z.update("10")
+    z.update("20")
+    assert isinstance(z.update("30"), Decimal)
+    c = Correlation(3)
+    assert isinstance(c._rp, RollingPairMoments)  # consumes RollingPairMoments
+    c.update("1", "2")
+    c.update("2", "4")
+    vc = c.update("3", "6")
+    assert isinstance(vc, Decimal)
+    assert vc == Decimal("1")
+    b = Beta(2)
+    assert isinstance(b._rp, RollingPairMoments)
+    assert b.update("1", "1") is None
+    assert b.update("2", "4") is None  # one return pair only: still warming
+    assert isinstance(b.update("4", "8"), Decimal)
 
