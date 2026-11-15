@@ -13,10 +13,21 @@ from tantra import EMA, RSI, SMA
 from tantra.bar import Bar
 from tantra.indicators import (
     FAMILIES,
+    Adx,
+    Aroon,
+    Cci,
     Ema,
+    Ichimoku,
     IndicatorBank,
+    Kdj,
+    Macd,
+    MacdValue,
     Rma,
+    Roc,
+    Rsi,
     Sma,
+    Stochastic,
+    Supertrend,
     Wma,
     build_indicator,
     indicator_family,
@@ -26,6 +37,10 @@ from tantra.indicators import (
 )
 from tantra.indicators._base import indicator
 from tantra.indicators.moving_average import Hma, Vwma
+from tantra.indicators.trend.adx import AdxValue
+from tantra.indicators.trend.aroon import AroonValue
+from tantra.indicators.trend.supertrend import SupertrendValue
+from tantra.indicators.momentum.stochastic import StochasticValue
 from tantra.instrument import InstrumentId
 
 _ALL_FAMILIES = {
@@ -274,3 +289,167 @@ def test_tantra_indicators_import_line() -> None:
     assert callable(SMA)
     assert callable(EMA)
     assert callable(RSI)
+
+
+# --- trend family (ex 0006) ---------------------------------------------
+
+
+def test_list_indicators_trend_and_momentum_subset() -> None:
+    all_kinds = set(list_indicators())
+    for family in ("trend", "momentum"):
+        kinds = set(list_indicators(family))
+        assert kinds
+        assert kinds <= all_kinds
+    assert {"adx", "chande_kroll_stop", "ichimoku", "macd", "supertrend", "vortex"} <= set(
+        list_indicators("trend")
+    )
+    assert {"cci", "kdj", "roc", "rsi", "stochastic", "williams_r"} <= set(
+        list_indicators("momentum")
+    )
+
+
+def test_build_indicator_macd() -> None:
+    m = build_indicator("macd", fast=12, slow=26, signal=9)
+    assert isinstance(m, Macd)
+    assert m.warmup == 26 + 9 - 1  # slow EMA seed + signal EMA seed - 1
+    with pytest.raises(ValueError):
+        build_indicator("macd", fast=30, slow=10)  # fast must be < slow
+
+
+def test_indicator_family_rsi_is_momentum() -> None:
+    assert indicator_family("rsi") == "momentum"
+    assert indicator_family("macd") == "trend"
+
+
+def test_flat_access_trend_momentum() -> None:
+    import tantra.indicators as indicators_module
+
+    assert indicators_module.Adx is Adx
+    assert indicators_module.Kdj is Kdj
+    assert indicators_module.Rsi is Rsi
+    assert indicators_module.Ichimoku is Ichimoku
+    assert indicators_module.Macd is Macd
+    assert indicators_module.MacdValue is MacdValue
+
+
+# --- trend/momentum numeric sanity (Decimal, exact) ---------------------
+
+
+def test_rsi_none_until_warm_then_decimal() -> None:
+    r = Rsi(3)
+    assert r.warmup == 4  # period + 1
+    assert r.update("10") is None
+    assert r.update("20") is None
+    assert r.update("30") is None
+    v = r.update("40")
+    assert isinstance(v, Decimal)
+    assert v == Decimal("100")  # gains only
+    assert r.value == Decimal("100")
+
+
+def test_rsi_mixed_series_exact() -> None:
+    r = Rsi(2)
+    assert r.update("10") is None
+    assert r.update("20") is None
+    assert r.update("30") == Decimal("100")
+    v = r.update("10")
+    assert isinstance(v, Decimal)
+    assert v == Decimal("100") - Decimal("100") / Decimal("1.5")  # avg_gain 5, avg_loss 10
+
+
+def test_macd_consumes_ema_cross_family() -> None:
+    m = Macd(2, 3, 2)  # Ema(fast), Ema(slow), Ema(signal) all from moving_average
+    assert m.update("10") is None
+    assert m.update("20") is None
+    assert m.update("30") is None
+    v = m.update("40")
+    assert isinstance(v, MacdValue)
+    assert isinstance(v.macd, Decimal)
+    assert isinstance(v.signal, Decimal)
+    assert isinstance(v.histogram, Decimal)
+    assert v.macd == Decimal("5")
+    assert v.signal == Decimal("5")
+    assert v.histogram == Decimal("0")
+
+
+def test_adx_none_until_warmed_then_adxvalue() -> None:
+    a = Adx(3, 2)
+    assert a.warmup == 5  # di_length + adx_smoothing
+    # TR stays 4 and +DM stays 2, so the RMA seed and Wilder steps stay exact.
+    assert a.update("10", "6", "9") is None
+    assert a.update("12", "8", "11") is None
+    assert a.update("14", "10", "13") is None
+    assert a.update("16", "12", "15") is None
+    v = a.update("18", "14", "17")
+    assert isinstance(v, AdxValue)
+    assert isinstance(v.adx, Decimal)
+    assert isinstance(v.plus_di, Decimal)
+    assert isinstance(v.minus_di, Decimal)
+    assert v.adx == Decimal("100")
+    assert v.plus_di == Decimal("50")  # 100 * RMA(+DM) / RMA(TR) = 100 * 2 / 4
+    assert v.minus_di == Decimal("0")
+
+
+def test_aroon_warm_then_value() -> None:
+    a = Aroon(3)
+    assert a.update("10", "5") is None
+    assert a.update("20", "6") is None
+    assert a.update("30", "7") is None
+    v = a.update("40", "8")
+    assert isinstance(v, AroonValue)
+    assert v.up == Decimal("100")
+    assert v.down == Decimal("0")
+    assert v.oscillator == Decimal("100")
+
+
+def test_stochastic_warm_then_value() -> None:
+    s = Stochastic(3, 1, 2)
+    assert s.update("10", "8", "9") is None
+    assert s.update("20", "9", "15") is None
+    v = s.update("30", "10", "25")
+    assert v is None  # %D still warming
+    v = s.update("40", "11", "35")
+    assert isinstance(v, StochasticValue)
+    assert isinstance(v.k, Decimal)
+    assert v.k == Decimal("2600") / Decimal("31")
+    assert v.d == (Decimal("850") / Decimal("11") + Decimal("2600") / Decimal("31")) / 2
+
+
+def test_kdj_tuple_output() -> None:
+    k = Kdj(3, 1, 1)
+    assert k.update("10", "8", "9") is None
+    assert k.update("20", "9", "15") is None
+    kk, dd, jj = k.update("30", "10", "25")
+    assert isinstance(kk, Decimal)
+    assert kk == dd == Decimal("850") / Decimal("11")
+    assert jj == 3 * kk - 2 * dd  # J = 3K - 2D (rounds at context precision)
+
+
+def test_cci_warm_then_decimal() -> None:
+    c = Cci(2)
+    assert c.update("10", "10", "10") is None
+    v = c.update("20", "20", "20")
+    assert isinstance(v, Decimal)
+    assert v == Decimal("5") / Decimal("0.075")
+
+
+def test_roc_warm_then_decimal() -> None:
+    r = Roc(2)
+    assert r.update("10") is None
+    assert r.update("20") is None
+    v = r.update("30")
+    assert isinstance(v, Decimal)
+    assert v == Decimal("200")
+
+
+def test_supertrend_uses_wilder_atr_standin() -> None:
+    st = Supertrend(3, Decimal("2"))
+    assert st.update("12", "10", "11") is None
+    assert st.update("14", "11", "13") is None
+    v = st.update("16", "12", "15")
+    assert isinstance(v, SupertrendValue)
+    assert isinstance(v.value, Decimal)
+    assert isinstance(v.direction, Decimal)
+    assert v.value == Decimal("20")  # upper band: hl2 14 + 2 * ATR 3
+    assert v.direction == Decimal("-1")  # starts in a downtrend (TradingView convention)
+

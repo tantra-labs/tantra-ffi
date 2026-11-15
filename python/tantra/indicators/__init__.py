@@ -13,10 +13,12 @@ from __future__ import annotations
 
 from typing import Any  # mirror accommodation (gap 0006)
 
-from tantra.indicators import _base, bank, moving_average  # noqa: F401  (importing registers the indicators)
+from tantra.indicators import _base, bank, momentum, moving_average, trend  # noqa: F401  (importing registers the indicators)
 from tantra.indicators._base import FAMILIES, Indicator
 from tantra.indicators.bank import IndicatorBank
 from tantra.indicators.moving_average import Ema, Rma, Sma, Wma, make_ma
+from tantra.indicators.trend import Ichimoku, Macd, MacdValue
+from tantra.indicators.momentum import Kdj, Rsi
 from tantra.indicators._legacy import SMA, EMA, RSI
 
 
@@ -45,13 +47,18 @@ def build_indicator(kind: str, **params: Any) -> Any:  # mirror accommodation (g
     return _base.get(kind)(**params)
 
 
-# remaining families (trend, momentum, volatility, volume, support_resistance, breadth, statistical) ship in later ex 0006 waves
+# remaining families (volatility, volume, support_resistance, breadth, statistical) ship in later ex 0006 waves
 __all__ = [
     "FAMILIES",
     "Ema",
+    "Ichimoku",
     "Indicator",
     "IndicatorBank",
+    "Kdj",
+    "Macd",
+    "MacdValue",
     "Rma",
+    "Rsi",
     "Sma",
     "Wma",
     "build_indicator",
