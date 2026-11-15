@@ -1,3 +1,6 @@
+# wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
+# stand-in closure for tantra-examples gap 0006
+
 """Pure-Python technical indicators with exact ``Decimal`` arithmetic.
 
 No floating-point math anywhere: all prices are stored and smoothed as
