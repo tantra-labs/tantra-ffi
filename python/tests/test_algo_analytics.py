@@ -6,7 +6,6 @@ from datetime import date
 from statistics import NormalDist
 
 import pytest
-
 from tantra.algo_analytics import deflated_sharpe, plan_folds, walk_forward
 from tantra.algo_analytics.monte_carlo import (
     StartDateConfig,
@@ -161,8 +160,10 @@ def test_walk_forward_with_stub_runner() -> None:
     assert all(fold.out_of_sample.n_fills == 10 for fold in result.folds)
 
 
-def test_walk_forward_without_runner_raises() -> None:
-    with pytest.raises(RuntimeError, match="session orchestrator"):
+def test_walk_forward_without_runner_uses_wheel_session() -> None:
+    # runner=None now defaults to the wheel session (Tantra.backtest): without a
+    # DataProvider the session raises its own clear RuntimeError at the first fold.
+    with pytest.raises(RuntimeError, match="needs data="):
         walk_forward(
             None,
             start=date(2020, 1, 1),

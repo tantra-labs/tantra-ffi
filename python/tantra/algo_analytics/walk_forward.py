@@ -28,11 +28,10 @@ from datetime import date
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Protocol
 
-from tantra.strategy import Strategy
-
 # gap 0001: algo_analytics engine mirror
 from tantra.algo_analytics.folds import Window, plan_folds
 from tantra.algo_analytics.metrics import sharpe_ratio
+from tantra.strategy import Strategy
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
@@ -280,7 +279,8 @@ def train_test_split(
     Returns ``(in_sample, out_of_sample)``. The caller applies the 50% rule via
     :func:`passes_oos_is_gate`: a ratio below :data:`MIN_OOS_IS_RATIO` means the
     edge found in calibration did not survive contact with held-back data.
-    ``runner``: injected backtest runner; ``None`` raises at the first fold.
+    ``runner``: injected backtest runner; ``None`` (default) runs the wheel
+    ``Tantra.backtest`` session.
     """
     start_d = _as_date(start, "start")
     train_end_d = _as_date(train_end, "train_end")
@@ -326,7 +326,8 @@ def walk_forward(
             :func:`tantra.algo_analytics.plan_folds`.
         window: ``expanding`` (anchored at ``start``, default) or ``rolling``.
         gates: Thresholds to judge the folds against; ``WalkForwardGates()`` defaults.
-        runner: Injected backtest runner; ``None`` (default) raises at the first fold.
+        runner: Injected backtest runner; ``None`` (default) runs the wheel
+            ``Tantra.backtest`` session.
 
     Returns:
         A :class:`WalkForwardResult` whose ``passed`` verdict is the CI gate.
@@ -374,7 +375,9 @@ def _run_factory(
 ) -> Callable[[BacktestStrategy, date, date], FoldStats]:
     """Build the per-window ``run(strategy, start, end) -> FoldStats`` closure.
 
-    ``runner`` is the injected backtest runner; ``None`` raises at the first fold.
+    ``runner`` is the injected backtest runner; ``None`` (default) runs the wheel
+    session (:func:`tantra.backtest.session.Tantra.backtest`) — which raises the
+    session's clear ``RuntimeError`` when no ``data=`` or ``bars=`` is supplied.
     """
     reserved = {"start", "end"} & backtest_kwargs.keys()
     if reserved:
@@ -384,25 +387,28 @@ def _run_factory(
         )
 
     def run(strategy: BacktestStrategy, start: date, end: date) -> FoldStats:
-        # The wheel ships no session orchestrator yet; the caller injects a
-        # runner (run(strategy, *, symbol, exchange, start, end, data, **kw) ->
-        # BacktestResult-shaped with .metrics and .equity_curve). Without one
-        # this raises loudly rather than fabricating results.
-        if runner is None:
-            raise RuntimeError(
-                "algo_analytics needs a backtest runner; the tantra wheel ships no "
-                "session orchestrator yet — pass runner=..., or drive folds with "
-                "tantra.strategy.run() over explicit bars"
+        if runner is not None:
+            result = runner(
+                _fresh_strategy(strategy),
+                symbol=symbol,
+                exchange=exchange,
+                start=start.isoformat(),
+                end=end.isoformat(),
+                data=data,
+                **backtest_kwargs,
             )
-        result = runner(
-            _fresh_strategy(strategy),
-            symbol=symbol,
-            exchange=exchange,
-            start=start.isoformat(),
-            end=end.isoformat(),
-            data=data,
-            **backtest_kwargs,
-        )
+        else:
+            from tantra.backtest.session import Tantra
+
+            result = Tantra.backtest(
+                _fresh_strategy(strategy),
+                symbol=symbol,
+                exchange=exchange,
+                start=start.isoformat(),
+                end=end.isoformat(),
+                data=data,
+                **backtest_kwargs,
+            ).run()
         return stats_from_result(result, periods_per_year=periods_per_year)
 
     return run

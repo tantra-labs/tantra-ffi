@@ -41,8 +41,7 @@ from datetime import date
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    # gap 0008: session protocol trim; Tantra stub raises
-    from tantra_examples._kernel.session import (
+    from tantra.backtest.session import (
         BacktestResult,
         DataProvider,
     )
@@ -214,10 +213,8 @@ def plateau(
     Returns:
         A :class:`PlateauResult` whose ``passed`` verdict is the CI gate.
     """
-    from tantra_examples._kernel.base import Strategy
-    from tantra_examples._kernel.session import (
-        Tantra,  # gap 0008: session protocol trim; Tantra stub raises
-    )
+    from tantra.backtest.session import Tantra
+    from tantra.strategy import Strategy
 
     if not isinstance(strategy, Strategy):
         raise TypeError(

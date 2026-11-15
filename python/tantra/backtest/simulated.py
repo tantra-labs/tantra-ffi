@@ -43,11 +43,11 @@ Rules:
 
 The settlement cycle and the cost schedule are market rules and are injected:
 :func:`make_simulator` normally takes them from ``markets.india``
-(``settlement_days_for(exchange, as_of=...)``); that pack is not in the wheel yet
-(gap 0004), so an explicit ``settlement_days`` is required for now. A session is
-one bar, so the cycle counts bars: that equals trading days only for daily-or-longer
-timeframes, and :func:`make_simulator` therefore requires an explicit ``settlement_days``
-for intraday timeframes. Pure: no I/O and no wall clock.
+(``settlement_days_for(exchange, as_of=...)`` and the ``nse_equity_*_fill_cost``
+schedules), wired lazily from ``tantra.markets.india``. A session is one bar, so
+the cycle counts bars: that equals trading days only for daily-or-longer
+timeframes, and :func:`make_simulator` therefore requires an explicit
+``settlement_days`` for intraday timeframes. Pure: no I/O and no wall clock.
 
 **Backend.** The wheel has no compiled simulator in ``_tantra``, so
 :class:`NextOpenExecution` always runs the pure-Python reference
@@ -68,7 +68,7 @@ import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
-from decimal import Decimal, ROUND_FLOOR
+from decimal import ROUND_FLOOR, Decimal
 from typing import Any, Literal
 
 from tantra.backtest.impact import (
@@ -655,20 +655,23 @@ _FILL_COSTS: dict[str, str] = {
 def resolve_fill_costs(name: str) -> FillCostFn:
     """Map a cost-pack name to a fill-cost function.
 
-    Only the zero packs exist in the wheel: the India equity cost schedule ships in gap
-    0004 (``tantra.markets.india``), so ``india.equity*`` raises :class:`NotImplementedError`
-    (mirror: ``tantra-examples/docs/gaps/0004-*``).
+    ``"none"``/``"zero"`` is the zero schedule; the India equity schedules
+    (``india.equity`` / ``india.equity.delivery`` / ``india.equity.intraday``)
+    load lazily from ``tantra.markets.india`` (``nse_equity_delivery_fill_cost``
+    / ``nse_equity_intraday_fill_cost``).
     """
     kind = _FILL_COSTS.get(name.strip().lower())
     if kind is None:
         raise ValueError(f"unknown cost pack {name!r}; expected one of {sorted(_FILL_COSTS)}")
     if kind == "zero":
         return zero_costs
-    raise NotImplementedError(
-        f"cost pack {name!r} needs the India equity cost schedule (gap 0004): "
-        "tantra.markets.india is not in the wheel yet; use costs='none' or a custom "
-        "FillCostFn"
-    )
+    if kind == "delivery":
+        from tantra.markets.india.costs import nse_equity_delivery_fill_cost
+
+        return nse_equity_delivery_fill_cost
+    from tantra.markets.india.costs import nse_equity_intraday_fill_cost
+
+    return nse_equity_intraday_fill_cost
 
 
 _INTRADAY = re.compile(
@@ -725,11 +728,11 @@ def make_simulator(
     """Build the simulated port for ``fill``.
 
     * ``"next_open"``: :class:`NextOpenExecution`; ``settlement_days`` defaults to the
-      market pack's cycle for ``exchange`` on ``as_of``. The India market pack
-      (``settlement_days_for``) ships in gap 0004, so until then an explicit
-      ``settlement_days`` is required (intraday ``timeframe`` values need one anyway
-      because the port counts bars, not trading days). ``auction.delay_bars`` (Balch
-      pitfall #8) also counts driving bars, so it needs an intraday ``timeframe``.
+      market pack's cycle for ``exchange`` on ``as_of`` (``settlement_days_for`` from
+      ``tantra.markets.india``). Intraday ``timeframe`` values need an explicit
+      ``settlement_days`` anyway, because the port counts bars, not trading days.
+      ``auction.delay_bars`` (Balch pitfall #8) also counts driving bars, so it needs
+      an intraday ``timeframe``.
     * ``"l2"``: :class:`tantra.backtest.l2_sim.L2Execution` (ADR 0030), matching orders
       against a ``QuoteTick`` / ``TradeTick`` stream at the top of book.
     * ``"bar_close"``: :class:`tantra.backtest.bar_close_fills.BarCloseFills`, the
@@ -749,11 +752,9 @@ def make_simulator(
                     f"timeframe {timeframe!r} is intraday: the simulator counts one session "
                     "per bar, not per trading day, so pass an explicit settlement_days"
                 )
-            raise NotImplementedError(
-                f"no explicit settlement_days for timeframe {timeframe!r}: the India "
-                "settlement cycle (settlement_days_for) ships in gap 0004 "
-                "(tantra-examples/docs/gaps/0004-*); pass settlement_days explicitly"
-            )
+            from tantra.markets.india.settlement import settlement_days_for
+
+            settlement_days = settlement_days_for(exchange, as_of=as_of)
         cost_fn = resolve_fill_costs(costs) if isinstance(costs, str) else costs
         return NextOpenExecution(
             cash=cash,

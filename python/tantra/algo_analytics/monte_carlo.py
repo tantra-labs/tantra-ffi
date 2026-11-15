@@ -20,9 +20,7 @@ from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from tantra_examples._kernel.session import (
-        DataProvider,  # gap 0008: session protocol trim; Tantra stub raises
-    )
+    from tantra.backtest.session import DataProvider
 
 __all__ = [
     "MonteCarloResult",
@@ -188,8 +186,8 @@ def monte_carlo(
     initialization shows up as a high CV of final equity or a wide drawdown
     spread and fails the verdict.
     """
-    from tantra_examples._kernel.session import (
-        Tantra,  # gap 0008: session protocol trim; Tantra stub raises
+    from tantra.backtest.session import (
+        Tantra,
     )
 
     config = StartDateConfig(
@@ -234,7 +232,7 @@ def _fresh_strategy(strategy: BacktestStrategy) -> BacktestStrategy:
     """An instance is deep-copied so one offset's state never reaches the next."""
     from copy import deepcopy
 
-    from tantra_examples._kernel.base import Strategy
+    from tantra.strategy import Strategy
 
     if isinstance(strategy, Strategy):
         return deepcopy(strategy)
