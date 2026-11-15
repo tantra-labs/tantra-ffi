@@ -13,6 +13,7 @@ from decimal import Decimal
 from tantra import (
     _tantra,
     adapters,
+    ai,
     algo_analytics,
     bar,
     data,
@@ -147,6 +148,7 @@ __all__ = [
     "__version__",
     "_tantra",
     "adapters",
+    "ai",
     "algo_analytics",
     "bar",
     "bars_to_stream",
