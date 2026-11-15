@@ -1,6 +1,17 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
 ## Latest Batch
+- ex 0006 `indicators` mirror wave 2c: Decimal-canonical **volatility** family
+  (atr, bollinger + %B/bandwidth, donchian, keltner, envelope, stdev,
+  historical_volatility, chaikin_volatility, choppiness_index, volatility_stop)
+  and **volume** family (accumulation_distribution, chaikin_money_flow,
+  chaikin_oscillator, ease_of_movement, force_index, klinger_oscillator,
+  money_flow_index, obv, price_volume_trend, volume_oscillator, vwap) in
+  `python/tantra/indicators/`. Completed `_rolling.py` with Decimal
+  `RollingMoments`/`RollingPairMoments` (+ `Moments`/`PairMoments` NamedTuples).
+  Superseded the private `_atr.py` stand-in: `supertrend`/`chande_kroll_stop`
+  now import the registered `volatility.atr.Atr` (wave 2c of gap 0006). 15 new
+  registry tests (`test_indicators_registry.py`).
 - Wheel `tantra.execution` (ex 0006 slice): Decimal-canonical `ExecutionPort`
   surface — frozen `OrderRejection` + the 7 `ExecutionEvent` dataclasses,
   `order_event`/`events_from_native` (Decimal qty/price/cum_qty,
@@ -26,8 +37,8 @@
   `Bar`/`OrderSide`/`OrderStatus` untouched (same documented split as
   `money.Currency`).
 - Pytest green except the 2 pre-existing stale-wheel `test_risk.py` failures
-  (`check_order_fast` signature) — out of scope, no wheel rebuild. 148 wheel
-  tests collected (146 green), +55 new across the ex 0006 slices.
+  (`check_order_fast` signature) — out of scope, no wheel rebuild. 204 wheel
+  tests collected (202 green) after the indicators wave 2c (+15 registry tests).
 - Prior batch: Decimal-canonical domain core (`money`/`position`/`trade`/
   `instrument`/`entities`) + freeze-slicer + algo_analytics/quant/optimizer
   (gaps 0005/0001/0006 root slice).
@@ -61,9 +72,10 @@ plan 0002 — side-aware reduce-only). Mirrored in the pyclass, codegen stub, `_
 - **Venv at `.venv`** (Python 3.12 + maturin + pytest + pyarrow), wheel installed editable.
 
 ## Immediate Next Step
-- Continue the ex 0006 Decimal-canonical wheel slices (gap 0006, root of the
-  tantra-examples 8-gap cascade): `indicators` (87-file mirror), then
-  `portfolio_strategy`/`wire`/`store`/`backtest` sims. Map:
+- Finish the ex 0006 Decimal-canonical `indicators` mirror (gap 0006, root of
+  the tantra-examples 8-gap cascade): remaining families `support_resistance`,
+  `breadth`, `statistical`; then `portfolio_strategy`/`wire`/`store`/`backtest`
+  sims. Map:
   `tantra-examples/docs/design/gap-cascade-kernel-mirror.md`.
 - Verify with `make all` (fmt → clippy → `cargo test --workspace` → codegen →
   wheel → pytest) before tagging the milestone.
