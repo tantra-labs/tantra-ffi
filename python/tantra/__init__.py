@@ -42,7 +42,7 @@ from tantra._tantra import (
 # executes the module cleanly; it stays importable as `import tantra.cli`.
 from tantra import strategy, indicators, sizing, session, data
 from tantra import algo_analytics, entities, money, optimizer, quant
-from tantra import bar, tick
+from tantra import bar, order, order_state, tick
 from tantra.strategy import Strategy, Parameter, BacktestResult, run
 from tantra.sizing import Sizer, fixed_quantity, fractional, risk_budget
 from tantra.optimizer import ParetoPoint, extract_pareto_frontier, plot_pareto, sharpe_sortino_dd
@@ -97,5 +97,5 @@ __all__ = [
     "ParetoPoint", "extract_pareto_frontier", "plot_pareto", "sharpe_sortino_dd",
     "covariance_matrix", "mean", "ols", "returns", "solve_linear_system", "std_dev",
     "algo_analytics", "bar", "cli", "data", "entities", "indicators", "money",
-    "optimizer", "quant", "session", "sizing", "strategy", "tick",
+    "optimizer", "order", "order_state", "quant", "session", "sizing", "strategy", "tick",
 ]
