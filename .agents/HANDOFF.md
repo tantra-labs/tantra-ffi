@@ -1,24 +1,27 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
 ## Latest Batch
-- Wheel freeze-slicer (`tantra.sizing`): `OPTION_FREEZE_LIMIT_DEFAULT = 1800`,
-  `freeze_limit_qty` / `slice_order` / `verify_slices` (+ `Sizer` staticmethods)
-  — stand-in closure for tantra-examples gap 0005.
-- Wheel `tantra.algo_analytics` package (gap 0001): ported from
-  tantra-examples `optimizer/algo_analytics` (`folds`, `metrics`,
-  `deflated_sharpe`, `plateau`, `monte_carlo`, `walk_forward`); `walk_forward` /
-  `train_test_split` take an injected `runner=` (the wheel ships no session
-  orchestrator; `None` raises a loud RuntimeError naming it).
-- Decimal-canonical domain core (gap 0006 root slice): `tantra.money`
-  (`Money`/`Currency`/`MinorUnit`), `tantra.position`, `tantra.trade`,
-  `tantra.instrument`, `tantra.entities` facade; new names re-exported from
-  `tantra` (compiled `Currency` untouched).
+- Wheel `tantra.bar` + `tantra.tick` (ex 0006 slice): Decimal-canonical
+  `Bar` (OHLCV/volume Decimal, prices >= 0, high >= low) and
+  `AggressorSide`/`QuoteTick`/`TradeTick` (exact `mid_price`), mirroring the
+  `_kernel` mirror public API. 16 new tests (`test_bar.py` + `test_tick.py`).
+- Wheel `tantra.order` + `tantra.order_state` (ex 0006 slice):
+  `OrderSide`/`OrderType`/`TimeInForce`/`OrderStatus`/`validate_intent`/
+  `OrderIntent` (Decimal quantity/price/trail fields, trailing-stop factories)
+  and the `OrderEvent`/`OrderState` lifecycle FSM (exact Decimal `QTY_EPS`,
+  mirror-parity `can_transition` table: illegal transitions raise
+  `IllegalStatusTransition`, terminal no-ops return False). 18 new tests
+  (`test_order.py` + `test_order_state.py`).
+- Both slices wired into the `tantra` top-level package (`bar`/`tick`/
+  `order`/`order_state` modules + `__all__`); compiled top-level `Bar`/
+  `OrderSide`/`OrderStatus` untouched (same documented split as `money.Currency`).
 - Pytest green except the 2 pre-existing stale-wheel `test_risk.py` failures
-  (`check_order_fast` signature) — out of scope, no wheel rebuild. New suites:
-  `test_sizing.py`, `test_algo_analytics.py`, `test_money.py`,
-  `test_position_trade_instrument.py` (existing strategy/types/sdk green).
-- Prior batch: CLI `backtest` subcommand (T9.1) shipped via `tantra.strategy.run`
-  — tests in `python/tests/test_cli.py`.
+  (`check_order_fast` signature) — out of scope, no wheel rebuild. 127 wheel
+  tests collected (125 green), +34 new this batch.
+- Prior batch: Decimal-canonical domain core (`money`/`position`/`trade`/
+  `instrument`/`entities`) + freeze-slicer + algo_analytics/quant/optimizer
+  (gaps 0005/0001/0006 root slice).
+- Prior batch: CLI `backtest` subcommand (T9.1) via `tantra.strategy.run`.
 
 ## Status
 Tier 4 (tantra-ffi) implementation complete:
@@ -48,9 +51,13 @@ plan 0002 — side-aware reduce-only). Mirrored in the pyclass, codegen stub, `_
 - **Venv at `.venv`** (Python 3.12 + maturin + pytest + pyarrow), wheel installed editable.
 
 ## Immediate Next Step
-- Tier 5A (tantra-ui) per the master migration guide, or extending the Python SDK surface.
-- Post-T9.1: optional CLI surface growth (e.g. `positions`/`portfolio` read-only subcommands wired to the SDK) or a `--bars-csv` loader — pick up whichever slice is next in the batch plan.
-- Verify with `make all` (fmt → clippy → `cargo test --workspace` → codegen → wheel → pytest) before tagging the milestone.
+- Continue the ex 0006 Decimal-canonical wheel slices (gap 0006, root of the
+  tantra-examples 8-gap cascade): `execution` (the `ExecutionPort` event stream
+  + `adapt_port` shims, Decimal `Trade`/`Money`), then `indicators` (87-file
+  mirror), then `portfolio_strategy`/`wire`/`store`/`backtest` sims. Map:
+  `tantra-examples/docs/design/gap-cascade-kernel-mirror.md`.
+- Verify with `make all` (fmt → clippy → `cargo test --workspace` → codegen →
+  wheel → pytest) before tagging the milestone.
 
 ## Operating Invariants
 - **Toolchain**: rustc/cargo 1.95, edition 2024; `rust-version = 1.85` minimum in the workspace.
