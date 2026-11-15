@@ -1,10 +1,24 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
 ## Latest Batch
-- Gap 0001 closed (T9.1): `backtest` subcommand delegates to `tantra.strategy.run`
-  (bars JSON → `_tantra.Bar`, optional `--strategy MODULE:CLASS`, built-in SMA cross default);
-  `serve`/`stub` placeholders removed per gap-tracking §4. CLI tests in `python/tests/test_cli.py`.
-- Pre-existing stale-wheel `test_risk.py` failures remain out of scope (unrelated; do not rebuild wheel).
+- Wheel freeze-slicer (`tantra.sizing`): `OPTION_FREEZE_LIMIT_DEFAULT = 1800`,
+  `freeze_limit_qty` / `slice_order` / `verify_slices` (+ `Sizer` staticmethods)
+  — stand-in closure for tantra-examples gap 0005.
+- Wheel `tantra.algo_analytics` package (gap 0001): ported from
+  tantra-examples `optimizer/algo_analytics` (`folds`, `metrics`,
+  `deflated_sharpe`, `plateau`, `monte_carlo`, `walk_forward`); `walk_forward` /
+  `train_test_split` take an injected `runner=` (the wheel ships no session
+  orchestrator; `None` raises a loud RuntimeError naming it).
+- Decimal-canonical domain core (gap 0006 root slice): `tantra.money`
+  (`Money`/`Currency`/`MinorUnit`), `tantra.position`, `tantra.trade`,
+  `tantra.instrument`, `tantra.entities` facade; new names re-exported from
+  `tantra` (compiled `Currency` untouched).
+- Pytest green except the 2 pre-existing stale-wheel `test_risk.py` failures
+  (`check_order_fast` signature) — out of scope, no wheel rebuild. New suites:
+  `test_sizing.py`, `test_algo_analytics.py`, `test_money.py`,
+  `test_position_trade_instrument.py` (existing strategy/types/sdk green).
+- Prior batch: CLI `backtest` subcommand (T9.1) shipped via `tantra.strategy.run`
+  — tests in `python/tests/test_cli.py`.
 
 ## Status
 Tier 4 (tantra-ffi) implementation complete:

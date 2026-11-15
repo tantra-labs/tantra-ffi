@@ -41,8 +41,19 @@ from tantra._tantra import (
 # `cli` is deliberately not imported eagerly so `python -m tantra.cli`
 # executes the module cleanly; it stays importable as `import tantra.cli`.
 from tantra import strategy, indicators, sizing, session, data
+from tantra import algo_analytics, entities, money
 from tantra.strategy import Strategy, Parameter, BacktestResult, run
 from tantra.sizing import Sizer, fixed_quantity, fractional, risk_budget
+from tantra.entities import (
+    Instrument,
+    InstrumentKind,
+    MinorUnit,
+    Money,
+    OptionType,
+    Position,
+    PositionSide,
+    Trade,
+)
 from tantra.session import (
     Session,
     SessionWindow,
@@ -71,5 +82,8 @@ __all__ = [
     "current_session", "is_live",
     "instrument_id", "to_decimal",
     "SMA", "EMA", "RSI",
-    "strategy", "indicators", "sizing", "session", "data", "cli",
+    "Instrument", "InstrumentKind", "MinorUnit", "Money",
+    "OptionType", "Position", "PositionSide", "Trade",
+    "algo_analytics", "cli", "data", "entities", "indicators", "money",
+    "session", "sizing", "strategy",
 ]
