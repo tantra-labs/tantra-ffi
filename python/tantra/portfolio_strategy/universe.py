@@ -43,7 +43,7 @@ class StaticUniverse:
 
 
 class NamedUniverse:
-    """A universe known to the engine (``tantra_examples.universe_lists``), e.g. ``"nifty50"``.
+    """A universe known to the engine (``tantra.markets.india.universes``), e.g. ``"nifty50"``.
 
     By default ``as_of`` is ignored and the engine's current list is returned. With
     ``point_in_time=True`` the engine's historical snapshot for ``as_of`` is used; the
@@ -52,20 +52,16 @@ class NamedUniverse:
     no seed fallback here.
     """
 
-    def __init__(self, name: str, exchange: str = "NSE", *, point_in_time: bool = False) -> None:
+    def __init__(
+        self, name: str, exchange: str = "NSE", *, point_in_time: bool = False
+    ) -> None:
         self.name = name
         self.exchange = exchange
         self.point_in_time = point_in_time
 
     def members(self, as_of: date | None = None) -> Sequence[InstrumentId]:
-        # stand-in: tantra-examples/docs/gaps/0004-tantra-wheel-display-universes-client.md
-        try:
-            from tantra_examples.universe_lists import resolve_universe
-        except ImportError:
-            raise NotImplementedError(
-                "NamedUniverse needs tantra_examples.universe_lists: tantra-examples gap 0004 "
-                "(display/universes wheel surface) does not ship a wheel client yet; install "
-                "tantra-examples or use StaticUniverse"
-            ) from None
+        # wheel surface (ex 0004 closure): tantra.markets.india.universes
+        from tantra.markets.india.universes import resolve_universe
+
         when = as_of if self.point_in_time else None
         return tuple(resolve_universe(self.name, self.exchange, as_of=when))
