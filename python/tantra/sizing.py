@@ -4,7 +4,7 @@ All arithmetic is ``decimal.Decimal`` (no floats) and quantities are rounded
 down so a sizing calculation never risks over-allocating capital.
 """
 # stand-in closure for tantra-examples gap 0005
-from decimal import Decimal, ROUND_DOWN
+from decimal import Decimal, ROUND_DOWN, ROUND_FLOOR
 
 from tantra.types import to_decimal
 
@@ -44,6 +44,22 @@ def risk_budget(equity, max_risk_pct, entry_price, stop_price) -> Decimal:
         raise ValueError("entry_price must differ from stop_price")
     qty = (equity * max_risk_pct) / risk_per_unit
     return qty.to_integral_value(rounding=ROUND_DOWN)
+
+
+def whole_shares(capital, allocation, price) -> int:
+    """Whole shares purchasable with ``allocation`` (0-1] of ``capital`` at ``price``.
+
+    Exact ``Decimal`` arithmetic (zero-floats policy); the result rounds down so
+    sizing never risks over-allocating capital.
+    """
+    capital = to_decimal(capital)
+    allocation = to_decimal(allocation)
+    price = to_decimal(price)
+    if not Decimal("0") < allocation <= Decimal("1"):
+        raise ValueError(f"allocation must be in (0, 1], got {allocation}")
+    if not price > 0:
+        raise ValueError(f"price must be positive, got {price}")
+    return int((capital * allocation / price).to_integral_value(rounding=ROUND_FLOOR))
 
 
 OPTION_FREEZE_LIMIT_DEFAULT = 1800
@@ -101,6 +117,7 @@ class Sizer:
     fixed_quantity = staticmethod(fixed_quantity)
     fractional = staticmethod(fractional)
     risk_budget = staticmethod(risk_budget)
+    whole_shares = staticmethod(whole_shares)
     slice_order = staticmethod(slice_order)
     verify_slices = staticmethod(verify_slices)
     freeze_limit_qty = staticmethod(freeze_limit_qty)

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from tantra.instrument import Instrument, InstrumentId, InstrumentKind, OptionType
 from tantra.money import Currency, MinorUnit, Money
+from tantra.order import OrderIntent
 from tantra.position import Position, PositionSide
 from tantra.trade import Trade
 from tantra.types import (
@@ -36,6 +37,7 @@ __all__ = [
     "Money",
     "OptionType",
     "OrderEvent",
+    "OrderIntent",
     "OrderRequest",
     "OrderSide",
     "Position",
