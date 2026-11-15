@@ -15,7 +15,12 @@ from tantra.indicators import (
     FAMILIES,
     Adx,
     Aroon,
+    Atr,
+    Bollinger,
+    BollingerValue,
     Cci,
+    Donchian,
+    DonchianValue,
     Ema,
     Ichimoku,
     IndicatorBank,
@@ -28,6 +33,7 @@ from tantra.indicators import (
     Sma,
     Stochastic,
     Supertrend,
+    Vwap,
     Wma,
     build_indicator,
     indicator_family,
@@ -41,6 +47,10 @@ from tantra.indicators.trend.adx import AdxValue
 from tantra.indicators.trend.aroon import AroonValue
 from tantra.indicators.trend.supertrend import SupertrendValue
 from tantra.indicators.momentum.stochastic import StochasticValue
+from tantra.indicators.volume.chaikin_money_flow import ChaikinMoneyFlow
+from tantra.indicators.volume.money_flow_index import MoneyFlowIndex
+from tantra.indicators.volume.obv import Obv
+from tantra.indicators.volume.vwap import VwapValue
 from tantra.instrument import InstrumentId
 
 _ALL_FAMILIES = {
@@ -452,4 +462,188 @@ def test_supertrend_uses_wilder_atr_standin() -> None:
     assert isinstance(v.direction, Decimal)
     assert v.value == Decimal("20")  # upper band: hl2 14 + 2 * ATR 3
     assert v.direction == Decimal("-1")  # starts in a downtrend (TradingView convention)
+
+
+# --- volatility/volume families (ex 0006) ---------------------------------
+
+
+def test_list_indicators_volatility_and_volume_subset() -> None:
+    all_kinds = set(list_indicators())
+    for family in ("volatility", "volume"):
+        kinds = set(list_indicators(family))
+        assert kinds
+        assert kinds <= all_kinds
+    assert {
+        "atr",
+        "bollinger",
+        "bollinger_bandwidth",
+        "bollinger_percent_b",
+        "chaikin_volatility",
+        "choppiness_index",
+        "donchian",
+        "envelope",
+        "historical_volatility",
+        "keltner",
+        "standard_deviation",
+        "volatility_stop",
+    } <= set(list_indicators("volatility"))
+    assert {
+        "accumulation_distribution",
+        "chaikin_money_flow",
+        "chaikin_oscillator",
+        "ease_of_movement",
+        "force_index",
+        "klinger_oscillator",
+        "money_flow_index",
+        "obv",
+        "price_volume_trend",
+        "volume_oscillator",
+        "vwap",
+    } <= set(list_indicators("volume"))
+
+
+def test_build_indicator_atr() -> None:
+    a = build_indicator("atr", period=14)
+    assert isinstance(a, Atr)
+    assert a.period == 14
+
+
+def test_indicator_family_volatility_volume() -> None:
+    assert indicator_family("atr") == "volatility"
+    assert indicator_family("bollinger") == "volatility"
+    assert indicator_family("vwap") == "volume"
+    assert indicator_family("obv") == "volume"
+
+
+def test_flat_access_volatility_volume() -> None:
+    import tantra.indicators as indicators_module
+
+    assert indicators_module.Atr is Atr
+    assert indicators_module.Bollinger is Bollinger
+    assert indicators_module.BollingerValue is BollingerValue
+    assert indicators_module.Donchian is Donchian
+    assert indicators_module.DonchianValue is DonchianValue
+    assert indicators_module.Vwap is Vwap
+
+
+# --- volatility/volume numeric sanity (Decimal, exact) --------------------
+
+
+def test_atr_warm_then_decimal() -> None:
+    a = Atr(3)
+    assert a.warmup == 4  # period + 1 (the first TR needs a previous close)
+    assert a.update("10", "8", "9") is None
+    assert a.update("12", "9", "11") is None
+    assert a.update("14", "11", "13") is None
+    v = a.update("16", "13", "15")
+    assert isinstance(v, Decimal)
+    assert v == Decimal("3")  # TRs 3, 3, 3 seeded as 9 / 3
+
+
+def test_atr_include_first_bar() -> None:
+    a = Atr(2, include_first_bar=True)
+    assert a.update("10", "8", "9") is None  # TR = high - low = 2
+    v = a.update("12", "9", "11")  # TR = 3; seed (2 + 3) / 2
+    assert isinstance(v, Decimal)
+    assert v == Decimal("2.5")
+
+
+def test_bollinger_returns_bollinger_value_decimal() -> None:
+    b = Bollinger(3, Decimal("2"))
+    assert b.update("10") is None
+    assert b.update("20") is None
+    v = b.update("30")
+    assert isinstance(v, BollingerValue)
+    assert isinstance(v.upper, Decimal)
+    assert isinstance(v.middle, Decimal)
+    assert isinstance(v.lower, Decimal)
+    assert v.middle == Decimal("20")
+    sd = (Decimal("200") / Decimal("3")).sqrt()  # population std of 10, 20, 30
+    assert v.upper == Decimal("20") + 2 * sd
+    assert v.lower == Decimal("20") - 2 * sd
+
+
+def test_donchian_returns_donchian_value_decimal() -> None:
+    d = Donchian(3)
+    assert d.update("10", "5") is None
+    assert d.update("20", "6") is None
+    v = d.update("30", "7")
+    assert isinstance(v, DonchianValue)
+    assert isinstance(v.upper, Decimal)
+    assert v.upper == Decimal("30")
+    assert v.lower == Decimal("5")
+    v2 = d.update("25", "8")  # slides: window is 20, 30, 25 / 6, 7, 8
+    assert v2.upper == Decimal("30")
+    assert v2.lower == Decimal("6")
+
+
+def test_vwap_accumulates_and_zero_volume() -> None:
+    v = Vwap()
+    assert v.warmup is None  # session-anchored: data-dependent warm-up
+    first = v.update("10", "8", "9", "100", 100)
+    assert isinstance(first, VwapValue)
+    assert isinstance(first.vwap, Decimal)
+    assert first.vwap == Decimal("9")  # single bar: hlc3 = (10 + 8 + 9) / 3
+    assert first.upper == first.lower == first.vwap  # zero deviation single-bar session
+    second = v.update("14", "12", "13", "100", 100)
+    assert second.vwap == Decimal("11")  # pv = 900 + 1300 = 2200 over volume 200
+    assert second.upper == Decimal("13")  # sd = sqrt(125 - 121) = 2
+    assert second.lower == Decimal("9")
+    # zero volume on a fresh IST session day: vwap is the latest hlc3, bands zero
+    z = v.update("10", "8", "9", "0", 100 + 86_400_000_000_000)
+    assert z.vwap == Decimal("9")
+    assert z.upper == z.lower == z.vwap
+
+
+def test_obv_simple_accumulation() -> None:
+    o = Obv()
+    assert o.update("10", "100") == Decimal("0")  # first bar: no change
+    assert o.update("12", "100") == Decimal("100")
+    assert o.update("10", "50") == Decimal("50")
+    assert o.update("10", "25") == Decimal("50")  # unchanged close: no flow
+
+
+def test_money_flow_index_rolling_sum_decimal() -> None:
+    m = MoneyFlowIndex(2)
+    assert m.update("10", "8", "9", "100") is None  # no previous hlc3
+    assert m.update("12", "10", "11", "100") is None  # window warming
+    v = m.update("14", "12", "13", "100")
+    assert isinstance(v, Decimal)
+    assert v == Decimal("100")  # only positive flow -> 100
+
+
+def test_chaikin_money_flow_rolling_sum_decimal() -> None:
+    c = ChaikinMoneyFlow(2)
+    assert c.update("10", "8", "9", "100") is None
+    v = c.update("12", "8", "11", "100")
+    assert isinstance(v, Decimal)
+    assert v == Decimal("50") / Decimal("200")  # clv volumes 0 + 50 over window volume 200
+    v2 = c.update("14", "8", "13", "100")  # window slides: clv volumes 50 + 400/6
+    assert v2 == (Decimal("50") + Decimal("400") / Decimal("6")) / Decimal("200")
+
+
+# --- volatility/volume supersession (ex 0006) -----------------------------
+
+
+def test_supertrend_uses_registered_volatility_atr() -> None:
+    st = Supertrend(3, Decimal("2"))
+    assert isinstance(st._atr, Atr)  # consumes the registered volatility.atr.Atr
+    assert st.update("12", "10", "11") is None
+    assert st.update("14", "11", "13") is None
+    v = st.update("16", "12", "15")
+    assert isinstance(v, SupertrendValue)
+    assert v.value == Decimal("20")  # upper band: hl2 14 + 2 * ATR 3
+    assert v.direction == Decimal("-1")
+
+
+def test_atr_import_and_registry_same_class() -> None:
+    from tantra.indicators.volatility import Atr as VolatilityAtr
+
+    assert VolatilityAtr is Atr
+    assert isinstance(build_indicator("atr"), Atr)  # registry builds the same class
+
+
+def test_atr_standin_removed() -> None:
+    with pytest.raises(ModuleNotFoundError):
+        import tantra.indicators._atr  # noqa: F401
 

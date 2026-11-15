@@ -9,8 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal
 
-from tantra.indicators._atr import _Atr as Atr  # stand-in for volatility Atr (ex 0006 later wave)
 from tantra.indicators._base import Indicator, indicator
+from tantra.indicators.volatility.atr import Atr
 from tantra.types import to_decimal
 
 
