@@ -1,5 +1,11 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
+## Latest Batch
+- Gap 0001 closed (T9.1): `backtest` subcommand delegates to `tantra.strategy.run`
+  (bars JSON → `_tantra.Bar`, optional `--strategy MODULE:CLASS`, built-in SMA cross default);
+  `serve`/`stub` placeholders removed per gap-tracking §4. CLI tests in `python/tests/test_cli.py`.
+- Pre-existing stale-wheel `test_risk.py` failures remain out of scope (unrelated; do not rebuild wheel).
+
 ## Status
 Tier 4 (tantra-ffi) implementation complete:
 - Rust gate green: `cargo fmt --check`, `cargo clippy --all-targets -- -D warnings`, `cargo test --workspace`.
@@ -29,6 +35,7 @@ plan 0002 — side-aware reduce-only). Mirrored in the pyclass, codegen stub, `_
 
 ## Immediate Next Step
 - Tier 5A (tantra-ui) per the master migration guide, or extending the Python SDK surface.
+- Post-T9.1: optional CLI surface growth (e.g. `positions`/`portfolio` read-only subcommands wired to the SDK) or a `--bars-csv` loader — pick up whichever slice is next in the batch plan.
 - Verify with `make all` (fmt → clippy → `cargo test --workspace` → codegen → wheel → pytest) before tagging the milestone.
 
 ## Operating Invariants
