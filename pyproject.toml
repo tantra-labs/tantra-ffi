@@ -20,7 +20,8 @@ classifiers = [
 
 [project.optional-dependencies]
 arrow = ["pyarrow>=15"]
-test = ["pytest>=8", "pyarrow>=15"]
+wire = ["pydantic>=2"]
+test = ["pytest>=8", "pyarrow>=15", "pydantic>=2"]
 
 [tool.maturin]
 python-source = "python"
