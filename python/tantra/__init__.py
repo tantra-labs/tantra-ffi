@@ -41,7 +41,7 @@ from tantra._tantra import (
 # `cli` is deliberately not imported eagerly so `python -m tantra.cli`
 # executes the module cleanly; it stays importable as `import tantra.cli`.
 from tantra import strategy, indicators, sizing, session, data
-from tantra import algo_analytics, entities, money, optimizer, quant
+from tantra import algo_analytics, entities, money, optimizer, quant, screener
 from tantra import adapters, bar, order, order_state, tick
 from tantra import execution
 from tantra.strategy import Strategy, Parameter, BacktestResult, run
@@ -98,5 +98,5 @@ __all__ = [
     "ParetoPoint", "extract_pareto_frontier", "plot_pareto", "sharpe_sortino_dd",
     "covariance_matrix", "mean", "ols", "returns", "solve_linear_system", "std_dev",
     "adapters", "algo_analytics", "bar", "cli", "data", "entities", "execution", "indicators", "money",
-    "optimizer", "order", "order_state", "quant", "session", "sizing", "strategy", "tick",
+    "optimizer", "order", "order_state", "quant", "screener", "session", "sizing", "strategy", "tick",
 ]

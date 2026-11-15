@@ -1,6 +1,13 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
 ## Latest Batch
+- ex 0003 closure: wheel `tantra.screener` surface shipped — `python/tantra/screener/`
+  (`catalog.py` `Metric`/`MetricCatalog`/`load_catalog`, `coverage.py`
+  `Coverage` + `DateInterval`, `__init__.py` re-export with `__all__`); wired into
+  `tantra/__init__.py` eager pure-Python imports + `__all__`. 6 new tests
+  (`test_screener.py`). `import tantra, tantra.screener` ok; wheel suite green except the
+  3 known pre-existing failures (test_risk ×2, test_indicators_registry). New files
+  ruff check + format clean (default 88-width; mirror `catalog.py` reformatted).
 - ex 0006 `indicators` mirror COMPLETE (wave 2d): Decimal-canonical
   **support_resistance** (pivot_points, fibonacci_retracement, williams_fractals),
   **breadth** (advance_decline_line, mcclellan_oscillator, put_call_ratio, trin,
