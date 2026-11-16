@@ -9,6 +9,7 @@ Per workspace rule `.agents/rules/gap-tracking.md`:
 
 | # | Title | Target Scope | Status |
 |---|-------|--------------|--------|
+| [0002](0002-tantra-wheel-domain-harness-surface.md) | Tantra Wheel Domain-Harness Surfaces — lift the examples' domain/math modules into the wheel: `tantra.portfolio`, `tantra.risk`, `tantra.options`, `tantra.metrics`, `tantra.calendar` (Thrust A of root plan 0006, T13) | `python/tantra/` (wheel) + consumers retargeted in `tantra-examples` | Proposed — phases A1–A5, rows T13.1–T13.5 |
 
 ## Implemented Plans
 

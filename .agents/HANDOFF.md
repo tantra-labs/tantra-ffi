@@ -1,6 +1,14 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
 ## Latest Batch
+- **T13 PLANNED (docs only, 2026-11-15)**: plan `docs/plans/0002-tantra-wheel-domain-harness-surface.md`
+  filed (Proposed) — lift the examples' 6 domain/math modules into the wheel as
+  `tantra.portfolio` / `tantra.risk` / `tantra.options` / `tantra.metrics` / `tantra.calendar`
+  (root plan 0006, Thrust A; track T13.1–T13.5). No development started; awaits approval.
+- **ex 0008 closure (2026-11-15)**: wheel `tantra.backtest.session` (`Tantra.backtest`:
+  next-open fills, NSE delivery costs, T+1 settlement) shipped; `simulated.resolve_fill_costs`
+  + `make_simulator` now wired to `tantra.markets.india`; `algo_analytics` default runner
+  uses the session. `2d9214e`.
 - ex 0003 closure: wheel `tantra.screener` surface shipped — `python/tantra/screener/`
   (`catalog.py` `Metric`/`MetricCatalog`/`load_catalog`, `coverage.py`
   `Coverage` + `DateInterval`, `__init__.py` re-export with `__all__`); wired into
