@@ -3,7 +3,6 @@
 from decimal import Decimal
 
 import pytest
-
 from tantra.instrument import InstrumentId
 from tantra.money import Currency, Money
 from tantra.portfolio import Account, Portfolio
