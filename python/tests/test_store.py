@@ -126,14 +126,14 @@ def test_coverage_record_field_defaults() -> None:
 
 
 def test_find_data_root_uses_env(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
-    monkeypatch.setenv("VYAAPAAR_DATA_DIR", str(tmp_path))
+    monkeypatch.setenv("TANTRA_DATA_DIR", str(tmp_path))
     assert find_data_root() == tmp_path.resolve()
 
 
 def test_find_data_root_resolves_tantra_data_sibling(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
-    monkeypatch.delenv("VYAAPAAR_DATA_DIR", raising=False)
+    monkeypatch.delenv("TANTRA_DATA_DIR", raising=False)
     (tmp_path / "tantra-data" / "data").mkdir(parents=True)
     start = tmp_path / "some" / "dir"
     start.mkdir(parents=True)
@@ -143,7 +143,7 @@ def test_find_data_root_resolves_tantra_data_sibling(
 def test_find_data_root_falls_back_to_start_data(
     monkeypatch: pytest.MonkeyPatch, tmp_path
 ) -> None:
-    monkeypatch.delenv("VYAAPAAR_DATA_DIR", raising=False)
+    monkeypatch.delenv("TANTRA_DATA_DIR", raising=False)
     assert find_data_root(tmp_path) == (tmp_path / "data").resolve()
 
 

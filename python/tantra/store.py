@@ -30,7 +30,7 @@ from tantra.types import to_decimal
 
 logger = logging.getLogger(__name__)
 
-DATA_DIR_ENV = "VYAAPAAR_DATA_DIR"
+DATA_DIR_ENV = "TANTRA_DATA_DIR"
 """Environment variable naming the data root explicitly (beats discovery from cwd)."""
 
 _EPOCH = dt.date(1970, 1, 1)
@@ -88,7 +88,7 @@ def find_data_root(start_path: Path | None = None) -> Path:
 
     First match wins:
 
-    1. ``$VYAAPAAR_DATA_DIR`` (:data:`DATA_DIR_ENV`), when set and non-empty;
+    1. ``$TANTRA_DATA_DIR`` (:data:`DATA_DIR_ENV`), when set and non-empty;
     2. the nearest project root at or above ``start_path`` (default: cwd) that has
        ``tantra-data/data``, ``tantra/data``, or ``data`` next to ``crates/``, ``Cargo.toml`` or ``pyproject.toml``;
     3. sibling ``tantra-data/data`` if within multi-repo workspace (tantra-labs);
