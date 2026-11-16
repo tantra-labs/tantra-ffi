@@ -9,7 +9,7 @@ Per workspace rule `.agents/rules/gap-tracking.md`:
 
 | # | Title | Target Scope | Status |
 |---|-------|--------------|--------|
-| [0002](0002-tantra-wheel-domain-harness-surface.md) | Tantra Wheel Domain-Harness Surfaces — lift the examples' domain/math modules into the wheel: `tantra.portfolio`, `tantra.risk`, `tantra.options`, `tantra.metrics`, `tantra.calendar` (Thrust A of root plan 0006, T13) | `python/tantra/` (wheel) + consumers retargeted in `tantra-examples` | Proposed — phases A1–A5, rows T13.1–T13.5 |
+| [0002](0002-tantra-wheel-domain-harness-surface.md) | Tantra Wheel Domain-Harness Surfaces — lift the examples' domain/math modules into the wheel: `tantra.portfolio`, `tantra.risk`, `tantra.options`, `tantra.metrics`, `tantra.calendar` (Thrust A of root plan 0006, T13) | `python/tantra/` (wheel) + consumers retargeted in `tantra-examples` | Active — **A1–A5 wheel surfaces shipped 2026-11-15** (`python/tests` 480 passed; `tantra.portfolio/risk/calendar/options/metrics` + tests + `__init__.py` wiring); **consumer retarget in `tantra-examples` pending** (deferred until the 73-error fix lands there) |
 
 ## Implemented Plans
 

@@ -1,6 +1,21 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
 ## Latest Batch
+- **T13 Thrust A wheel lift SHIPPED (2026-11-15)** — plan 0002 phases A1–A5 (T13.1–T13.5)
+  wheel surfaces landed in `python/tantra/` with wheel tests (`python/tests` **480 passed**,
+  exit 0; ruff clean on all new files; eager imports + `__all__` wired into
+  `python/tantra/__init__.py`):
+  - `tantra.portfolio` (`Account`/`Portfolio`, verbatim from `_kernel/portfolio.py`) + `test_portfolio.py`
+  - `tantra.risk` (pure-Python `check_state`/`check_order`/`limits_from_config` + audit records +
+    `_native_attr` probe, verbatim from `_kernel/risk.py`) + `test_risk_surface.py`
+  - `tantra.calendar` (`IST`/`ist_midnight_ns`/`SessionWindow`/`MarketCalendar`/`NseCalendar`) + `test_calendar.py`
+  - `tantra.options` (`OptionKind`/`OptionStyle`/`OptionContract`/`OptionChain` + `Greeks`/
+    `bs_price`/`bs_greeks`/`implied_volatility`, option.py + greeks.py merged into one module) + `test_options.py`
+  - `tantra.metrics` (`extract_metrics_from_bars` + screener predicate evaluation; the Sma/Rsi
+    wrappers retargeted to the wheel `tantra.indicators` `_legacy` API) + `test_metrics.py`
+  The `tantra-examples` side (delete `_kernel/` modules + retarget consumers) is **deferred** —
+  another agent is fixing the 73 pre-existing float-rooted failures in `tantra-examples`; that
+  retarget lands after. Plan 0002 stays Active until then.
 - **Wheel suite fully green (2026-11-15)**: all 3 pre-existing stale-wheel failures fixed
   (`python/tests` **464 passed**, exit 0).
   - `test_risk.py` ×2 (`test_price_band_enforced`, `test_reduce_only_refuses_buy_allows_sell`):

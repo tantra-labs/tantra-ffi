@@ -1,6 +1,8 @@
 # 0002 — Tantra Wheel Domain-Harness Surfaces (Thrust A of root plan 0006)
 
-**Status**: Proposed (planning only; no development yet).
+**Status**: Active — Thrust A wheel lift shipped 2026-11-15 (A1–A5); the `tantra-examples`
+consumer retarget is deferred (another agent is fixing the 73 pre-existing float-rooted failures
+there; retarget + `_kernel/` deletion land after).
 **Track**: T13 (rows T13.1–T13.5) · **Root master plan**: `docs/plans/0006-dismantle-kernel-harness.md`
 **Owning repo**: `tantra-ffi` (wheel `python/tantra/`) → consumers retargeted in `tantra-examples`
 
