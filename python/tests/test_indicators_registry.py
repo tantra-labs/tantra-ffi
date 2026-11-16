@@ -698,42 +698,34 @@ def test_list_indicators_final_three_families() -> None:
 
 
 def test_registry_total_matches_kernel() -> None:
-    """The wheel registry mirrors the kernel: identical kind sets across all 8 families."""
-    import os
-    import sys
-    import types
+    """The wheel registry IS the kernel: 74 canonical kinds, all 8 families, no orphans.
 
-    examples_root = "/project1/vyapaar-labs/tantra-examples"
-    if not os.path.isdir(examples_root):
-        pytest.skip("kernel checkout not mounted at " + examples_root)
-    sys.path.insert(0, examples_root)
-    saved = {
-        name: sys.modules.get(name)
-        for name in ("tantra_examples", "tantra_examples._kernel")
+    The examples ``_kernel/indicators`` float mirror was promoted into this wheel
+    (ex 0006) and deleted; the wheel registry is now the single source of truth, so
+    the cross-check is an internal self-consistency gate instead of a mirror compare.
+    """
+    kinds = list_indicators()
+    assert len(kinds) == 74
+    assert len(set(kinds)) == 74  # every kind registered exactly once
+    assert set(FAMILIES) == _ALL_FAMILIES
+
+    by_family = {family: [] for family in FAMILIES}
+    for kind in kinds:
+        family = indicator_family(kind)
+        assert family in FAMILIES, f"{kind} has no known family"
+        by_family[family].append(kind)
+
+    # Per-family counts are a pinned invariant of the canonical catalog.
+    assert {family: len(kinds) for family, kinds in by_family.items()} == {
+        "moving_average": 12,
+        "trend": 9,
+        "momentum": 17,
+        "volatility": 12,
+        "volume": 11,
+        "support_resistance": 3,
+        "breadth": 5,
+        "statistical": 5,
     }
-    try:
-        # Stub the parent packages so importing the kernel indicators package does
-        # not run tantra_examples/__init__.py (which pulls in pydantic-dependent modules).
-        for name, path in (
-            ("tantra_examples", os.path.join(examples_root, "tantra_examples")),
-            (
-                "tantra_examples._kernel",
-                os.path.join(examples_root, "tantra_examples", "_kernel"),
-            ),
-        ):
-            mod = types.ModuleType(name)
-            mod.__path__ = [path]
-            sys.modules[name] = mod
-        import tantra_examples._kernel.indicators._base as _kernel_base
-
-        assert sorted(list_indicators()) == sorted(_kernel_base._REGISTRY)
-    finally:
-        sys.path.remove(examples_root)
-        for name, mod in saved.items():
-            if mod is None:
-                sys.modules.pop(name, None)
-            else:
-                sys.modules[name] = mod
 
 
 def test_flat_access_case_compat_zscore() -> None:
