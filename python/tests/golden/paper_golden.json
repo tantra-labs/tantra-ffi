@@ -1,0 +1,30 @@
+{
+  "name": "paper-exchange golden tape (tantra-runtime E9, paper_parity_tests.rs)",
+  "description": "Cross-repo parity oracle for the paper-exchange engine: 4 fills from 3 orders (plan 0003, P4).",
+  "instrument": "NSE:RELIANCE",
+  "initial_cash": "1000000",
+  "market_price": "100",
+  "ts0": "2023-11-14T22:13:20Z",
+  "orders": [
+    { "id": 1, "side": "BUY",  "order_type": "LIMIT",  "quantity": "100", "limit_price": "101" },
+    { "id": 2, "side": "BUY",  "order_type": "LIMIT",  "quantity": "100", "limit_price": "100" },
+    { "id": 3, "side": "SELL", "order_type": "MARKET", "quantity": "150" }
+  ],
+  "expected": {
+    "fills": [
+      { "side": "SELL", "price": "101", "quantity": "100" },
+      { "side": "BUY",  "price": "101", "quantity": "100" },
+      { "side": "SELL", "price": "100", "quantity": "50" },
+      { "side": "BUY",  "price": "100", "quantity": "50" }
+    ],
+    "order_states": {
+      "buy101": "FILLED",
+      "buy100": "PARTIALLY_FILLED",
+      "sell": "FILLED"
+    },
+    "sell_filled_qty": "150",
+    "sell_avg_fill_price": "100.6667",
+    "net_cash": "1000000",
+    "event_count": 7
+  }
+}

@@ -13,6 +13,7 @@ crate-type = ["cdylib", "lib"]
 [dependencies]
 tantra-core = { workspace = true }
 tantra-risk = { workspace = true }
+tantra-exec-paper = { workspace = true }
 pyo3 = { workspace = true }
 arrow = { workspace = true }
 rust_decimal = { workspace = true }

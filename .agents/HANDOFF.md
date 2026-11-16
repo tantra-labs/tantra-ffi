@@ -1,14 +1,20 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
 ## Latest Batch
-- **T14 P2 PLANNED (docs only, 2026-11-15)**: plan `docs/plans/0003-python-sdk-paper-exchange-embedding.md`
-  (Proposed) — native `tantra.paper.PaperExchange` PyO3 binding in `crates/tantra-ffi-py`
-  (`place_order`/`cancel_order`/`amend_order`/`feed_bar`/`feed_tick`/`feed_depth`/`fills`/
-  `positions`/`depth`/`equity`/`advance_to`), Arrow zero-copy, GIL released during engine steps
-  (`py.allow_threads`); `tantra/backtest/l2_sim.py` `backend="native"` resolves to the compiled
-  engine (removes the `NotImplementedError`); deterministic seeded `PaperSession` for examples.
-  Requires `tantra-exec` plan 0003 (the `tantra-exec-paper` engine). Index updated. Execution
-  NOT started — awaits approval; TDD slices P1–P5 in the plan.
+- **T14 P2 paper-exchange wheel embedding SHIPPED (2026-11-16)**: plan 0003 → **Implemented**
+  (T14.10 + T14.11). Native `tantra._tantra.PaperExchange` pyclass
+  (`crates/tantra-ffi-py/src/paper.rs`, wired into `lib.rs` + workspace dep
+  `tantra-exec-paper`): `place_order`→`PAPER-0001…`, `cancel_order`, `amend_order`,
+  `feed_bar`/`feed_tick`, `advance_to`, `set_market_price`, `fills`, `events`, `positions`,
+  `cash`/`equity`, `depth`, `order`; `seed=` runs the engine's seeded latency
+  (`NetworkLatency::new(10, 5, seed)` — no `seeded()` ctor, recorded deviation). Engine steps
+  release the GIL via `py.detach` (pyo3 0.30; `allow_threads` removed). Wheel `tantra/paper/`
+  (`PaperSession` facade + `run(strategy, bars)` + `wire.fills_wire`); `l2_sim.py` native
+  backend `_NativeL2` (backend="native" resolves, no NotImplementedError; coincident-tape
+  parity only — different matching models, see plan deviations). Golden tape re-embedded at
+  `python/tests/golden/paper_golden.json`. **Wheel suite 505 passed**; Rust gate green;
+  changed paths ruff-clean (venv ruff 0.17.4; FURB157 fires on untouched files — pre-existing).
+  T14.11 examples/strategies consumers (see `tantra-examples`/`tantra-strategies` HANDOFFs).
 - **T13 Thrust A wheel lift SHIPPED (2026-11-15/16)** — plan 0002 phases A1–A5 (T13.1–T13.5)
   wheel surfaces landed in `python/tantra/` with wheel tests (`python/tests` **480 passed**,
   exit 0; ruff clean on all new files; eager imports + `__all__` wired into
@@ -123,12 +129,12 @@ plan 0002 — side-aware reduce-only). Mirrored in the pyclass, codegen stub, `_
 - **Venv at `.venv`** (Python 3.12 + maturin + pytest + pyarrow), wheel installed editable.
 
 ## Immediate Next Step
-- Continue the ex 0006 Decimal-canonical kernel-mirror cascade (gap 0006):
-  remaining `indicators`-adjacent slices `portfolio_strategy`/`wire`/`store`/
-  `backtest` sims. Map:
-  `tantra-examples/docs/design/gap-cascade-kernel-mirror.md`.
-- Verify with `make all` (fmt → clippy → `cargo test --workspace` → codegen →
-  wheel → pytest) before tagging the milestone.
+- **P3 / P4 of the paper-exchange track (T14)**: `tantra-ui` plan 0008 (WASM paper studio
+  consuming `tantra.paper`) and P4 cross-repo parity + docs (re-verify the golden tape
+  `python/tests/golden/paper_golden.json` across every embedding, close out root plan 0007).
+- Housekeeping: run `make all` (fmt → clippy → `cargo test --workspace` → codegen →
+  wheel → pytest) before tagging the T14 milestone; the venv's ruff (0.17.4) FURB157 hits on
+  untouched files are pre-existing and out of scope.
 
 ## Operating Invariants
 - **Toolchain**: rustc/cargo 1.95, edition 2024; `rust-version = 1.85` minimum in the workspace.

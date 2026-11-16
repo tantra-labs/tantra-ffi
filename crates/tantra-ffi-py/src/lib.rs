@@ -27,6 +27,7 @@ pub mod decision;
 pub mod error;
 pub mod market;
 pub mod orders;
+pub mod paper;
 pub mod risk;
 pub mod runner;
 pub mod types;
@@ -55,6 +56,7 @@ pub fn init_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     types::init(m)?;
     market::init(m)?;
     orders::init(m)?;
+    paper::init(m)?;
     decision::init(m)?;
     risk::init(m)?;
     runner::init(m)?;

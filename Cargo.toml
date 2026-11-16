@@ -17,6 +17,7 @@ repository = "https://github.com/tantra-labs/tantra-ffi"
 # Canonical shared kernel and regulatory risk gate (sibling bounded contexts).
 tantra-core = { path = "../tantra-core" }
 tantra-risk = { path = "../tantra-risk" }
+tantra-exec-paper = { path = "../tantra-exec/crates/tantra-exec-paper" }
 # Facade of this workspace (repo-named convention, root plan 0003 Phase 4).
 tantra-ffi = { path = "crates/tantra-ffi" }
 tantra-ffi-codegen = { path = "crates/tantra-ffi-codegen" }
