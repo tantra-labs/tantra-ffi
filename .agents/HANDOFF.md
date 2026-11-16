@@ -1,7 +1,15 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
 ## Latest Batch
-- **T13 Thrust A wheel lift SHIPPED (2026-11-15)** — plan 0002 phases A1–A5 (T13.1–T13.5)
+- **T14 P2 PLANNED (docs only, 2026-11-15)**: plan `docs/plans/0003-python-sdk-paper-exchange-embedding.md`
+  (Proposed) — native `tantra.paper.PaperExchange` PyO3 binding in `crates/tantra-ffi-py`
+  (`place_order`/`cancel_order`/`amend_order`/`feed_bar`/`feed_tick`/`feed_depth`/`fills`/
+  `positions`/`depth`/`equity`/`advance_to`), Arrow zero-copy, GIL released during engine steps
+  (`py.allow_threads`); `tantra/backtest/l2_sim.py` `backend="native"` resolves to the compiled
+  engine (removes the `NotImplementedError`); deterministic seeded `PaperSession` for examples.
+  Requires `tantra-exec` plan 0003 (the `tantra-exec-paper` engine). Index updated. Execution
+  NOT started — awaits approval; TDD slices P1–P5 in the plan.
+- **T13 Thrust A wheel lift SHIPPED (2026-11-15/16)** — plan 0002 phases A1–A5 (T13.1–T13.5)
   wheel surfaces landed in `python/tantra/` with wheel tests (`python/tests` **480 passed**,
   exit 0; ruff clean on all new files; eager imports + `__all__` wired into
   `python/tantra/__init__.py`):
@@ -13,9 +21,9 @@
     `bs_price`/`bs_greeks`/`implied_volatility`, option.py + greeks.py merged into one module) + `test_options.py`
   - `tantra.metrics` (`extract_metrics_from_bars` + screener predicate evaluation; the Sma/Rsi
     wrappers retargeted to the wheel `tantra.indicators` `_legacy` API) + `test_metrics.py`
-  The `tantra-examples` side (delete `_kernel/` modules + retarget consumers) is **deferred** —
-  another agent is fixing the 73 pre-existing float-rooted failures in `tantra-examples`; that
-  retarget lands after. Plan 0002 stays Active until then.
+  The `tantra-examples` side (delete `_kernel/` domain modules + retarget consumers) **landed
+  2026-11-16** (examples `25cb5df` Thrust A + `1acabfb` Thrust B harness rename + `3c2e5ae`
+  docs; root plan 0006 **Implemented**). **Plan 0002 moved to Implemented** (see index).
 - **Wheel suite fully green (2026-11-15)**: all 3 pre-existing stale-wheel failures fixed
   (`python/tests` **464 passed**, exit 0).
   - `test_risk.py` ×2 (`test_price_band_enforced`, `test_reduce_only_refuses_buy_allows_sell`):
@@ -27,10 +35,10 @@
     registry against the deleted `tantra_examples._kernel.indicators._base` mirror. Rewritten as a
     wheel self-consistency gate (74 unique kinds, all 8 `FAMILIES`, per-family counts pinned:
     12/9/17/12/11/3/5/5) — the wheel IS the promoted kernel, so a mirror compare is obsolete.
-- **T13 PLANNED (docs only, 2026-11-15)**: plan `docs/plans/0002-tantra-wheel-domain-harness-surface.md`
-  filed (Proposed) — lift the examples' 6 domain/math modules into the wheel as
-  `tantra.portfolio` / `tantra.risk` / `tantra.options` / `tantra.metrics` / `tantra.calendar`
-  (root plan 0006, Thrust A; track T13.1–T13.5). No development started; awaits approval.
+- **T13 IMPLEMENTED (2026-11-16)**: root plan 0006 (dismantle the `_kernel` shared harness)
+  complete — Thrust A wheel surfaces (this repo, plan 0002, T13.1–T13.5) + Thrust B harness
+  rename in `tantra-examples` (plan 0003, T13.6) + gate (T13.7). See the top entry and
+  `tantra-examples/.agents/HANDOFF.md`.
 - **ex 0008 closure (2026-11-15)**: wheel `tantra.backtest.session` (`Tantra.backtest`:
   next-open fills, NSE delivery costs, T+1 settlement) shipped; `simulated.resolve_fill_costs`
   + `make_simulator` now wired to `tantra.markets.india`; `algo_analytics` default runner
