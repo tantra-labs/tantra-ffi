@@ -1,6 +1,17 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
 ## Latest Batch
+- **Wheel suite fully green (2026-11-15)**: all 3 pre-existing stale-wheel failures fixed
+  (`python/tests` **464 passed**, exit 0).
+  - `test_risk.py` ×2 (`test_price_band_enforced`, `test_reduce_only_refuses_buy_allows_sell`):
+    the venv's installed `_tantra.abi3.so` was stale (pre-`side` `check_order_fast`). Fixed by
+    rebuilding: `.venv/bin/maturin develop --release` (abi3, no libpython link issue under
+    maturin). Signature now `check_order_fast(self, /, algo_id, instrument, side, quantity,
+    limit_price=None, ts_iso=None)`.
+  - `test_indicators_registry.py::test_registry_total_matches_kernel`: cross-checked the wheel
+    registry against the deleted `tantra_examples._kernel.indicators._base` mirror. Rewritten as a
+    wheel self-consistency gate (74 unique kinds, all 8 `FAMILIES`, per-family counts pinned:
+    12/9/17/12/11/3/5/5) — the wheel IS the promoted kernel, so a mirror compare is obsolete.
 - **T13 PLANNED (docs only, 2026-11-15)**: plan `docs/plans/0002-tantra-wheel-domain-harness-surface.md`
   filed (Proposed) — lift the examples' 6 domain/math modules into the wheel as
   `tantra.portfolio` / `tantra.risk` / `tantra.options` / `tantra.metrics` / `tantra.calendar`
@@ -13,8 +24,8 @@
   (`catalog.py` `Metric`/`MetricCatalog`/`load_catalog`, `coverage.py`
   `Coverage` + `DateInterval`, `__init__.py` re-export with `__all__`); wired into
   `tantra/__init__.py` eager pure-Python imports + `__all__`. 6 new tests
-  (`test_screener.py`). `import tantra, tantra.screener` ok; wheel suite green except the
-  3 known pre-existing failures (test_risk ×2, test_indicators_registry). New files
+  (`test_screener.py`). `import tantra, tantra.screener` ok; wheel suite fully green
+  (464 passed — the former 3 stale-wheel failures fixed 2026-11-15; see the top entry). New files
   ruff check + format clean (default 88-width; mirror `catalog.py` reformatted).
 - ex 0006 `indicators` mirror COMPLETE (wave 2d): Decimal-canonical
   **support_resistance** (pivot_points, fibonacci_retracement, williams_fractals),
