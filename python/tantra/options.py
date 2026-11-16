@@ -190,7 +190,9 @@ def bs_greeks(
     spot, strike, tau, iv, r = (_to_dec(v) for v in (spot, strike, tau, iv, r))
     price = bs_price(kind, spot, strike, tau, iv, r)
     if tau <= 0 or iv <= 0:
-        delta = Decimal(1) if (kind == OptionKind.CALL and spot >= strike) else Decimal(0)
+        delta = (
+            Decimal(1) if (kind == OptionKind.CALL and spot >= strike) else Decimal(0)
+        )
         if kind == OptionKind.PUT:
             delta = Decimal(-1) if spot <= strike else Decimal(0)
         return Greeks(

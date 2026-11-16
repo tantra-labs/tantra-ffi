@@ -7,9 +7,10 @@ from tantra.calendar import IST, NseCalendar, SessionWindow, ist_midnight_ns
 
 def test_ist_midnight_ns() -> None:
     date = dt.date(2026, 11, 15)
-    expected = int(
-        dt.datetime.combine(date, dt.time.min, tzinfo=IST).timestamp()
-    ) * 1_000_000_000
+    expected = (
+        int(dt.datetime.combine(date, dt.time.min, tzinfo=IST).timestamp())
+        * 1_000_000_000
+    )
     assert ist_midnight_ns(date) == expected
 
 

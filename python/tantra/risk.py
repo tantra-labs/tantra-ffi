@@ -142,10 +142,16 @@ def check_state(
     """
     state = str(trading_state)
     if state == "halted":
-        return RiskRefusal("risk_trading_halted", "trading_halted", {"rule": "trading_halted"})
+        return RiskRefusal(
+            "risk_trading_halted", "trading_halted", {"rule": "trading_halted"}
+        )
     if state != "reducing":
         return None
-    sign = Decimal(1) if str(getattr(side, "value", side)).upper() == "BUY" else Decimal(-1)
+    sign = (
+        Decimal(1)
+        if str(getattr(side, "value", side)).upper() == "BUY"
+        else Decimal(-1)
+    )
     qty = Decimal(str(quantity))
     pos = Decimal(str(position))
     after = pos + sign * qty

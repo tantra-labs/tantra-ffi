@@ -7,6 +7,7 @@ promoted pure-Python pre-trade checks and the lazy-native fallback.
 from decimal import Decimal
 
 import pytest
+
 import tantra
 import tantra.risk
 from tantra.risk import (
