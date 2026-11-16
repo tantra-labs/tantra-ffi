@@ -129,9 +129,11 @@ plan 0002 — side-aware reduce-only). Mirrored in the pyclass, codegen stub, `_
 - **Venv at `.venv`** (Python 3.12 + maturin + pytest + pyarrow), wheel installed editable.
 
 ## Immediate Next Step
-- **P3 / P4 of the paper-exchange track (T14)**: `tantra-ui` plan 0008 (WASM paper studio
-  consuming `tantra.paper`) and P4 cross-repo parity + docs (re-verify the golden tape
-  `python/tests/golden/paper_golden.json` across every embedding, close out root plan 0007).
+- **P4 parity + docs LANDED (root plan 0007 T14.14)**: `python/tests/golden/paper_golden.json`
+  is the single canonical golden vector, byte-identical across the paper engine
+  (`tantra-exec-paper`), WASM (`tantra-ui-api-wasm`), and this wheel — pinned by
+  `python/tests/test_paper_golden_identity.py`. Next: the paper-trading user guide
+  (T14.15, coordinated with `tantra-docs`).
 - Housekeeping: run `make all` (fmt → clippy → `cargo test --workspace` → codegen →
   wheel → pytest) before tagging the T14 milestone; the venv's ruff (0.17.4) FURB157 hits on
   untouched files are pre-existing and out of scope.

@@ -1,6 +1,6 @@
 {
   "name": "paper-exchange golden tape (tantra-runtime E9, paper_parity_tests.rs)",
-  "description": "Cross-repo parity oracle for the paper-exchange engine: 4 fills from 3 orders (plan 0003, P4).",
+  "description": "Canonical cross-embedding golden vector (root plan 0007 T14.14): byte-identical fills across backtest, paper, Python wheel, and WASM.",
   "instrument": "NSE:RELIANCE",
   "initial_cash": "1000000",
   "market_price": "100",
