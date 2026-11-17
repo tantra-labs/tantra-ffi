@@ -251,6 +251,89 @@
       "title": "CancelRequest",
       "type": "object"
     },
+    "ClassificationFilter": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "definitions": {
+        "MarketCapBucket": {
+          "description": "Jurisdiction-neutral market capitalization bucket (`large`, `mid`, `small`, `micro`).\n\nJurisdiction-specific cutoff logic (such as SEBI/AMFI rank cutoffs) lives outside L0 in `tantra-data` / `tantra-market-finance`.",
+          "oneOf": [
+            {
+              "description": "Large capitalization tier.",
+              "enum": [
+                "large"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Mid capitalization tier.",
+              "enum": [
+                "mid"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Small capitalization tier.",
+              "enum": [
+                "small"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Micro capitalization tier.",
+              "enum": [
+                "micro"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "description": "Classification constraints optionally attached to a [`ScreenerFilterGroup`].",
+      "properties": {
+        "cap_bucket": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/MarketCapBucket"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Restrict to instruments in this market-cap bucket."
+        },
+        "index": {
+          "description": "Restrict to constituents of this index.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "industry": {
+          "description": "Restrict to instruments in this industry.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sector": {
+          "description": "Restrict to instruments in this sector.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "theme": {
+          "description": "Opaque thematic tag (defined outside L0, e.g. `\"EV\"`, `\"PLI\"`).",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "title": "ClassificationFilter",
+      "type": "object"
+    },
     "Decision": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "definitions": {
@@ -2353,6 +2436,16 @@
       "title": "FillReport",
       "type": "object"
     },
+    "IndexId": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "String",
+      "type": "string"
+    },
+    "Industry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "String",
+      "type": "string"
+    },
     "Instrument": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "definitions": {
@@ -2723,6 +2816,260 @@
         "symbol"
       ],
       "title": "InstrumentId",
+      "type": "object"
+    },
+    "MarketCapBucket": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "description": "Jurisdiction-neutral market capitalization bucket (`large`, `mid`, `small`, `micro`).\n\nJurisdiction-specific cutoff logic (such as SEBI/AMFI rank cutoffs) lives outside L0 in `tantra-data` / `tantra-market-finance`.",
+      "oneOf": [
+        {
+          "description": "Large capitalization tier.",
+          "enum": [
+            "large"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Mid capitalization tier.",
+          "enum": [
+            "mid"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Small capitalization tier.",
+          "enum": [
+            "small"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Micro capitalization tier.",
+          "enum": [
+            "micro"
+          ],
+          "type": "string"
+        }
+      ],
+      "title": "MarketCapBucket"
+    },
+    "MetricDefinition": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "MetricKeySpec": {
+          "additionalProperties": false,
+          "description": "Key naming a metric with optional reporting period and bar timeframe dimensions.\n\nAccepts legacy v8 `\"metric\"` field name via `#[serde(alias = \"metric\")]`.",
+          "properties": {
+            "key": {
+              "description": "Canonical metric key (e.g. `\"rsi_14\"`, `\"pe\"`, `\"close\"`).",
+              "type": "string"
+            },
+            "period": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/MetricPeriod"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional fundamental/sampling period dimension."
+            },
+            "timeframe": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Timeframe"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional bar interval dimension."
+            }
+          },
+          "required": [
+            "key"
+          ],
+          "type": "object"
+        },
+        "MetricPeriod": {
+          "description": "Reporting or sampling period for a screener metric.\n\nAccepts both fundamental periods (`Snapshot`, `Ttm`, `Fy`, `Fq`, `H1`, `Current`) and cadence periods (`Intraday`, `Daily`, `Weekly`, `Monthly`), plus uppercase and legacy `d1`/`w1` aliases during migration.",
+          "oneOf": [
+            {
+              "description": "Point-in-time balance-sheet or latest fundamental snapshot.",
+              "enum": [
+                "snapshot"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Trailing twelve months.",
+              "enum": [
+                "ttm"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Fiscal year.",
+              "enum": [
+                "fy"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Fiscal quarter.",
+              "enum": [
+                "fq"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "First half / semi-annual period.",
+              "enum": [
+                "h1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Current / latest bar or reporting interval.",
+              "enum": [
+                "current"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Intraday sampling period.",
+              "enum": [
+                "intraday"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Daily sampling period (v8 `d1` alias).",
+              "enum": [
+                "daily"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Weekly sampling period (v8 `w1` alias).",
+              "enum": [
+                "weekly"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Monthly sampling period.",
+              "enum": [
+                "monthly"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "Timeframe": {
+          "description": "Standard bar/candle interval shared across signals, bars, and screener predicates.",
+          "oneOf": [
+            {
+              "description": "1 minute.",
+              "enum": [
+                "m1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "5 minutes.",
+              "enum": [
+                "m5"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "15 minutes.",
+              "enum": [
+                "m15"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "30 minutes.",
+              "enum": [
+                "m30"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 hour.",
+              "enum": [
+                "h1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "2 hours.",
+              "enum": [
+                "h2"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "4 hours.",
+              "enum": [
+                "h4"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 day.",
+              "enum": [
+                "d1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 week.",
+              "enum": [
+                "w1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 calendar month.",
+              "enum": [
+                "month1"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "description": "Describes a metric the screener exposes.",
+      "properties": {
+        "description": {
+          "description": "Human-readable description.",
+          "type": "string"
+        },
+        "key": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/MetricKeySpec"
+            }
+          ],
+          "description": "The metric's key."
+        },
+        "unit": {
+          "description": "Unit, if applicable (e.g. `\"%\"`, `\"INR\"`).",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "description",
+        "key"
+      ],
+      "title": "MetricDefinition",
       "type": "object"
     },
     "ModifyRequest": {
@@ -5184,6 +5531,1989 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
       "title": "Decimal",
+      "type": "string"
+    },
+    "RelativeStat": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "description": "Cross-sectional or relative return statistic computed over a [`RelativeTo`] scope.",
+      "oneOf": [
+        {
+          "description": "Peer median of the metric.",
+          "enum": [
+            "median"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Peer arithmetic mean of the metric.",
+          "enum": [
+            "mean"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Return delta vs benchmark (`metric_return - benchmark_return`).",
+          "enum": [
+            "return_delta"
+          ],
+          "type": "string"
+        }
+      ],
+      "title": "RelativeStat"
+    },
+    "RelativeTo": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "description": "Peer/benchmark reference group for relative comparisons (e.g. `pe < sector_median(pe)`).",
+      "oneOf": [
+        {
+          "description": "Compare against instruments in the same [`Sector`].",
+          "enum": [
+            "sector"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "Compare against instruments in the same [`Industry`].",
+          "enum": [
+            "industry"
+          ],
+          "type": "string"
+        },
+        {
+          "additionalProperties": false,
+          "description": "Compare against an [`IndexId`] benchmark (e.g. `NIFTY500`).",
+          "properties": {
+            "index": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "index"
+          ],
+          "type": "object"
+        }
+      ],
+      "title": "RelativeTo"
+    },
+    "ScreenerFilterGroup": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "ClassificationFilter": {
+          "additionalProperties": false,
+          "description": "Classification constraints optionally attached to a [`ScreenerFilterGroup`].",
+          "properties": {
+            "cap_bucket": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/MarketCapBucket"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Restrict to instruments in this market-cap bucket."
+            },
+            "index": {
+              "description": "Restrict to constituents of this index.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "industry": {
+              "description": "Restrict to instruments in this industry.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sector": {
+              "description": "Restrict to instruments in this sector.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "theme": {
+              "description": "Opaque thematic tag (defined outside L0, e.g. `\"EV\"`, `\"PLI\"`).",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "FilterOp": {
+          "description": "Unified comparison operator for a screener filter predicate.",
+          "oneOf": [
+            {
+              "description": "Equal to (`==`).",
+              "enum": [
+                "eq"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Not equal to (`!=`); accepts legacy `\"neq\"` alias on deserialization.",
+              "enum": [
+                "ne"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Greater than (`>`).",
+              "enum": [
+                "gt"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Greater than or equal to (`>=`).",
+              "enum": [
+                "gte"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Less than (`<`).",
+              "enum": [
+                "lt"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Less than or equal to (`<=`).",
+              "enum": [
+                "lte"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Inclusively between `[low, high]`.",
+              "enum": [
+                "between"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Membership in a list of values.",
+              "enum": [
+                "in"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Non-membership in a list of values.",
+              "enum": [
+                "not_in"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Case-insensitive substring/pattern match.",
+              "enum": [
+                "like"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Contains element / substring match.",
+              "enum": [
+                "has"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Previous bar <= RHS and current bar > RHS.",
+              "enum": [
+                "crosses_above"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Previous bar >= RHS and current bar < RHS.",
+              "enum": [
+                "crosses_below"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "LogicalOp": {
+          "description": "Boolean combinator for a [`ScreenerFilterGroup`].",
+          "oneOf": [
+            {
+              "description": "All child items must match (vacuously true when empty).",
+              "enum": [
+                "AND"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "At least one child item must match.",
+              "enum": [
+                "OR"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "MarketCapBucket": {
+          "description": "Jurisdiction-neutral market capitalization bucket (`large`, `mid`, `small`, `micro`).\n\nJurisdiction-specific cutoff logic (such as SEBI/AMFI rank cutoffs) lives outside L0 in `tantra-data` / `tantra-market-finance`.",
+          "oneOf": [
+            {
+              "description": "Large capitalization tier.",
+              "enum": [
+                "large"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Mid capitalization tier.",
+              "enum": [
+                "mid"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Small capitalization tier.",
+              "enum": [
+                "small"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Micro capitalization tier.",
+              "enum": [
+                "micro"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "MetricKeySpec": {
+          "additionalProperties": false,
+          "description": "Key naming a metric with optional reporting period and bar timeframe dimensions.\n\nAccepts legacy v8 `\"metric\"` field name via `#[serde(alias = \"metric\")]`.",
+          "properties": {
+            "key": {
+              "description": "Canonical metric key (e.g. `\"rsi_14\"`, `\"pe\"`, `\"close\"`).",
+              "type": "string"
+            },
+            "period": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/MetricPeriod"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional fundamental/sampling period dimension."
+            },
+            "timeframe": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Timeframe"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional bar interval dimension."
+            }
+          },
+          "required": [
+            "key"
+          ],
+          "type": "object"
+        },
+        "MetricPeriod": {
+          "description": "Reporting or sampling period for a screener metric.\n\nAccepts both fundamental periods (`Snapshot`, `Ttm`, `Fy`, `Fq`, `H1`, `Current`) and cadence periods (`Intraday`, `Daily`, `Weekly`, `Monthly`), plus uppercase and legacy `d1`/`w1` aliases during migration.",
+          "oneOf": [
+            {
+              "description": "Point-in-time balance-sheet or latest fundamental snapshot.",
+              "enum": [
+                "snapshot"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Trailing twelve months.",
+              "enum": [
+                "ttm"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Fiscal year.",
+              "enum": [
+                "fy"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Fiscal quarter.",
+              "enum": [
+                "fq"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "First half / semi-annual period.",
+              "enum": [
+                "h1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Current / latest bar or reporting interval.",
+              "enum": [
+                "current"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Intraday sampling period.",
+              "enum": [
+                "intraday"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Daily sampling period (v8 `d1` alias).",
+              "enum": [
+                "daily"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Weekly sampling period (v8 `w1` alias).",
+              "enum": [
+                "weekly"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Monthly sampling period.",
+              "enum": [
+                "monthly"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "PredicateValue": {
+          "anyOf": [
+            {
+              "description": "Exact decimal number (serialized as string).",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+              "type": "string"
+            },
+            {
+              "description": "Boolean scalar.",
+              "type": "boolean"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MetricKeySpec"
+                }
+              ],
+              "description": "Metric reference (`{\"key\": \"SMA200\"}`)."
+            },
+            {
+              "description": "List of operands (used by `Between`, `In`, `NotIn`).",
+              "items": {
+                "$ref": "#/definitions/PredicateValue"
+              },
+              "type": "array"
+            },
+            {
+              "description": "String literal (used by `Like`, `Has`, `Eq`, `In`, etc.).",
+              "type": "string"
+            }
+          ],
+          "description": "`Decimal`-safe operand for a [`ScreenerFilterPredicate`].\n\nIEEE-754 floating-point values (`f32`/`f64`) and non-finite literals (`NaN`, `Infinity`) are strictly rejected at the deserialization boundary."
+        },
+        "RelativeStat": {
+          "description": "Cross-sectional or relative return statistic computed over a [`RelativeTo`] scope.",
+          "oneOf": [
+            {
+              "description": "Peer median of the metric.",
+              "enum": [
+                "median"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Peer arithmetic mean of the metric.",
+              "enum": [
+                "mean"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Return delta vs benchmark (`metric_return - benchmark_return`).",
+              "enum": [
+                "return_delta"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "RelativeTo": {
+          "description": "Peer/benchmark reference group for relative comparisons (e.g. `pe < sector_median(pe)`).",
+          "oneOf": [
+            {
+              "description": "Compare against instruments in the same [`Sector`].",
+              "enum": [
+                "sector"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Compare against instruments in the same [`Industry`].",
+              "enum": [
+                "industry"
+              ],
+              "type": "string"
+            },
+            {
+              "additionalProperties": false,
+              "description": "Compare against an [`IndexId`] benchmark (e.g. `NIFTY500`).",
+              "properties": {
+                "index": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "index"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "ScreenerFilterGroup": {
+          "description": "Recursive boolean group of filter predicates and nested groups, with optional classification scoping.\n\nAccepts legacy v8 flat payloads (`{\"predicates\": [...], \"match_all\": true}`) at deserialization time and upgrades them to the canonical recursive form.",
+          "properties": {
+            "classification": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ClassificationFilter"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional classification scope (sector, industry, cap bucket, index, theme)."
+            },
+            "items": {
+              "default": [],
+              "description": "Predicates and nested groups.",
+              "items": {
+                "$ref": "#/definitions/ScreenerFilterItem"
+              },
+              "type": "array"
+            },
+            "operator": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/LogicalOp"
+                }
+              ],
+              "default": "AND",
+              "description": "Combinator applied across `items` (`AND` or `OR`)."
+            }
+          },
+          "type": "object"
+        },
+        "ScreenerFilterItem": {
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ScreenerFilterPredicate"
+                }
+              ],
+              "description": "A single predicate condition."
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ScreenerFilterGroup"
+                }
+              ],
+              "description": "A nested filter group combined with `AND` / `OR`."
+            }
+          ],
+          "description": "One node in a [`ScreenerFilterGroup`]: either a leaf predicate or a nested group."
+        },
+        "ScreenerFilterPredicate": {
+          "description": "One filter condition in a screener scan.",
+          "properties": {
+            "metric": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MetricKeySpec"
+                }
+              ],
+              "description": "Metric being filtered (with optional period and timeframe dimensions)."
+            },
+            "op": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/FilterOp"
+                }
+              ],
+              "description": "Comparison operator."
+            },
+            "relative_stat": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelativeStat"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional aggregation statistic for relative comparisons."
+            },
+            "relative_to": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelativeTo"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional peer/benchmark scope for relative comparisons (e.g. `pe < sector_median(pe)`)."
+            },
+            "value": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/PredicateValue"
+                }
+              ],
+              "description": "Comparison value (`Decimal`, `String`, `Bool`, `MetricRef`, or `List`)."
+            }
+          },
+          "required": [
+            "metric",
+            "op",
+            "value"
+          ],
+          "type": "object"
+        },
+        "Timeframe": {
+          "description": "Standard bar/candle interval shared across signals, bars, and screener predicates.",
+          "oneOf": [
+            {
+              "description": "1 minute.",
+              "enum": [
+                "m1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "5 minutes.",
+              "enum": [
+                "m5"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "15 minutes.",
+              "enum": [
+                "m15"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "30 minutes.",
+              "enum": [
+                "m30"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 hour.",
+              "enum": [
+                "h1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "2 hours.",
+              "enum": [
+                "h2"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "4 hours.",
+              "enum": [
+                "h4"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 day.",
+              "enum": [
+                "d1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 week.",
+              "enum": [
+                "w1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 calendar month.",
+              "enum": [
+                "month1"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "description": "Recursive boolean group of filter predicates and nested groups, with optional classification scoping.\n\nAccepts legacy v8 flat payloads (`{\"predicates\": [...], \"match_all\": true}`) at deserialization time and upgrades them to the canonical recursive form.",
+      "properties": {
+        "classification": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ClassificationFilter"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional classification scope (sector, industry, cap bucket, index, theme)."
+        },
+        "items": {
+          "default": [],
+          "description": "Predicates and nested groups.",
+          "items": {
+            "$ref": "#/definitions/ScreenerFilterItem"
+          },
+          "type": "array"
+        },
+        "operator": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/LogicalOp"
+            }
+          ],
+          "default": "AND",
+          "description": "Combinator applied across `items` (`AND` or `OR`)."
+        }
+      },
+      "title": "ScreenerFilterGroup",
+      "type": "object"
+    },
+    "ScreenerFilterPredicate": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "FilterOp": {
+          "description": "Unified comparison operator for a screener filter predicate.",
+          "oneOf": [
+            {
+              "description": "Equal to (`==`).",
+              "enum": [
+                "eq"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Not equal to (`!=`); accepts legacy `\"neq\"` alias on deserialization.",
+              "enum": [
+                "ne"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Greater than (`>`).",
+              "enum": [
+                "gt"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Greater than or equal to (`>=`).",
+              "enum": [
+                "gte"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Less than (`<`).",
+              "enum": [
+                "lt"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Less than or equal to (`<=`).",
+              "enum": [
+                "lte"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Inclusively between `[low, high]`.",
+              "enum": [
+                "between"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Membership in a list of values.",
+              "enum": [
+                "in"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Non-membership in a list of values.",
+              "enum": [
+                "not_in"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Case-insensitive substring/pattern match.",
+              "enum": [
+                "like"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Contains element / substring match.",
+              "enum": [
+                "has"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Previous bar <= RHS and current bar > RHS.",
+              "enum": [
+                "crosses_above"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Previous bar >= RHS and current bar < RHS.",
+              "enum": [
+                "crosses_below"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "MetricKeySpec": {
+          "additionalProperties": false,
+          "description": "Key naming a metric with optional reporting period and bar timeframe dimensions.\n\nAccepts legacy v8 `\"metric\"` field name via `#[serde(alias = \"metric\")]`.",
+          "properties": {
+            "key": {
+              "description": "Canonical metric key (e.g. `\"rsi_14\"`, `\"pe\"`, `\"close\"`).",
+              "type": "string"
+            },
+            "period": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/MetricPeriod"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional fundamental/sampling period dimension."
+            },
+            "timeframe": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Timeframe"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional bar interval dimension."
+            }
+          },
+          "required": [
+            "key"
+          ],
+          "type": "object"
+        },
+        "MetricPeriod": {
+          "description": "Reporting or sampling period for a screener metric.\n\nAccepts both fundamental periods (`Snapshot`, `Ttm`, `Fy`, `Fq`, `H1`, `Current`) and cadence periods (`Intraday`, `Daily`, `Weekly`, `Monthly`), plus uppercase and legacy `d1`/`w1` aliases during migration.",
+          "oneOf": [
+            {
+              "description": "Point-in-time balance-sheet or latest fundamental snapshot.",
+              "enum": [
+                "snapshot"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Trailing twelve months.",
+              "enum": [
+                "ttm"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Fiscal year.",
+              "enum": [
+                "fy"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Fiscal quarter.",
+              "enum": [
+                "fq"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "First half / semi-annual period.",
+              "enum": [
+                "h1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Current / latest bar or reporting interval.",
+              "enum": [
+                "current"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Intraday sampling period.",
+              "enum": [
+                "intraday"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Daily sampling period (v8 `d1` alias).",
+              "enum": [
+                "daily"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Weekly sampling period (v8 `w1` alias).",
+              "enum": [
+                "weekly"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Monthly sampling period.",
+              "enum": [
+                "monthly"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "PredicateValue": {
+          "anyOf": [
+            {
+              "description": "Exact decimal number (serialized as string).",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+              "type": "string"
+            },
+            {
+              "description": "Boolean scalar.",
+              "type": "boolean"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MetricKeySpec"
+                }
+              ],
+              "description": "Metric reference (`{\"key\": \"SMA200\"}`)."
+            },
+            {
+              "description": "List of operands (used by `Between`, `In`, `NotIn`).",
+              "items": {
+                "$ref": "#/definitions/PredicateValue"
+              },
+              "type": "array"
+            },
+            {
+              "description": "String literal (used by `Like`, `Has`, `Eq`, `In`, etc.).",
+              "type": "string"
+            }
+          ],
+          "description": "`Decimal`-safe operand for a [`ScreenerFilterPredicate`].\n\nIEEE-754 floating-point values (`f32`/`f64`) and non-finite literals (`NaN`, `Infinity`) are strictly rejected at the deserialization boundary."
+        },
+        "RelativeStat": {
+          "description": "Cross-sectional or relative return statistic computed over a [`RelativeTo`] scope.",
+          "oneOf": [
+            {
+              "description": "Peer median of the metric.",
+              "enum": [
+                "median"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Peer arithmetic mean of the metric.",
+              "enum": [
+                "mean"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Return delta vs benchmark (`metric_return - benchmark_return`).",
+              "enum": [
+                "return_delta"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "RelativeTo": {
+          "description": "Peer/benchmark reference group for relative comparisons (e.g. `pe < sector_median(pe)`).",
+          "oneOf": [
+            {
+              "description": "Compare against instruments in the same [`Sector`].",
+              "enum": [
+                "sector"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Compare against instruments in the same [`Industry`].",
+              "enum": [
+                "industry"
+              ],
+              "type": "string"
+            },
+            {
+              "additionalProperties": false,
+              "description": "Compare against an [`IndexId`] benchmark (e.g. `NIFTY500`).",
+              "properties": {
+                "index": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "index"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "Timeframe": {
+          "description": "Standard bar/candle interval shared across signals, bars, and screener predicates.",
+          "oneOf": [
+            {
+              "description": "1 minute.",
+              "enum": [
+                "m1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "5 minutes.",
+              "enum": [
+                "m5"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "15 minutes.",
+              "enum": [
+                "m15"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "30 minutes.",
+              "enum": [
+                "m30"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 hour.",
+              "enum": [
+                "h1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "2 hours.",
+              "enum": [
+                "h2"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "4 hours.",
+              "enum": [
+                "h4"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 day.",
+              "enum": [
+                "d1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 week.",
+              "enum": [
+                "w1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 calendar month.",
+              "enum": [
+                "month1"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "description": "One filter condition in a screener scan.",
+      "properties": {
+        "metric": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/MetricKeySpec"
+            }
+          ],
+          "description": "Metric being filtered (with optional period and timeframe dimensions)."
+        },
+        "op": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/FilterOp"
+            }
+          ],
+          "description": "Comparison operator."
+        },
+        "relative_stat": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RelativeStat"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional aggregation statistic for relative comparisons."
+        },
+        "relative_to": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RelativeTo"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Optional peer/benchmark scope for relative comparisons (e.g. `pe < sector_median(pe)`)."
+        },
+        "value": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/PredicateValue"
+            }
+          ],
+          "description": "Comparison value (`Decimal`, `String`, `Bool`, `MetricRef`, or `List`)."
+        }
+      },
+      "required": [
+        "metric",
+        "op",
+        "value"
+      ],
+      "title": "ScreenerFilterPredicate",
+      "type": "object"
+    },
+    "ScreenerScanRequest": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "ClassificationFilter": {
+          "additionalProperties": false,
+          "description": "Classification constraints optionally attached to a [`ScreenerFilterGroup`].",
+          "properties": {
+            "cap_bucket": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/MarketCapBucket"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Restrict to instruments in this market-cap bucket."
+            },
+            "index": {
+              "description": "Restrict to constituents of this index.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "industry": {
+              "description": "Restrict to instruments in this industry.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sector": {
+              "description": "Restrict to instruments in this sector.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "theme": {
+              "description": "Opaque thematic tag (defined outside L0, e.g. `\"EV\"`, `\"PLI\"`).",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "Exchange": {
+          "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
+          "oneOf": [
+            {
+              "description": "National Stock Exchange of India",
+              "enum": [
+                "NSE"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Bombay Stock Exchange",
+              "enum": [
+                "BSE"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "NSE Futures & Options segment (derivatives)",
+              "enum": [
+                "NFO"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Multi Commodity Exchange of India",
+              "enum": [
+                "MCX"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Currency Derivatives Segment",
+              "enum": [
+                "CDS"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "FilterOp": {
+          "description": "Unified comparison operator for a screener filter predicate.",
+          "oneOf": [
+            {
+              "description": "Equal to (`==`).",
+              "enum": [
+                "eq"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Not equal to (`!=`); accepts legacy `\"neq\"` alias on deserialization.",
+              "enum": [
+                "ne"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Greater than (`>`).",
+              "enum": [
+                "gt"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Greater than or equal to (`>=`).",
+              "enum": [
+                "gte"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Less than (`<`).",
+              "enum": [
+                "lt"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Less than or equal to (`<=`).",
+              "enum": [
+                "lte"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Inclusively between `[low, high]`.",
+              "enum": [
+                "between"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Membership in a list of values.",
+              "enum": [
+                "in"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Non-membership in a list of values.",
+              "enum": [
+                "not_in"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Case-insensitive substring/pattern match.",
+              "enum": [
+                "like"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Contains element / substring match.",
+              "enum": [
+                "has"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Previous bar <= RHS and current bar > RHS.",
+              "enum": [
+                "crosses_above"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Previous bar >= RHS and current bar < RHS.",
+              "enum": [
+                "crosses_below"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "InstrumentId": {
+          "description": "Canonical instrument identifier across all feeds and brokers.\n\nOrdered by `(exchange, symbol, token, isin)` so it can key a `BTreeMap` and sort a dataset deterministically.",
+          "properties": {
+            "exchange": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Exchange"
+                }
+              ],
+              "description": "Exchange venue"
+            },
+            "isin": {
+              "description": "International Securities Identification Number (optional)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "symbol": {
+              "description": "Trading symbol (e.g., \"RELIANCE\", \"TCS\", \"INFY\")",
+              "type": "string"
+            },
+            "token": {
+              "description": "Broker-assigned instrument token (optional)",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "exchange",
+            "symbol"
+          ],
+          "type": "object"
+        },
+        "LogicalOp": {
+          "description": "Boolean combinator for a [`ScreenerFilterGroup`].",
+          "oneOf": [
+            {
+              "description": "All child items must match (vacuously true when empty).",
+              "enum": [
+                "AND"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "At least one child item must match.",
+              "enum": [
+                "OR"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "MarketCapBucket": {
+          "description": "Jurisdiction-neutral market capitalization bucket (`large`, `mid`, `small`, `micro`).\n\nJurisdiction-specific cutoff logic (such as SEBI/AMFI rank cutoffs) lives outside L0 in `tantra-data` / `tantra-market-finance`.",
+          "oneOf": [
+            {
+              "description": "Large capitalization tier.",
+              "enum": [
+                "large"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Mid capitalization tier.",
+              "enum": [
+                "mid"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Small capitalization tier.",
+              "enum": [
+                "small"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Micro capitalization tier.",
+              "enum": [
+                "micro"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "MetricKeySpec": {
+          "additionalProperties": false,
+          "description": "Key naming a metric with optional reporting period and bar timeframe dimensions.\n\nAccepts legacy v8 `\"metric\"` field name via `#[serde(alias = \"metric\")]`.",
+          "properties": {
+            "key": {
+              "description": "Canonical metric key (e.g. `\"rsi_14\"`, `\"pe\"`, `\"close\"`).",
+              "type": "string"
+            },
+            "period": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/MetricPeriod"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional fundamental/sampling period dimension."
+            },
+            "timeframe": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/Timeframe"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional bar interval dimension."
+            }
+          },
+          "required": [
+            "key"
+          ],
+          "type": "object"
+        },
+        "MetricPeriod": {
+          "description": "Reporting or sampling period for a screener metric.\n\nAccepts both fundamental periods (`Snapshot`, `Ttm`, `Fy`, `Fq`, `H1`, `Current`) and cadence periods (`Intraday`, `Daily`, `Weekly`, `Monthly`), plus uppercase and legacy `d1`/`w1` aliases during migration.",
+          "oneOf": [
+            {
+              "description": "Point-in-time balance-sheet or latest fundamental snapshot.",
+              "enum": [
+                "snapshot"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Trailing twelve months.",
+              "enum": [
+                "ttm"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Fiscal year.",
+              "enum": [
+                "fy"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Fiscal quarter.",
+              "enum": [
+                "fq"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "First half / semi-annual period.",
+              "enum": [
+                "h1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Current / latest bar or reporting interval.",
+              "enum": [
+                "current"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Intraday sampling period.",
+              "enum": [
+                "intraday"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Daily sampling period (v8 `d1` alias).",
+              "enum": [
+                "daily"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Weekly sampling period (v8 `w1` alias).",
+              "enum": [
+                "weekly"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Monthly sampling period.",
+              "enum": [
+                "monthly"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "PredicateValue": {
+          "anyOf": [
+            {
+              "description": "Exact decimal number (serialized as string).",
+              "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+              "type": "string"
+            },
+            {
+              "description": "Boolean scalar.",
+              "type": "boolean"
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MetricKeySpec"
+                }
+              ],
+              "description": "Metric reference (`{\"key\": \"SMA200\"}`)."
+            },
+            {
+              "description": "List of operands (used by `Between`, `In`, `NotIn`).",
+              "items": {
+                "$ref": "#/definitions/PredicateValue"
+              },
+              "type": "array"
+            },
+            {
+              "description": "String literal (used by `Like`, `Has`, `Eq`, `In`, etc.).",
+              "type": "string"
+            }
+          ],
+          "description": "`Decimal`-safe operand for a [`ScreenerFilterPredicate`].\n\nIEEE-754 floating-point values (`f32`/`f64`) and non-finite literals (`NaN`, `Infinity`) are strictly rejected at the deserialization boundary."
+        },
+        "RelativeStat": {
+          "description": "Cross-sectional or relative return statistic computed over a [`RelativeTo`] scope.",
+          "oneOf": [
+            {
+              "description": "Peer median of the metric.",
+              "enum": [
+                "median"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Peer arithmetic mean of the metric.",
+              "enum": [
+                "mean"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Return delta vs benchmark (`metric_return - benchmark_return`).",
+              "enum": [
+                "return_delta"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "RelativeTo": {
+          "description": "Peer/benchmark reference group for relative comparisons (e.g. `pe < sector_median(pe)`).",
+          "oneOf": [
+            {
+              "description": "Compare against instruments in the same [`Sector`].",
+              "enum": [
+                "sector"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Compare against instruments in the same [`Industry`].",
+              "enum": [
+                "industry"
+              ],
+              "type": "string"
+            },
+            {
+              "additionalProperties": false,
+              "description": "Compare against an [`IndexId`] benchmark (e.g. `NIFTY500`).",
+              "properties": {
+                "index": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "index"
+              ],
+              "type": "object"
+            }
+          ]
+        },
+        "ScreenerFilterGroup": {
+          "description": "Recursive boolean group of filter predicates and nested groups, with optional classification scoping.\n\nAccepts legacy v8 flat payloads (`{\"predicates\": [...], \"match_all\": true}`) at deserialization time and upgrades them to the canonical recursive form.",
+          "properties": {
+            "classification": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ClassificationFilter"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional classification scope (sector, industry, cap bucket, index, theme)."
+            },
+            "items": {
+              "default": [],
+              "description": "Predicates and nested groups.",
+              "items": {
+                "$ref": "#/definitions/ScreenerFilterItem"
+              },
+              "type": "array"
+            },
+            "operator": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/LogicalOp"
+                }
+              ],
+              "default": "AND",
+              "description": "Combinator applied across `items` (`AND` or `OR`)."
+            }
+          },
+          "type": "object"
+        },
+        "ScreenerFilterItem": {
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ScreenerFilterPredicate"
+                }
+              ],
+              "description": "A single predicate condition."
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ScreenerFilterGroup"
+                }
+              ],
+              "description": "A nested filter group combined with `AND` / `OR`."
+            }
+          ],
+          "description": "One node in a [`ScreenerFilterGroup`]: either a leaf predicate or a nested group."
+        },
+        "ScreenerFilterPredicate": {
+          "description": "One filter condition in a screener scan.",
+          "properties": {
+            "metric": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MetricKeySpec"
+                }
+              ],
+              "description": "Metric being filtered (with optional period and timeframe dimensions)."
+            },
+            "op": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/FilterOp"
+                }
+              ],
+              "description": "Comparison operator."
+            },
+            "relative_stat": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelativeStat"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional aggregation statistic for relative comparisons."
+            },
+            "relative_to": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RelativeTo"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Optional peer/benchmark scope for relative comparisons (e.g. `pe < sector_median(pe)`)."
+            },
+            "value": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/PredicateValue"
+                }
+              ],
+              "description": "Comparison value (`Decimal`, `String`, `Bool`, `MetricRef`, or `List`)."
+            }
+          },
+          "required": [
+            "metric",
+            "op",
+            "value"
+          ],
+          "type": "object"
+        },
+        "SortSpec": {
+          "description": "How to order screener results.",
+          "properties": {
+            "descending": {
+              "description": "`true` for descending order.",
+              "type": "boolean"
+            },
+            "metric": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MetricKeySpec"
+                }
+              ],
+              "description": "Metric to sort by."
+            }
+          },
+          "required": [
+            "descending",
+            "metric"
+          ],
+          "type": "object"
+        },
+        "Timeframe": {
+          "description": "Standard bar/candle interval shared across signals, bars, and screener predicates.",
+          "oneOf": [
+            {
+              "description": "1 minute.",
+              "enum": [
+                "m1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "5 minutes.",
+              "enum": [
+                "m5"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "15 minutes.",
+              "enum": [
+                "m15"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "30 minutes.",
+              "enum": [
+                "m30"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 hour.",
+              "enum": [
+                "h1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "2 hours.",
+              "enum": [
+                "h2"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "4 hours.",
+              "enum": [
+                "h4"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 day.",
+              "enum": [
+                "d1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 week.",
+              "enum": [
+                "w1"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "1 calendar month.",
+              "enum": [
+                "month1"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "description": "Request to scan instruments against a converged filter tree.",
+      "properties": {
+        "filters": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ScreenerFilterGroup"
+            }
+          ],
+          "description": "Filter tree to apply."
+        },
+        "limit": {
+          "description": "Maximum rows to return.",
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "sort": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SortSpec"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Sort order for the result set."
+        },
+        "universe": {
+          "description": "Instruments to scan. `None` means the full universe.",
+          "items": {
+            "$ref": "#/definitions/InstrumentId"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "filters"
+      ],
+      "title": "ScreenerScanRequest",
+      "type": "object"
+    },
+    "ScreenerScanResponse": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "definitions": {
+        "Exchange": {
+          "description": "Supported exchanges in the Indian market.\n\nThis is the canonical [`Exchange`] vocabulary: downstream bounded contexts (`tantra-ledger`, `tantra-market`, `tantra-exec`) must never redefine their own exchange enums, only re-use this one.",
+          "oneOf": [
+            {
+              "description": "National Stock Exchange of India",
+              "enum": [
+                "NSE"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Bombay Stock Exchange",
+              "enum": [
+                "BSE"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "NSE Futures & Options segment (derivatives)",
+              "enum": [
+                "NFO"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Multi Commodity Exchange of India",
+              "enum": [
+                "MCX"
+              ],
+              "type": "string"
+            },
+            {
+              "description": "Currency Derivatives Segment",
+              "enum": [
+                "CDS"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "InstrumentId": {
+          "description": "Canonical instrument identifier across all feeds and brokers.\n\nOrdered by `(exchange, symbol, token, isin)` so it can key a `BTreeMap` and sort a dataset deterministically.",
+          "properties": {
+            "exchange": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Exchange"
+                }
+              ],
+              "description": "Exchange venue"
+            },
+            "isin": {
+              "description": "International Securities Identification Number (optional)",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "symbol": {
+              "description": "Trading symbol (e.g., \"RELIANCE\", \"TCS\", \"INFY\")",
+              "type": "string"
+            },
+            "token": {
+              "description": "Broker-assigned instrument token (optional)",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "exchange",
+            "symbol"
+          ],
+          "type": "object"
+        },
+        "ScreenerRow": {
+          "description": "One instrument's row in a screener result, keyed by metric name.",
+          "properties": {
+            "instrument": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/InstrumentId"
+                }
+              ],
+              "description": "The matching instrument."
+            },
+            "metrics": {
+              "additionalProperties": {
+                "pattern": "^-?[0-9]+(\\.[0-9]+)?$",
+                "type": "string"
+              },
+              "description": "Metric name → value, for every metric the request asked about.",
+              "type": "object"
+            }
+          },
+          "required": [
+            "instrument",
+            "metrics"
+          ],
+          "type": "object"
+        }
+      },
+      "description": "The matching rows for a [`ScreenerScanRequest`].",
+      "properties": {
+        "rows": {
+          "description": "Matching rows, after sort/limit.",
+          "items": {
+            "$ref": "#/definitions/ScreenerRow"
+          },
+          "type": "array"
+        },
+        "total_matched": {
+          "description": "Total rows that matched the filter, before `limit` was applied.",
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "rows",
+        "total_matched"
+      ],
+      "title": "ScreenerScanResponse",
+      "type": "object"
+    },
+    "Sector": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "String",
       "type": "string"
     },
     "Tick": {

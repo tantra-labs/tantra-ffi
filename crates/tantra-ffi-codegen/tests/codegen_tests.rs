@@ -30,6 +30,18 @@ fn domain_schema_has_definitions() {
         "FillReport",
         "Price",
         "Quantity",
+        "Sector",
+        "Industry",
+        "IndexId",
+        "MarketCapBucket",
+        "ClassificationFilter",
+        "RelativeTo",
+        "RelativeStat",
+        "ScreenerScanRequest",
+        "ScreenerScanResponse",
+        "ScreenerFilterGroup",
+        "ScreenerFilterPredicate",
+        "MetricDefinition",
     ] {
         assert!(
             definitions.contains_key(key),

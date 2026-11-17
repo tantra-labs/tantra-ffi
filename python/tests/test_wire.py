@@ -15,6 +15,13 @@ from tantra.wire import (
     ENUMS,
     MODELS,
     BarAggregation,
+    ClassificationFilter,
+    FilterOp,
+    MarketCapBucket,
+    MetricPeriod,
+    RelativeStat,
+    RelativeToIndex,
+    ScreenerFilterGroup,
     BarEvent,
     BarSpecification,
     BarType,
@@ -300,3 +307,62 @@ def test_models_and_enums_expected_keys() -> None:
         "Currency",
     ):
         assert key in ENUMS
+
+
+def test_screener_filter_op_ne_and_legacy_neq_alias() -> None:
+    pred = ScreenerFilterPredicate(key="flag", op="neq", value=0)
+    assert pred.op is FilterOp.NE
+    assert pred.model_dump()["op"] == FilterOp.NE
+
+
+def test_screener_classification_relative_and_nested_group() -> None:
+    nested = ScreenerFilterGroup(
+        operator="OR",
+        items=[
+            ScreenerFilterPredicate(
+                key="SMA50",
+                op="crosses_above",
+                value={"key": "SMA200"},
+                timeframe="1D",
+            ),
+            ScreenerFilterPredicate(
+                key="pe",
+                op="lt",
+                value={"key": "pe", "period": "ttm"},
+                relative_to="sector",
+                relative_stat="median",
+            ),
+        ],
+    )
+    root = ScreenerFilterGroup(
+        operator="AND",
+        items=[
+            nested,
+            ScreenerFilterPredicate(
+                key="return_3m",
+                op="gt",
+                value=Decimal("0"),
+                relative_to=RelativeToIndex(index="  nifty500 "),
+                relative_stat=RelativeStat.RETURN_DELTA,
+            ),
+        ],
+        classification=ClassificationFilter(
+            sector="  Financial   Services ",
+            industry="Banks",
+            cap_bucket="large",
+            index="nifty50",
+            theme="AI_EXPORT",
+        ),
+    )
+    assert root.classification is not None
+    assert root.classification.sector == "Financial Services"
+    assert root.classification.cap_bucket is MarketCapBucket.LARGE
+    assert root.classification.index == "NIFTY50"
+    assert isinstance(root.items[1], ScreenerFilterPredicate)
+    assert root.items[1].relative_to == RelativeToIndex(index="NIFTY500")
+    assert root.items[1].period is None
+
+
+def test_screener_metric_period_cadence_aliases() -> None:
+    pred = ScreenerFilterPredicate(key="close", op="gt", value="100", period="d1")
+    assert pred.period is MetricPeriod.DAILY
