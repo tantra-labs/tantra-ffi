@@ -106,7 +106,7 @@ def parse_filters(
     op_map: list[tuple[str, FilterOp]] = [
         (">=", FilterOp.GTE),
         ("<=", FilterOp.LTE),
-        ("!=", FilterOp.NEQ),
+        ("!=", FilterOp.NE),
         (">", FilterOp.GT),
         ("<", FilterOp.LT),
         ("=", FilterOp.EQ),

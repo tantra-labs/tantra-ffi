@@ -1,15 +1,17 @@
 # wheel surface (ex 0006): wire contract models (mirrors tantra_examples/_kernel/wire public API)
 # stand-in closure for tantra-examples gap 0006
 
-"""Screener and metric definition models for Tantra (ADR 006 / Pillar P2)."""
+"""Screener and metric definition models for Tantra (ADR 006 / Pillar P2 / Core Plan 0004)."""
 
 from __future__ import annotations
 
 import math
+from decimal import Decimal
 from enum import Enum
 from typing import Annotated, Any, Literal
 
 from pydantic import (
+    BeforeValidator,
     Field,
     SerializerFunctionWrapHandler,
     Strict,
@@ -44,6 +46,47 @@ class MetricPeriod(Enum):
     FQ = "FQ"
     H1 = "H1"
     CURRENT = "CURRENT"
+    INTRADAY = "intraday"
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
+
+
+_METRIC_PERIOD_ALIASES: dict[str, str] = {
+    "snapshot": "SNAPSHOT",
+    "ttm": "TTM",
+    "fy": "FY",
+    "fq": "FQ",
+    "h1": "H1",
+    "halfyear": "H1",
+    "current": "CURRENT",
+    "intraday": "intraday",
+    "daily": "daily",
+    "d1": "daily",
+    "1d": "daily",
+    "weekly": "weekly",
+    "w1": "weekly",
+    "1w": "weekly",
+    "monthly": "monthly",
+    "1m": "monthly",
+    "1mo": "monthly",
+}
+
+
+def _metric_period_wire() -> BeforeValidator:
+    values = {m.value for m in MetricPeriod}
+
+    def check(value: Any) -> Any:
+        if isinstance(value, str):
+            if value in values:
+                return value
+            mapped = _METRIC_PERIOD_ALIASES.get(value.lower())
+            if mapped is not None:
+                return mapped
+            raise ValueError(f"{value!r} is not a valid MetricPeriod")
+        return value
+
+    return BeforeValidator(check)
 
 
 class Timeframe(Enum):
@@ -61,7 +104,7 @@ class Timeframe(Enum):
 
 class FilterOp(Enum):
     EQ = "eq"
-    NEQ = "neq"
+    NE = "ne"
     GT = "gt"
     GTE = "gte"
     LT = "lt"
@@ -75,11 +118,108 @@ class FilterOp(Enum):
     CROSSES_BELOW = "crosses_below"
 
 
+def _filter_op_wire() -> BeforeValidator:
+    """Accept canonical FilterOp values plus legacy ``"neq"`` alias for ``"ne"``."""
+    values = {m.value for m in FilterOp}
+
+    def check(value: Any) -> Any:
+        if isinstance(value, str):
+            if value == "neq":
+                return FilterOp.NE.value
+            if value not in values:
+                raise ValueError(f"{value!r} is not a valid FilterOp")
+        return value
+
+    return BeforeValidator(check)
+
+
+class MarketCapBucket(Enum):
+    """Jurisdiction-neutral market capitalization bucket (mirrors Rust MarketCapBucket)."""
+
+    LARGE = "large"
+    MID = "mid"
+    SMALL = "small"
+    MICRO = "micro"
+
+
+class RelativeStat(Enum):
+    """Cross-sectional or relative return statistic computed over a RelativeTo scope."""
+
+    MEDIAN = "median"
+    MEAN = "mean"
+    RETURN_DELTA = "return_delta"
+
+
+MAX_CLASSIFICATION_LEN = 80
+MAX_INDEX_ID_LEN = 40
+
+
+def _validate_label(kind: str, value: Any) -> str:
+    if not isinstance(value, str):
+        raise ValueError(f"{kind} must be a string")
+    if any(ch != "\t" and ord(ch) < 32 or ord(ch) == 127 for ch in value):
+        raise ValueError(f"{kind} cannot contain control characters")
+    normalized = " ".join(value.split())
+    if not normalized:
+        raise ValueError(f"{kind} cannot be empty")
+    if len(normalized) > MAX_CLASSIFICATION_LEN:
+        raise ValueError(f"{kind} exceeds maximum length of {MAX_CLASSIFICATION_LEN} characters")
+    return normalized
+
+
+def _validate_sector(value: Any) -> str:
+    return _validate_label("sector", value)
+
+
+def _validate_industry(value: Any) -> str:
+    return _validate_label("industry", value)
+
+
+def _validate_index_id(value: Any) -> str:
+    if not isinstance(value, str):
+        raise ValueError("index_id must be a string")
+    trimmed = value.strip()
+    if not trimmed:
+        raise ValueError("index_id cannot be empty")
+    if len(trimmed) > MAX_INDEX_ID_LEN:
+        raise ValueError(f"index_id exceeds maximum length of {MAX_INDEX_ID_LEN} characters")
+    if not all(ch.isascii() and (ch.isalnum() or ch in "_-") for ch in trimmed):
+        raise ValueError(
+            f"invalid index_id {trimmed!r}: expected ASCII alphanumeric, '_' or '-'"
+        )
+    return trimmed.upper()
+
+
+Sector = Annotated[str, BeforeValidator(_validate_sector)]
+Industry = Annotated[str, BeforeValidator(_validate_industry)]
+IndexId = Annotated[str, BeforeValidator(_validate_index_id)]
+
 WireValueType = Annotated[ValueType, _canonical(ValueType)]
 WireUnitType = Annotated[UnitType, _canonical(UnitType)]
-WireMetricPeriod = Annotated[MetricPeriod, _canonical(MetricPeriod)]
+WireMetricPeriod = Annotated[MetricPeriod, _metric_period_wire()]
 WireTimeframe = Annotated[Timeframe, _canonical(Timeframe)]
-WireFilterOp = Annotated[FilterOp, _canonical(FilterOp)]
+WireFilterOp = Annotated[FilterOp, _filter_op_wire()]
+WireMarketCapBucket = Annotated[MarketCapBucket, _canonical(MarketCapBucket)]
+WireRelativeStat = Annotated[RelativeStat, _canonical(RelativeStat)]
+
+
+class RelativeToIndex(_Command):
+    """Benchmark index target for relative comparison (`{"index": "NIFTY500"}`)."""
+
+    index: IndexId
+
+
+RelativeTo = Literal["sector", "industry"] | RelativeToIndex
+
+
+class ClassificationFilter(_Command):
+    """Classification constraints optionally attached to a ScreenerFilterGroup."""
+
+    sector: Sector | None = None
+    industry: Industry | None = None
+    cap_bucket: WireMarketCapBucket | None = None
+    index: IndexId | None = None
+    theme: Str | None = None
 
 
 class MetricKeySpec(_Command):
@@ -91,9 +231,9 @@ class MetricKeySpec(_Command):
 
 
 def _omit_absent_dimensions(data: Any) -> Any:
-    """Drop ``period`` / ``timeframe`` when unset, as Rust's ``skip_serializing_if`` does."""
+    """Drop absent optional fields when unset, as Rust's ``skip_serializing_if`` does."""
     if isinstance(data, dict):
-        for name in ("period", "timeframe"):
+        for name in ("period", "timeframe", "relative_to", "relative_stat"):
             if name in data and data[name] is None:
                 del data[name]
     return data
@@ -148,6 +288,8 @@ _SET_OPS = frozenset({FilterOp.IN, FilterOp.NOT_IN})
 def _is_finite_number(value: Any) -> bool:
     if isinstance(value, bool):
         return False
+    if isinstance(value, Decimal):
+        return value.is_finite()
     if isinstance(value, int):
         return True
     return isinstance(value, float) and math.isfinite(value)
@@ -188,7 +330,8 @@ def _check_value(op: FilterOp, value: Any) -> Any:
 
 
 PredicateValue = (
-    Annotated[int, Strict()]
+    Decimal
+    | Annotated[int, Strict()]
     | Annotated[float, Strict()]
     | Str
     | Annotated[bool, Strict()]
@@ -197,7 +340,7 @@ PredicateValue = (
     | list[Any]
     | dict[str, Any]
 )
-"""Typed predicate operand matching the supported scalar, MetricRef, array, or object values."""
+"""Typed predicate operand matching the supported scalar, Decimal, MetricRef, array, or object values."""
 
 
 class ScreenerFilterPredicate(_Command):
@@ -214,6 +357,8 @@ class ScreenerFilterPredicate(_Command):
     value: PredicateValue
     period: WireMetricPeriod | None = None
     timeframe: WireTimeframe | None = None
+    relative_to: RelativeTo | None = None
+    relative_stat: WireRelativeStat | None = None
 
     @model_validator(mode="after")
     def _value_matches_op(self) -> ScreenerFilterPredicate:
@@ -229,10 +374,20 @@ class ScreenerFilterPredicate(_Command):
 
 
 class ScreenerFilterGroup(_Command):
-    """Logical group of filter predicates."""
+    """Recursive boolean group of filter predicates and nested groups, with optional classification."""
 
     operator: Literal["AND", "OR"] = "AND"
-    items: list[Any]
+    items: list[ScreenerFilterPredicate | ScreenerFilterGroup | dict[str, Any]] = Field(
+        default_factory=list
+    )
+    classification: ClassificationFilter | None = None
+
+    @model_serializer(mode="wrap")
+    def _serialize(self, handler: SerializerFunctionWrapHandler) -> Any:
+        data = handler(self)
+        if isinstance(data, dict) and data.get("classification") is None:
+            data.pop("classification", None)
+        return data
 
 
 class ScreenerSortSpec(_Command):

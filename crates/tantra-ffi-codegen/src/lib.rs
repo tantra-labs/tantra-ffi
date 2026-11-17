@@ -90,6 +90,45 @@ fn definitions() -> Value {
         "DomainEvent".to_owned(),
         schema_for_type::<core::DomainEvent>(),
     );
+    defs.insert("Sector".to_owned(), schema_for_type::<core::Sector>());
+    defs.insert("Industry".to_owned(), schema_for_type::<core::Industry>());
+    defs.insert("IndexId".to_owned(), schema_for_type::<core::IndexId>());
+    defs.insert(
+        "MarketCapBucket".to_owned(),
+        schema_for_type::<core::MarketCapBucket>(),
+    );
+    defs.insert(
+        "ClassificationFilter".to_owned(),
+        schema_for_type::<core::ClassificationFilter>(),
+    );
+    defs.insert(
+        "RelativeTo".to_owned(),
+        schema_for_type::<core::RelativeTo>(),
+    );
+    defs.insert(
+        "RelativeStat".to_owned(),
+        schema_for_type::<core::RelativeStat>(),
+    );
+    defs.insert(
+        "ScreenerScanRequest".to_owned(),
+        schema_for_type::<core::ScreenerScanRequest>(),
+    );
+    defs.insert(
+        "ScreenerScanResponse".to_owned(),
+        schema_for_type::<core::ScreenerScanResponse>(),
+    );
+    defs.insert(
+        "ScreenerFilterGroup".to_owned(),
+        schema_for_type::<core::ScreenerFilterGroup>(),
+    );
+    defs.insert(
+        "ScreenerFilterPredicate".to_owned(),
+        schema_for_type::<core::ScreenerFilterPredicate>(),
+    );
+    defs.insert(
+        "MetricDefinition".to_owned(),
+        schema_for_type::<core::MetricDefinition>(),
+    );
     Value::Object(defs)
 }
 

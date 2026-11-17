@@ -141,7 +141,7 @@ def build_knowledge_pack(version: str = "1.0.0") -> KnowledgePack:
     enums_map = {
         "FilterOp": [
             "eq",
-            "neq",
+            "ne",
             "gt",
             "gte",
             "lt",

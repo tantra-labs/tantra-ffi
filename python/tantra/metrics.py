@@ -141,7 +141,7 @@ def _compare(lhs: Any, op: FilterOp, rhs: Any) -> bool:
 
     if op == FilterOp.EQ:
         return bool(lhs == rhs)
-    if op == FilterOp.NEQ:
+    if op == FilterOp.NE:
         return bool(lhs != rhs)
     if op == FilterOp.GT:
         return bool(lhs > rhs)
