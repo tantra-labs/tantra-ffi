@@ -3,41 +3,48 @@
 from __future__ import annotations
 
 from decimal import Decimal
+from typing import Any
 
 import pytest
-from pydantic import TypeAdapter, ValidationError
-
 import tantra
+from pydantic import TypeAdapter, ValidationError
 from tantra.instrument import InstrumentId
 from tantra.money import Currency, Money
-from tantra.order import OrderIntent, OrderSide
+from tantra.order import OrderIntent, OrderSide, OrderType, TimeInForce
 from tantra.wire import (
     ENUMS,
     MODELS,
     BarAggregation,
-    ClassificationFilter,
-    FilterOp,
-    MarketCapBucket,
-    MetricPeriod,
-    RelativeStat,
-    RelativeToIndex,
-    ScreenerFilterGroup,
     BarEvent,
     BarSpecification,
     BarType,
+    ClassificationFilter,
     Event,
-    InstrumentId as WireInstrumentId,
+    FilterOp,
+    MarketCapBucket,
     Message,
+    MetricPeriod,
     MetricRef,
-    Order as WireOrder,
-    OrderIntent as WireOrderIntent,
     PriceType,
     QuoteEvent,
+    RelativeStat,
+    RelativeToIndex,
+    ScreenerFilterGroup,
     ScreenerFilterPredicate,
     ScreenerRow,
     ScreenerScanRequest,
+    Timeframe,
     UnixNanos,
     loads,
+)
+from tantra.wire import (
+    InstrumentId as WireInstrumentId,
+)
+from tantra.wire import (
+    Order as WireOrder,
+)
+from tantra.wire import (
+    OrderIntent as WireOrderIntent,
 )
 from tantra.wire.wire import Money as WireMoney
 
@@ -49,9 +56,9 @@ def test_unix_nanos_from_ns_roundtrip() -> None:
 
 
 @pytest.mark.parametrize("bad", [True, False, -1, 2**64, 1.5, "7"])
-def test_unix_nanos_from_ns_rejects_non_u64(bad: object) -> None:
+def test_unix_nanos_from_ns_rejects_non_u64(bad: Any) -> None:
     with pytest.raises(ValueError):
-        UnixNanos.from_ns(bad)  # type: ignore[arg-type]
+        UnixNanos.from_ns(bad)
 
 
 @pytest.mark.parametrize("bad", ["18446744073709551616", "-1", "abc", ""])
@@ -80,13 +87,13 @@ def test_money_to_domain_major_units() -> None:
 
 
 def test_money_legacy_major_float() -> None:
-    wire = WireMoney(amount=2450.5, currency=Currency.INR)
+    wire = WireMoney.model_validate({"amount": 2450.5, "currency": Currency.INR})
     assert wire.amount == 245050
 
 
 def test_order_intent_roundtrip() -> None:
     dom = OrderIntent.limit_buy(
-        InstrumentId("RELIANCE", "NSE"), Decimal("10"), Decimal("2450.50")
+        InstrumentId("RELIANCE", "NSE"), Decimal(10), Decimal("2450.50")
     )
     wire = WireOrderIntent.from_domain(dom)
     back = wire.to_domain()
@@ -99,10 +106,10 @@ def test_order_intent_limit_requires_price() -> None:
     with pytest.raises(ValidationError):
         WireOrderIntent(
             instrument_id=WireInstrumentId(symbol="RELIANCE", exchange="NSE"),
-            side="buy",
+            side=OrderSide.BUY,
             quantity=10.0,
-            order_type="limit",
-            time_in_force="day",
+            order_type=OrderType.LIMIT,
+            time_in_force=TimeInForce.DAY,
         )
 
 
@@ -110,10 +117,10 @@ def test_order_intent_trailing_stop_exactly_one_trail() -> None:
     with pytest.raises(ValidationError):
         WireOrderIntent(
             instrument_id=WireInstrumentId(symbol="RELIANCE", exchange="NSE"),
-            side="sell",
+            side=OrderSide.SELL,
             quantity=10.0,
-            order_type="trailing_stop",
-            time_in_force="day",
+            order_type=OrderType.TRAILING_STOP,
+            time_in_force=TimeInForce.DAY,
             trail_amount=1.0,
             trail_percent=0.5,
         )
@@ -121,25 +128,25 @@ def test_order_intent_trailing_stop_exactly_one_trail() -> None:
 
 def test_order_intent_dump_omits_none_trail() -> None:
     wire = WireOrderIntent.from_domain(
-        OrderIntent.market_buy(InstrumentId("RELIANCE", "NSE"), Decimal("10"))
+        OrderIntent.market_buy(InstrumentId("RELIANCE", "NSE"), Decimal(10))
     )
     data = wire.model_dump()
     assert "trail_amount" not in data
     assert "trail_percent" not in data
 
 
-def _wire_order(**kwargs: object) -> WireOrder:
-    fields: dict[str, object] = dict(
-        order_id="o1",
-        instrument_id=WireInstrumentId(symbol="RELIANCE", exchange="NSE"),
-        side="buy",
-        order_type="market",
-        quantity=10.0,
-        status="submitted",
-        time_in_force="day",
-        ts_event=UnixNanos.from_ns(1),
-        ts_init=UnixNanos.from_ns(1),
-    )
+def _wire_order(**kwargs: Any) -> WireOrder:
+    fields: dict[str, Any] = {
+        "order_id": "o1",
+        "instrument_id": WireInstrumentId(symbol="RELIANCE", exchange="NSE"),
+        "side": "buy",
+        "order_type": "market",
+        "quantity": 10.0,
+        "status": "submitted",
+        "time_in_force": "day",
+        "ts_event": UnixNanos.from_ns(1),
+        "ts_init": UnixNanos.from_ns(1),
+    }
     fields.update(kwargs)
     return WireOrder(**fields)
 
@@ -272,11 +279,13 @@ def test_screener_row_full_symbol_alias() -> None:
 
 def test_screener_predicate_between_requires_pair() -> None:
     with pytest.raises(ValidationError):
-        ScreenerFilterPredicate(key="PE", op="between", value=[10.0])
+        ScreenerFilterPredicate(key="PE", op=FilterOp.BETWEEN, value=[10.0])
 
 
 def test_screener_predicate_crosses_above_accepts_metric_ref() -> None:
-    p = ScreenerFilterPredicate(key="SMA50", op="crosses_above", value={"key": "SMA200"})
+    p = ScreenerFilterPredicate(
+        key="SMA50", op=FilterOp.CROSSES_ABOVE, value={"key": "SMA200"}
+    )
     assert isinstance(p.value, MetricRef)
     assert p.value.key == "SMA200"
 
@@ -310,46 +319,45 @@ def test_models_and_enums_expected_keys() -> None:
 
 
 def test_screener_filter_op_ne_and_legacy_neq_alias() -> None:
-    pred = ScreenerFilterPredicate(key="flag", op="neq", value=0)
+    pred = ScreenerFilterPredicate.model_validate({"key": "flag", "op": "neq", "value": 0})
     assert pred.op is FilterOp.NE
     assert pred.model_dump()["op"] == FilterOp.NE
 
 
 def test_screener_classification_relative_and_nested_group() -> None:
-    nested = ScreenerFilterGroup(
-        operator="OR",
-        items=[
-            ScreenerFilterPredicate(
-                key="SMA50",
-                op="crosses_above",
-                value={"key": "SMA200"},
-                timeframe="1D",
-            ),
-            ScreenerFilterPredicate(
-                key="pe",
-                op="lt",
-                value={"key": "pe", "period": "ttm"},
-                relative_to="sector",
-                relative_stat="median",
-            ),
-        ],
-    )
+    nested_items: list[ScreenerFilterPredicate | ScreenerFilterGroup | dict[str, Any]] = [
+        ScreenerFilterPredicate(
+            key="SMA50",
+            op=FilterOp.CROSSES_ABOVE,
+            value={"key": "SMA200"},
+            timeframe=Timeframe.D1,
+        ),
+        ScreenerFilterPredicate(
+            key="pe",
+            op=FilterOp.LT,
+            value={"key": "pe", "period": "ttm"},
+            relative_to="sector",
+            relative_stat=RelativeStat.MEDIAN,
+        ),
+    ]
+    nested = ScreenerFilterGroup(operator="OR", items=nested_items)
+    root_items: list[ScreenerFilterPredicate | ScreenerFilterGroup | dict[str, Any]] = [
+        nested,
+        ScreenerFilterPredicate(
+            key="return_3m",
+            op=FilterOp.GT,
+            value=Decimal(0),
+            relative_to=RelativeToIndex(index="  nifty500 "),
+            relative_stat=RelativeStat.RETURN_DELTA,
+        ),
+    ]
     root = ScreenerFilterGroup(
         operator="AND",
-        items=[
-            nested,
-            ScreenerFilterPredicate(
-                key="return_3m",
-                op="gt",
-                value=Decimal("0"),
-                relative_to=RelativeToIndex(index="  nifty500 "),
-                relative_stat=RelativeStat.RETURN_DELTA,
-            ),
-        ],
+        items=root_items,
         classification=ClassificationFilter(
             sector="  Financial   Services ",
             industry="Banks",
-            cap_bucket="large",
+            cap_bucket=MarketCapBucket.LARGE,
             index="nifty50",
             theme="AI_EXPORT",
         ),
@@ -364,5 +372,7 @@ def test_screener_classification_relative_and_nested_group() -> None:
 
 
 def test_screener_metric_period_cadence_aliases() -> None:
-    pred = ScreenerFilterPredicate(key="close", op="gt", value="100", period="d1")
+    pred = ScreenerFilterPredicate.model_validate(
+        {"key": "close", "op": "gt", "value": "100", "period": "d1"}
+    )
     assert pred.period is MetricPeriod.DAILY

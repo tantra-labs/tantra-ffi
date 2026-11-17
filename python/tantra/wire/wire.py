@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import datetime as _dt
 import json
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 from enum import Enum
 from typing import Annotated, Any, Final, Literal
 
@@ -150,7 +150,7 @@ class Money(_Wire):
             cur = _money.Currency.INR
             return int(
                 (Decimal(str(value)) * cur.minor_per_major).quantize(
-                    Decimal("1"), rounding=ROUND_HALF_UP
+                    Decimal(1), rounding=ROUND_HALF_UP
                 )
             )
         return value
@@ -395,13 +395,13 @@ class OrderIntent(_Command):
         return _order.OrderIntent(
             self.instrument_id.to_domain(),
             self.side,
-            self.quantity,
+            Decimal(str(self.quantity)),
             self.order_type,
-            self.price,
+            None if self.price is None else Decimal(str(self.price)),
             self.time_in_force,
-            self.trigger_price,
-            trail_amount=self.trail_amount,
-            trail_percent=self.trail_percent,
+            None if self.trigger_price is None else Decimal(str(self.trigger_price)),
+            trail_amount=None if self.trail_amount is None else Decimal(str(self.trail_amount)),
+            trail_percent=None if self.trail_percent is None else Decimal(str(self.trail_percent)),
         )
 
 

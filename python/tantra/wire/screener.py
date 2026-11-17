@@ -156,8 +156,8 @@ MAX_INDEX_ID_LEN = 40
 
 def _validate_label(kind: str, value: Any) -> str:
     if not isinstance(value, str):
-        raise ValueError(f"{kind} must be a string")
-    if any(ch != "\t" and ord(ch) < 32 or ord(ch) == 127 for ch in value):
+        raise TypeError(f"{kind} must be a string")
+    if any((ch != "\t" and ord(ch) < 32) or ord(ch) == 127 for ch in value):
         raise ValueError(f"{kind} cannot contain control characters")
     normalized = " ".join(value.split())
     if not normalized:
@@ -177,7 +177,7 @@ def _validate_industry(value: Any) -> str:
 
 def _validate_index_id(value: Any) -> str:
     if not isinstance(value, str):
-        raise ValueError("index_id must be a string")
+        raise TypeError("index_id must be a string")
     trimmed = value.strip()
     if not trimmed:
         raise ValueError("index_id cannot be empty")

@@ -27,20 +27,28 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import tantra
 
+if TYPE_CHECKING:
+    Command: Any
+    RiskDecision: Any
+    RiskEngine: Any
+    RiskLimits: Any
+    RiskStage: Any
+    TradingState: Any
+
 __all__ = [
-    "Command",  # noqa: F822 - lazy, see __getattr__
+    "Command",
     "OrderRejected",
-    "RiskDecision",  # noqa: F822 - lazy, see __getattr__
-    "RiskEngine",  # noqa: F822 - lazy, see __getattr__
-    "RiskLimits",  # noqa: F822 - lazy, see __getattr__
+    "RiskDecision",
+    "RiskEngine",
+    "RiskLimits",
     "RiskRefusal",
     "RiskRefused",
-    "RiskStage",  # noqa: F822 - lazy, see __getattr__
-    "TradingState",  # noqa: F822 - lazy, see __getattr__
+    "RiskStage",
+    "TradingState",
     "check_order",
     "limits_from_config",
 ]

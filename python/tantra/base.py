@@ -17,8 +17,6 @@ Also provides specialized StockSharp-derived strategy base classes:
 - ``SlicingStrategy``: Institutional parent-order slicing (TWAP / iceberg child orders).
 - ``RebalancingStrategy``: Target-weight portfolio drift detection and two-phase rebalancing.
 """
-# ruff: noqa: B027
-
 from __future__ import annotations
 
 import logging

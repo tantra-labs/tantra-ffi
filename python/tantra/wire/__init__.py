@@ -2,12 +2,14 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Wire models and serialization contracts (ADR 006)."""
-# ruff: noqa: E501
-
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from tantra.wire import wire as _wire_wire
 from tantra.wire.base import Str, _canonical, _Wire
+
+if TYPE_CHECKING:
+    API_VERSION: str
+    SCHEMA_VERSION: int
 from tantra.wire.screener import (
     ClassificationFilter,
     FilterOp,

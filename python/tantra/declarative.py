@@ -67,7 +67,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from decimal import Decimal
-from typing import ClassVar
+from typing import Any, ClassVar
 
 from tantra.bar import Bar
 from tantra.base import Strategy
@@ -174,7 +174,7 @@ class DeclarativeStrategy(Strategy):
             self.__entries: dict[InstrumentId, tuple[OrderSide, Entry]] = {}
             return self.__entries
 
-    def on_bar(self, bar: Bar) -> None:
+    def on_bar(self, bar: Bar, ctx: Any = None) -> None:
         iid = bar.instrument_id
         if self._blocked(iid):
             return
@@ -334,7 +334,7 @@ class TargetWeightStrategy(Strategy):
     def _days_since_rebalance(self) -> int:
         return self._tw.days_since
 
-    def on_bar(self, bar: Bar) -> None:
+    def on_bar(self, bar: Bar, ctx: Any = None) -> None:
         st = self._tw
         st.prices[bar.instrument_id] = bar.close
         day = bar.ts // _NS_PER_DAY
@@ -373,7 +373,7 @@ class TargetWeightStrategy(Strategy):
             if price is None or price <= 0:
                 continue
             diff = (
-                whole_shares(value * self.allocation * weight, Decimal("1"), price)
+                whole_shares(value * self.allocation * weight, Decimal(1), price)
                 - held.get(iid, Decimal(0))
             )
             if diff >= 1:
@@ -381,8 +381,8 @@ class TargetWeightStrategy(Strategy):
             elif diff <= -1:
                 trims.append((iid, int(-diff)))
         for iid in exits:
-            qty = held[iid]
-            (self.sell if qty > 0 else self.buy)(iid, abs(qty), reason="exit")
+            held_qty = held[iid]
+            (self.sell if held_qty > 0 else self.buy)(iid, abs(held_qty), reason="exit")
         for iid, qty in trims:
             self.sell(iid, qty, reason="rebalance")
         for iid, qty in buys:
