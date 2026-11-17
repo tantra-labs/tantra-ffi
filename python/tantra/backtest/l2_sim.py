@@ -35,6 +35,13 @@ L1 :class:`~tantra.backtest.simulated.NextOpenExecution` (ADR 0025). Rules (v1):
 paper-exchange engine through :class:`_NativeL2` (plan 0003). ``backend="python"``
 keeps the reference unchanged.
 
+**Native backend scope (permanent, plan 0003 follow-on).** The native backend
+runs the paper-exchange engine — a resting *order book* with price-time priority —
+and is NOT a byte-identical port of the top-of-book reference. Reference-vs-native
+parity is asserted only on the coincident and golden tapes
+(``python/tests/test_l2_native_parity.py``); the canonical cross-language parity
+oracle is the golden paper tape ``python/tests/golden/paper_golden.json`` (T14.14).
+
 Decimal-canonical (rust_decimal parity): quantities, prices, sizes, lot sizes and cash are
 exact ``decimal.Decimal`` values.
 """
@@ -516,8 +523,9 @@ class _PythonL2:
 # ---------------------------------------------------------------------------
 # Native paper-exchange backend (plan 0003, D2): the compiled engine behind the
 # L2 port. The reference matching model differs (top-of-book quotes vs. resting
-# order book), so full-tape parity is not asserted; the coincident-tape parity
-# is verified in python/tests/test_l2_native_parity.py.
+# order book), so full-tape parity is not asserted; the coincident- and
+# golden-tape parity is verified in python/tests/test_l2_native_parity.py
+# (the golden tape = the T14.14 paper_golden.json economics, follow-on 2026-11-16).
 # ---------------------------------------------------------------------------
 
 _L2_NATIVE_ORDER_TYPE = {
@@ -564,7 +572,7 @@ class _NativePositions(MutableMapping[InstrumentId, Decimal]):
         return self._exchange.positions()
 
     def __getitem__(self, key: InstrumentId) -> Decimal:
-        return self._raw()[str(key.to_compiled())]
+        return self._raw()[key.to_compiled().to_str()]
 
     def __setitem__(self, key: InstrumentId, value: Any) -> None:
         raise NotImplementedError(
@@ -804,6 +812,10 @@ class L2Execution(BaseExecutionPort):
     ignored); submit and cancel as for any port. Runs the pure-Python top-of-book reference
     (:class:`_PythonL2`) by default; a ``backend="native"`` request runs the compiled
     paper-exchange engine (:class:`_NativeL2`, plan 0003).
+
+    The native backend is not a byte-identical port of the top-of-book reference
+    (different matching models); reference-vs-native parity is asserted on the
+    coincident and golden tapes only — see the module docstring (plan 0003 follow-on).
     """
 
     def __init__(
