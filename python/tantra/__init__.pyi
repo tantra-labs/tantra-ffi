@@ -2,50 +2,103 @@
 
 The compiled surface is re-exported from ``._tantra`` (see ``_tantra.pyi``).
 """
+
 from datetime import datetime, tzinfo
 from decimal import Decimal
-from typing import Any, ClassVar, Optional
+from typing import Any, ClassVar
 
 from ._tantra import (
     API_VERSION as API_VERSION,
+)
+from ._tantra import (
     SCHEMA_VERSION as SCHEMA_VERSION,
+)
+from ._tantra import (
     Bar as Bar,
+)
+from ._tantra import (
     ConversionError as ConversionError,
+)
+from ._tantra import (
     Currency as Currency,
+)
+from ._tantra import (
     Decision as Decision,
+)
+from ._tantra import (
     DepthLevel as DepthLevel,
+)
+from ._tantra import (
     Exchange as Exchange,
+)
+from ._tantra import (
     FillReport as FillReport,
+)
+from ._tantra import (
     InstrumentId as InstrumentId,
+)
+from ._tantra import (
     OrderAck as OrderAck,
+)
+from ._tantra import (
+    OrderEvent as OrderEvent,
+)
+from ._tantra import (
     OrderRequest as OrderRequest,
+)
+from ._tantra import (
     OrderSide as OrderSide,
+)
+from ._tantra import (
     OrderStatus as OrderStatus,
+)
+from ._tantra import (
     Price as Price,
+)
+from ._tantra import (
     Quantity as Quantity,
+)
+from ._tantra import (
     RiskEngine as RiskEngine,
+)
+from ._tantra import (
     RiskRefused as RiskRefused,
+)
+from ._tantra import (
     StrategyRunner as StrategyRunner,
+)
+from ._tantra import (
     Tick as Tick,
+)
+from ._tantra import (
     TimeInForce as TimeInForce,
+)
+from ._tantra import (
     __version__ as __version__,
+)
+from ._tantra import (
     bars_to_stream as bars_to_stream,
+)
+from ._tantra import (
     now_iso as now_iso,
+)
+from ._tantra import (
     stream_capsule_name as stream_capsule_name,
+)
+from ._tantra import (
     ticks_to_stream as ticks_to_stream,
 )
 
-
 class Parameter:
     default: Any
-    min: Optional[Any]
-    max: Optional[Any]
-    step: Optional[Any]
+    min: Any | None
+    max: Any | None
+    step: Any | None
 
     def __init__(self, default: Any, min: Any = None, max: Any = None, step: Any = None) -> None: ...
     @classmethod
     def int(cls, default: int, min: int = ..., max: int = ...) -> Parameter: ...
-    def as_dict(self) -> dict: ...
+    def as_dict(self) -> dict[str, Any]: ...
 
 
 class Strategy:
@@ -62,17 +115,17 @@ class Strategy:
         symbol: str,
         quantity: Decimal | str,
         *,
-        limit_price: Optional[Decimal | str] = None,
-        tag: Optional[str] = None,
-    ) -> Optional[OrderAck]: ...
+        limit_price: Decimal | str | None = None,
+        tag: str | None = None,
+    ) -> OrderAck | None: ...
     def sell(
         self,
         symbol: str,
         quantity: Decimal | str,
         *,
-        limit_price: Optional[Decimal | str] = None,
-        tag: Optional[str] = None,
-    ) -> Optional[OrderAck]: ...
+        limit_price: Decimal | str | None = None,
+        tag: str | None = None,
+    ) -> OrderAck | None: ...
 
 
 class BacktestResult:
@@ -131,35 +184,35 @@ class Session:
     POST_MARKET: ClassVar[SessionWindow]
 
     @staticmethod
-    def current(now: Optional[datetime] = None, tz: tzinfo = ...) -> Optional[SessionWindow]: ...
+    def current(now: datetime | None = None, tz: tzinfo = ...) -> SessionWindow | None: ...
     @staticmethod
-    def is_live(now: Optional[datetime] = None) -> bool: ...
+    def is_live(now: datetime | None = None) -> bool: ...
 
 
 PRE_MARKET: SessionWindow
 LIVE: SessionWindow
 POST_MARKET: SessionWindow
-def current_session(now: Optional[datetime] = None, tz: tzinfo = ...) -> Optional[SessionWindow]: ...
-def is_live(now: Optional[datetime] = None) -> bool: ...
+def current_session(now: datetime | None = None, tz: tzinfo = ...) -> SessionWindow | None: ...
+def is_live(now: datetime | None = None) -> bool: ...
 
 
 class SMA:
     def __init__(self, period: int) -> None: ...
-    def add(self, price: Decimal | str) -> Optional[Decimal]: ...
-    def value(self) -> Optional[Decimal]: ...
+    def add(self, price: Decimal | str) -> Decimal | None: ...
+    def value(self) -> Decimal | None: ...
     def crosses_above(self, other: Any) -> bool: ...
     def crosses_below(self, other: Any) -> bool: ...
 
 
 class EMA:
     def __init__(self, period: int) -> None: ...
-    def add(self, price: Decimal | str) -> Optional[Decimal]: ...
-    def value(self) -> Optional[Decimal]: ...
+    def add(self, price: Decimal | str) -> Decimal | None: ...
+    def value(self) -> Decimal | None: ...
     def crosses_above(self, other: Any) -> bool: ...
     def crosses_below(self, other: Any) -> bool: ...
 
 
 class RSI:
     def __init__(self, period: int = 14) -> None: ...
-    def add(self, price: Decimal | str) -> Optional[Decimal]: ...
-    def value(self) -> Optional[Decimal]: ...
+    def add(self, price: Decimal | str) -> Decimal | None: ...
+    def value(self) -> Decimal | None: ...

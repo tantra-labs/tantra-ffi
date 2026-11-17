@@ -28,7 +28,7 @@ class OrderType(Enum):
     STOP_MARKET = "stop_market"
     STOP_LIMIT = "stop_limit"
     TRAILING_STOP = "trailing_stop"
-    STOP = "stop_market"
+    STOP = "stop_market"  # noqa: PIE796
 
     @classmethod
     def _missing_(cls, value: object) -> OrderType | None:
@@ -190,10 +190,10 @@ class OrderIntent:
 
 
 __all__ = [
+    "OrderIntent",
     "OrderSide",
+    "OrderStatus",
     "OrderType",
     "TimeInForce",
-    "OrderStatus",
-    "OrderIntent",
     "validate_intent",
 ]

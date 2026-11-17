@@ -160,7 +160,6 @@ __all__ = [
     "bar",
     "bars_to_stream",
     "calendar",
-    "cli",
     "covariance_matrix",
     "current_session",
     "data",
