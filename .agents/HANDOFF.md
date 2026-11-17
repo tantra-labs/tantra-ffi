@@ -1,6 +1,13 @@
 # HANDOFF — `tantra-ffi` (Tier 4, Soul)
 
 ## Latest Batch
+- **Plan 0003 follow-ons closed (2026-11-16)**: GTD facade
+  (`PaperSession.place_order(gtd_until=)` → `submit_order_gtd`, `test_paper_gtd.py`;
+  commit `930a6bf`) and the l2_sim native golden-tape parity contract
+  (`test_l2_native_parity.py` golden tape + `l2_sim.py` permanent scope + a
+  `_NativePositions.__getitem__` wire-key fix; commit `7dc2419`). The
+  paper-trading-exchange runtime follow-ons landed in the parallel wave (see
+  `tantra-runtime` HANDOFF).
 - **T14 P2 paper-exchange wheel embedding SHIPPED (2026-11-16)**: plan 0003 → **Implemented**
   (T14.10 + T14.11). Native `tantra._tantra.PaperExchange` pyclass
   (`crates/tantra-ffi-py/src/paper.rs`, wired into `lib.rs` + workspace dep
@@ -129,10 +136,13 @@ plan 0002 — side-aware reduce-only). Mirrored in the pyclass, codegen stub, `_
 - **Venv at `.venv`** (Python 3.12 + maturin + pytest + pyarrow), wheel installed editable.
 
 ## Immediate Next Step
-- **P4 parity + docs LANDED (root plan 0007 T14.14)**: `python/tests/golden/paper_golden.json`
-  is the single canonical golden vector, byte-identical across the paper engine
-  (`tantra-exec-paper`), WASM (`tantra-ui-api-wasm`), and this wheel — pinned by
-  `python/tests/test_paper_golden_identity.py`. Next: the paper-trading user guide
+- **Plan 0003 follow-ons closed (2026-11-16)**: GTD is exposed on the wheel facade
+  (`PaperSession.place_order(gtd_until=)` → `submit_order_gtd`, `test_paper_gtd.py`) and the
+  l2_sim native backend now has a tested, documented golden-tape parity contract
+  (`test_l2_native_parity.py` golden tape + `l2_sim.py` permanent scope; oracle
+  `paper_golden.json` = the single canonical golden vector, byte-identical across the paper
+  engine / WASM / this wheel, T14.14). The paper-trading-exchange runtime follow-ons landed
+  in the parallel wave (see `tantra-runtime` HANDOFF). Next: the paper-trading user guide
   (T14.15, coordinated with `tantra-docs`).
 - Housekeeping: run `make all` (fmt → clippy → `cargo test --workspace` → codegen →
   wheel → pytest) before tagging the T14 milestone; the venv's ruff (0.17.4) FURB157 hits on

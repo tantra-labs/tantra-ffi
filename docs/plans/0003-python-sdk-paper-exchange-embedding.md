@@ -77,18 +77,35 @@ PyO3 + Arrow zero-copy with smart GIL management.
    `NoMarketPrice`; naked sells are allowed (no `long_only` gate).
 4. **l2_sim native-vs-reference parity scope**: full-tape parity between the old top-of-book
    reference and the paper-exchange engine is NOT asserted (different matching models —
-   quotes vs resting book). Parity is asserted on the coincident tape only; the canonical
-   cross-language parity oracle is the golden tape (`paper_golden.json`), re-verified by P4.
-   The native backend refuses `costs=` (engine prices with zero costs) and derives
-   positions from fills (seeding unsupported).
-5. **Facade GTD**: `submit_order_gtd` is not wired into `PaperSession.place_order` (tif is
-   passed through; GTD raises `ConversionError`). Engine support exists; exposing it is
-   follow-up.
+   quotes vs resting book). Parity is asserted on the coincident tape and the golden tape
+   (follow-on 2, closed 2026-11-16); the canonical cross-language parity oracle is the
+   golden tape (`paper_golden.json`), re-verified by P4. The native backend refuses `costs=`
+   (engine prices with zero costs) and derives positions from fills (seeding unsupported).
+5. **Facade GTD**: closed 2026-11-16 (follow-on 1) — `place_order(gtd_until=)` exposes
+   `submit_order_gtd`; see "Follow-ons closed".
 6. **Environment ruff drift**: the shared venv's `ruff 0.17.4` enables FURB157
    (verbose-`Decimal` constructor), which fires on the repo's long-standing
    `Decimal("100")` style in untouched files (421 pre-existing hits). Changed paths are
    ruff-clean under 0.17.4 (`Decimal(100)` numeric form in new code); the pre-existing
    hits are out of scope.
+
+## Follow-ons closed (2026-11-16)
+
+1. **GTD facade exposure** (`930a6bf`): `PaperExchange.place_order` gained keyword-only
+   `gtd_until: str | None = None` — when set, the pyclass calls `submit_order_gtd` (the
+   order's `expires_ts`; the first `advance_to` at/past the instant expires it →
+   `CANCELLED` + `cancelled` event); `PaperSession.place_order` passes it through; the
+   `_tantra.pyi` stub and codegen template updated (`make codegen`). Tests:
+   `python/tests/test_paper_gtd.py`. Deviation 5 closed.
+2. **l2_sim native golden parity** (`7dc2419`): `python/tests/test_l2_native_parity.py`
+   asserts the T14.14 golden economics through the native backend — the
+   `paper_golden.json` tape (BUY 100@101, BUY 50@100, SELL MARKET 150 → 4 fills,
+   sell avg `100.6667`, cash back to `1_000_000`, net 0) as a touch-size-full crossing
+   both the top-of-book reference and the paper engine reproduce identically.
+   `l2_sim.py` records the permanent scope: the native backend runs the paper-exchange
+   engine; reference-vs-native parity is asserted on the coincident + golden tapes only;
+   it is NOT a byte-identical port of the top-of-book reference; the canonical
+   cross-language parity oracle is `paper_golden.json` (T14.14). Deviation 4 updated.
 
 ## Verification (green at time of writing)
 
