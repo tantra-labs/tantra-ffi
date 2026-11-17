@@ -117,8 +117,14 @@ class PaperSession:
         trigger_price: Any = None,
         tif: str = "DAY",
         ts_iso: str = "",
+        gtd_until: str | None = None,
     ) -> str:
-        """Place an order; returns the broker order id (``PAPER-0001``, ...)."""
+        """Place an order; returns the broker order id (``PAPER-0001``, ...).
+
+        ``gtd_until`` (RFC3339 UTC) makes the order good-till-date: the engine
+        sets the order's expiry and the first ``advance_to`` at or past that
+        instant expires it (state ``CANCELLED``).
+        """
         request = _CompiledOrderRequest(
             _compiled_instrument(instrument),
             _CompiledOrderSide(side.upper()),
@@ -129,7 +135,7 @@ class PaperSession:
             trigger_price=None if trigger_price is None else to_decimal(trigger_price),
             tif=tif.upper(),
         )
-        return self._exchange.place_order(request, ts_iso)
+        return self._exchange.place_order(request, ts_iso, gtd_until)
 
     def cancel_order(self, broker_order_id: str, ts_iso: str = "") -> None:
         """Cancel a working order by its broker order id."""

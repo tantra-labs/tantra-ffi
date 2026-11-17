@@ -128,17 +128,28 @@ impl PaperExchange {
     }
 
     /// Place an order; returns the broker order id (`PAPER-0001`, ...).
+    ///
+    /// ``gtd_until`` (RFC3339 UTC) makes the order good-till-date: the engine
+    /// sets the order's `expires_ts` and the first `advance_to` at or past that
+    /// instant expires it (state `CANCELLED`, `cancelled` event).
+    #[pyo3(signature = (order, ts_iso="", gtd_until=None))]
     fn place_order(
         &mut self,
         py: Python<'_>,
         order: &Bound<'_, OrderRequest>,
         ts_iso: &str,
+        gtd_until: Option<&str>,
     ) -> PyResult<String> {
         let order_req = order.borrow().inner.clone();
         let now = parse_ts(ts_iso)?;
-        let broker_id = py
-            .detach(move || self.inner.submit_order(order_req, now))
-            .map_err(exchange_error)?;
+        let broker_id = match gtd_until {
+            Some(gtd) => {
+                let gtd = parse_ts(gtd)?;
+                py.detach(move || self.inner.submit_order_gtd(order_req, gtd, now))
+            }
+            None => py.detach(move || self.inner.submit_order(order_req, now)),
+        }
+        .map_err(exchange_error)?;
         Ok(broker_id)
     }
 
