@@ -1,9 +1,9 @@
 """Tests for the pure-Python SDK modules (parameters, sizing, sessions, indicators)."""
+
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
 import pytest
-
 import tantra
 from tantra import indicators, session, sizing, strategy
 
@@ -30,25 +30,25 @@ def test_parameter_int_helper_and_as_dict():
 # --- Sizing ------------------------------------------------------------------
 
 def test_fixed_quantity():
-    assert sizing.fixed_quantity("25") == Decimal("25")
+    assert sizing.fixed_quantity("25") == Decimal(25)
 
 
 def test_fractional_sizing():
-    qty = sizing.fractional(Decimal("100000"), Decimal("0.01"), Decimal("2450"))
+    qty = sizing.fractional(Decimal(100000), Decimal("0.01"), Decimal(2450))
     assert qty == Decimal("0.40")
     with pytest.raises(ValueError):
-        sizing.fractional(Decimal("0"), Decimal("0.01"), Decimal("2450"))
+        sizing.fractional(Decimal(0), Decimal("0.01"), Decimal(2450))
 
 
 def test_risk_budget_sizing():
-    qty = sizing.risk_budget(Decimal("100000"), Decimal("0.02"), Decimal("2450"), Decimal("2400"))
-    assert qty == Decimal("40")
+    qty = sizing.risk_budget(Decimal(100000), Decimal("0.02"), Decimal(2450), Decimal(2400))
+    assert qty == Decimal(40)
     with pytest.raises(ValueError):
-        sizing.risk_budget(Decimal("100000"), Decimal("0.02"), Decimal("2400"), Decimal("2400"))
+        sizing.risk_budget(Decimal(100000), Decimal("0.02"), Decimal(2400), Decimal(2400))
 
 
 def test_sizer_namespace():
-    assert sizing.Sizer.fixed_quantity("25") == Decimal("25")
+    assert sizing.Sizer.fixed_quantity("25") == Decimal(25)
 
 
 # --- Session -----------------------------------------------------------------
@@ -71,28 +71,28 @@ def test_sma():
     assert sma.value() is None
     for price in ["10", "20", "30"]:
         sma.add(price)
-    assert sma.value() == Decimal("20")
+    assert sma.value() == Decimal(20)
     sma.add("40")
-    assert sma.value() == Decimal("30")
+    assert sma.value() == Decimal(30)
 
 
 def test_sma_crosses_above():
     sma = indicators.SMA(2)
     sma.add("10")
     sma.add("10")
-    assert sma.crosses_above(Decimal("12")) is False
+    assert sma.crosses_above(Decimal(12)) is False
     sma.add("20")
-    assert sma.crosses_above(Decimal("12")) is True
-    assert sma.crosses_below(Decimal("12")) is False
+    assert sma.crosses_above(Decimal(12)) is True
+    assert sma.crosses_below(Decimal(12)) is False
 
 
 def test_ema():
     ema = indicators.EMA(3)
     assert ema.value() is None
     ema.add("10")
-    assert ema.value() == Decimal("10")
+    assert ema.value() == Decimal(10)
     ema.add("20")
-    assert ema.value() == Decimal("15")
+    assert ema.value() == Decimal(15)
     assert ema.add("30") == Decimal("22.5")
 
 
@@ -102,7 +102,7 @@ def test_rsi_wilder():
         rsi.add(price)
     value = rsi.value()
     assert value is not None
-    assert value < Decimal("50")
+    assert value < Decimal(50)
 
 
 # --- top-level package -------------------------------------------------------

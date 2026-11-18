@@ -4,7 +4,7 @@ The compiled surface is re-exported from ``._tantra`` (see ``_tantra.pyi``).
 """
 
 from datetime import datetime, tzinfo
-from decimal import Decimal
+from decimal import Decimal as Decimal
 from typing import Any, ClassVar
 
 from ._tantra import (

@@ -1,8 +1,8 @@
 """Tests for the ``tantra.cli`` command-line interface."""
+
 import json
 
 import pytest
-
 from tantra import _tantra
 from tantra.cli import main
 from tantra.strategy import Strategy

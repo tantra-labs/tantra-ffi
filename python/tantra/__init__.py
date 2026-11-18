@@ -5,7 +5,7 @@ pure-Python high-level API (``Strategy``, ``run``, indicators, sizing, session
 windows, and Arrow bridge helpers).
 """
 
-from decimal import Decimal
+from decimal import Decimal as Decimal
 
 # Pure-Python API (submodules importable as `tantra.strategy`, ...).
 # `cli` is deliberately not imported eagerly so `python -m tantra.cli`
