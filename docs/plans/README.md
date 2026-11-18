@@ -10,7 +10,6 @@ Per workspace rule `.agents/rules/gap-tracking.md`:
 | # | Title | Target Scope | Status |
 |---|-------|--------------|--------|
 | [0004](0004-trade-planner-bindings.md) | Trade Planner Python Bindings (`tantra.trade_plan`) | `tantra-ffi` | Proposed — root plan `docs/plans/0008` |
-| [0005](0005-fire-planning-python-bindings.md) | Python Bindings for FIRE Planning & Cashflow (`tantra.fire` & `tantra.wire.fire`) | `tantra-ffi-codegen`, `tantra-ffi-py`, `python/tantra/fire/` | Proposed (2026-11-18) — Track **T19.4**; root plan `docs/plans/0013`; depends on `tantra-ledger` 0006 |
 
 ## Implemented Plans
 
