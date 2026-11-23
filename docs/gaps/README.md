@@ -10,6 +10,15 @@ Per workspace rule `.agents/rules/gap-tracking.md`:
 
 | # | Title | Scope | Status |
 |---|-------|-------|--------|
+| [0003](0003-python-risk-never-uses-native-engine.md) | `tantra.risk` never reaches the compiled RiskEngine | high design-flaw | open — [plan 0005](../plans/0005-design-review-2026-11.md) |
+| [0004](0004-stub-and-codegen-drift-gate.md) | Hand-written stub codegen and no drift gate for generated artifacts | high design-flaw | open — [plan 0005](../plans/0005-design-review-2026-11.md) |
+| [0005](0005-wheel-release-matrix.md) | Linux-only abi3 wheel, no release pipeline, no version sync | high deployment | open — [plan 0005](../plans/0005-design-review-2026-11.md) |
+| [0006](0006-python-fallback-parity-vectors.md) | Pure-Python copies of Rust domain logic without parity vectors | high duplication | open — [plan 0005](../plans/0005-design-review-2026-11.md) |
+| [0007](0007-typed-python-exceptions.md) | Stringly-typed risk refusals and flat exception hierarchy | medium design-flaw | open — [plan 0005](../plans/0005-design-review-2026-11.md) |
+| [0008](0008-arrow-decimal-rescale.md) | Arrow decimal export truncates silently; micros-only timestamps | medium design-flaw | open — [plan 0005](../plans/0005-design-review-2026-11.md) |
+| [0009](0009-strategy-runner-placeholder.md) | `StrategyRunner` GIL-free batch is a placeholder checksum | medium design-flaw | open — [plan 0005](../plans/0005-design-review-2026-11.md) |
+| [0010](0010-pyclass-borrow-under-detach.md) | `#[pyclass]` borrow and re-entrancy under `py.detach` | medium design-flaw | open — [plan 0005](../plans/0005-design-review-2026-11.md) |
+| [0011](0011-decimal-extraction-strictness.md) | Decimal extraction duck-types and accepts floats | medium design-flaw | open — [plan 0005](../plans/0005-design-review-2026-11.md) |
 
 ## Closed Gaps
 

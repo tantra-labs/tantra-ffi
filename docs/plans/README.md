@@ -10,6 +10,7 @@ Per workspace rule `.agents/rules/gap-tracking.md`:
 | # | Title | Target Scope | Status |
 |---|-------|--------------|--------|
 | [0004](0004-trade-planner-bindings.md) | Trade Planner Python Bindings (`tantra.trade_plan`) | `tantra-ffi` | Proposed — root plan `docs/plans/0008` |
+| [0005](0005-design-review-2026-11.md) | tantra-ffi design review (2026-11): native-first bindings, parity vectors, typed errors & wheel release matrix | `tantra-ffi` | Proposed (2026-11-23) — root plan `docs/plans/0021` |
 
 ## Implemented Plans
 
