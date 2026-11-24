@@ -5,7 +5,7 @@
 ## 0. Executive Summary & Objective
 
 Expose `TradePlanSpec`, `TradePlanner`, `TradeManager`, `TradePlan`/`TradeAction`,
-`ChartPattern`, and canonical presets from [`tantra-core` plan 0005](../../../tantra-core/docs/plans/0005-trade-planner-and-manager.md)
+`ChartPattern`, and canonical presets from [`tantra-core` plan 0005](../../../tantra-core/docs/plans/README.md#implemented-plans)
 to Python as `tantra.trade_plan`, so the SDK and notebooks run the exact same planner,
 presets, and bar-by-bar state machine as Rust backtest and live execution.
 Roadmap: [root plan 0008](../../../docs/plans/0008-trade-signal-generator.md).
@@ -17,7 +17,7 @@ Roadmap: [root plan 0008](../../../docs/plans/0008-trade-signal-generator.md).
   - `python/tantra/declarative.py`: `Entry(quantity, stop_loss?, take_profit?)` and `DeclarativeStrategy(oco=True)` (sim-only OCO) in `tantra-ffi`
   - `tantra_strategies.sdk.strategy.Strategy` + `StopProtection` in `tantra-strategies`
 - `python/tantra/order.py`: `OrderType.TRAILING_STOP` (`trail_amount`/`trail_percent`) is Python-only, with no Rust counterpart.
-- Upstream: `tantra-core/docs/plans/0005-trade-planner-and-manager.md`, `tantra-market/docs/plans/0002-chart-pattern-analyzer.md` (`ChartPattern`); consumer: `tantra-strategies/docs/plans/0003-trade-plan-sdk.md`.
+- Upstream: `tantra-core/docs/plans/README.md#implemented-plans`, `tantra-market/docs/plans/0002-chart-pattern-analyzer.md` (`ChartPattern`); consumer: `tantra-strategies/docs/plans/0003-trade-plan-sdk.md`.
 
 ## 2. Component Specifications & Phases
 
