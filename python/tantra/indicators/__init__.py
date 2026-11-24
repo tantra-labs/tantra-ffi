@@ -30,7 +30,16 @@ from tantra.indicators.bank import IndicatorBank
 from tantra.indicators.moving_average import Ema, Rma, Sma, Wma, make_ma
 from tantra.indicators.trend import Ichimoku, Macd, MacdValue
 from tantra.indicators.momentum import Kdj, Rsi
-from tantra.indicators.volatility import Atr, Bollinger, BollingerValue, Donchian, DonchianValue
+from tantra.indicators.volatility import (
+    AdrPct,
+    Atr,
+    Bollinger,
+    BollingerValue,
+    ChandelierExit,
+    ChandelierExitValue,
+    Donchian,
+    DonchianValue,
+)
 from tantra.indicators._legacy import SMA, EMA, RSI
 
 # case-compat alias: the statistical family class is ``ZScore``, but the
@@ -65,9 +74,12 @@ def build_indicator(kind: str, **params: Any) -> Any:  # mirror accommodation (g
 
 __all__ = [
     "FAMILIES",
+    "AdrPct",
     "Atr",
     "Bollinger",
     "BollingerValue",
+    "ChandelierExit",
+    "ChandelierExitValue",
     "Donchian",
     "DonchianValue",
     "Ema",

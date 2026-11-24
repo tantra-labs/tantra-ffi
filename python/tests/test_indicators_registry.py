@@ -497,11 +497,13 @@ def test_list_indicators_volatility_and_volume_subset() -> None:
         assert kinds
         assert kinds <= all_kinds
     assert {
+        "adr_pct",
         "atr",
         "bollinger",
         "bollinger_bandwidth",
         "bollinger_percent_b",
         "chaikin_volatility",
+        "chandelier_exit",
         "choppiness_index",
         "donchian",
         "envelope",
@@ -705,8 +707,8 @@ def test_registry_total_matches_kernel() -> None:
     the cross-check is an internal self-consistency gate instead of a mirror compare.
     """
     kinds = list_indicators()
-    assert len(kinds) == 74
-    assert len(set(kinds)) == 74  # every kind registered exactly once
+    assert len(kinds) == 76
+    assert len(set(kinds)) == 76  # every kind registered exactly once
     assert set(FAMILIES) == _ALL_FAMILIES
 
     by_family = {family: [] for family in FAMILIES}
@@ -720,7 +722,7 @@ def test_registry_total_matches_kernel() -> None:
         "moving_average": 12,
         "trend": 9,
         "momentum": 17,
-        "volatility": 12,
+        "volatility": 14,
         "volume": 11,
         "support_resistance": 3,
         "breadth": 5,
