@@ -244,14 +244,14 @@ class EventWindowPoint(TypedDict, total=False):
 
 
 class ExperimentalCatalogResponse(TypedDict, total=False):
-    """Response payload for `GET /experimental-analysis/catalog`."""
+    """Response payload for `GET /studies/experimental-analysis/catalog`."""
 
     groups: list[AssetClassCatalogGroup]
     source_status: DataSourceStatus
 
 
 class ExperimentalCorrelationRequest(TypedDict, total=False):
-    """Request payload for `POST /experimental-analysis/correlation`."""
+    """Request payload for `POST /studies/experimental-analysis/correlation`."""
 
     benchmark_id: str
     end_date: str
@@ -262,7 +262,7 @@ class ExperimentalCorrelationRequest(TypedDict, total=False):
 
 
 class ExperimentalCorrelationResponse(TypedDict, total=False):
-    """Response payload for `POST /experimental-analysis/correlation`."""
+    """Response payload for `POST /studies/experimental-analysis/correlation`."""
 
     aligned_sessions: int
     benchmark_id: str
@@ -280,7 +280,7 @@ class ExperimentalCorrelationResponse(TypedDict, total=False):
 
 
 class ExperimentalEventStudyRequest(TypedDict, total=False):
-    """Request payload for `POST /experimental-analysis/events`."""
+    """Request payload for `POST /studies/experimental-analysis/events`."""
 
     benchmark_id: str | None
     end_date: str
@@ -291,7 +291,7 @@ class ExperimentalEventStudyRequest(TypedDict, total=False):
 
 
 class ExperimentalEventStudyResponse(TypedDict, total=False):
-    """Response payload for `POST /experimental-analysis/events`."""
+    """Response payload for `POST /studies/experimental-analysis/events`."""
 
     availability_note: str
     available: bool
@@ -315,7 +315,7 @@ class ExperimentalEventStudyResponse(TypedDict, total=False):
 
 
 class ExperimentalForecastRequest(TypedDict, total=False):
-    """Request payload for `POST /experimental-analysis/forecast`."""
+    """Request payload for `POST /studies/experimental-analysis/forecast`."""
 
     asset_class: StudyAssetClass
     calc_type: ReturnCalcKind
@@ -331,7 +331,7 @@ class ExperimentalForecastRequest(TypedDict, total=False):
 
 
 class ExperimentalForecastResponse(TypedDict, total=False):
-    """Response payload for `POST /experimental-analysis/forecast`."""
+    """Response payload for `POST /studies/experimental-analysis/forecast`."""
 
     analog_count: int
     asset_class: StudyAssetClass
@@ -352,7 +352,7 @@ class ExperimentalForecastResponse(TypedDict, total=False):
 
 
 class ExperimentalIntradayRequest(TypedDict, total=False):
-    """Request payload for `POST /experimental-analysis/intraday`."""
+    """Request payload for `POST /studies/experimental-analysis/intraday`."""
 
     asset_class: StudyAssetClass
     end_date: str
@@ -386,7 +386,7 @@ class ExperimentalIntradayResponse(TypedDict, total=False):
 
 
 class ExperimentalOptionsOverlayRequest(TypedDict, total=False):
-    """Request payload for `POST /experimental-analysis/options-overlay`."""
+    """Request payload for `POST /studies/experimental-analysis/options-overlay`."""
 
     asset_class: StudyAssetClass
     end_date: str
@@ -401,7 +401,7 @@ class ExperimentalOptionsOverlayRequest(TypedDict, total=False):
 
 
 class ExperimentalOptionsOverlayResponse(TypedDict, total=False):
-    """Response payload for `POST /experimental-analysis/options-overlay`."""
+    """Response payload for `POST /studies/experimental-analysis/options-overlay`."""
 
     asset_class: StudyAssetClass
     availability_note: str
@@ -439,7 +439,7 @@ class ExperimentalOptionsOverlayResponse(TypedDict, total=False):
 
 
 class ExperimentalOutlierNewsRequest(TypedDict, total=False):
-    """Request payload for `POST /experimental-analysis/outlier-news`."""
+    """Request payload for `POST /studies/experimental-analysis/outlier-news`."""
 
     asset_class: StudyAssetClass
     instrument_id: str
@@ -450,7 +450,7 @@ class ExperimentalOutlierNewsRequest(TypedDict, total=False):
 
 
 class ExperimentalOutlierNewsResponse(TypedDict, total=False):
-    """Response payload for `POST /experimental-analysis/outlier-news`."""
+    """Response payload for `POST /studies/experimental-analysis/outlier-news`."""
 
     asset_class: StudyAssetClass
     availability_note: str
@@ -466,7 +466,7 @@ class ExperimentalOutlierNewsResponse(TypedDict, total=False):
 
 
 class ExperimentalReturnsRequest(TypedDict, total=False):
-    """Request payload for `POST /experimental-analysis/returns`."""
+    """Request payload for `POST /studies/experimental-analysis/returns`."""
 
     asset_class: StudyAssetClass
     calc_type: ReturnCalcKind
@@ -487,7 +487,7 @@ class ExperimentalReturnsRequest(TypedDict, total=False):
 
 
 class ExperimentalReturnsResponse(TypedDict, total=False):
-    """Full single-shot statistical report returned by `POST /experimental-analysis/returns`."""
+    """Full single-shot statistical report returned by `POST /studies/experimental-analysis/returns`."""
 
     asset_class: StudyAssetClass
     calc_type: ReturnCalcKind
