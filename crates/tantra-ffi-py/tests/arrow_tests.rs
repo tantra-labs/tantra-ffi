@@ -244,7 +244,7 @@ fn single_bar_batch_schema() {
     use tantra_core::{Bar, Exchange, InstrumentId, Price, Quantity};
 
     let core_bar = Bar {
-        instrument: InstrumentId::new(Exchange::Nse, "RELIANCE"),
+        instrument: InstrumentId::try_new(Exchange::Nse, "RELIANCE").unwrap(),
         open: Price::from_rupees("2450.75").unwrap(),
         high: Price::from_rupees("2451.50").unwrap(),
         low: Price::from_rupees("2449.00").unwrap(),
@@ -284,7 +284,7 @@ fn single_bar_batch_schema() {
 
     // The tick schema marks `price` nullable.
     let ltp = tantra_core::Tick::Ltp {
-        instrument: InstrumentId::new(Exchange::Nse, "RELIANCE"),
+        instrument: InstrumentId::try_new(Exchange::Nse, "RELIANCE").unwrap(),
         price: Price::from_rupees("2450.75").unwrap(),
         volume: Quantity::from_u64(100),
         exchange_ts: DateTime::parse_from_rfc3339("2024-01-15T09:30:00+05:30")

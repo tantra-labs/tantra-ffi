@@ -83,8 +83,8 @@ fn fill_event_dict(
     d.set_item("broker_order_id", &fill.order_id)?;
     d.set_item("instrument", fill.instrument.to_string())?;
     d.set_item("side", side_code(&fill.side))?;
-    d.set_item("quantity", decimal_to_pydecimal(py, fill.quantity.0)?)?;
-    d.set_item("price", decimal_to_pydecimal(py, fill.price.0)?)?;
+    d.set_item("quantity", decimal_to_pydecimal(py, fill.quantity.value())?)?;
+    d.set_item("price", decimal_to_pydecimal(py, fill.price.value())?)?;
     d.set_item("timestamp", fill.timestamp.to_rfc3339())?;
     Ok(())
 }
@@ -247,7 +247,7 @@ impl PaperExchange {
                     d.set_item("broker_order_id", broker_order_id)?;
                     d.set_item("instrument", instrument.to_string())?;
                     d.set_item("side", side_code(side))?;
-                    d.set_item("quantity", decimal_to_pydecimal(py, quantity.0)?)?;
+                    d.set_item("quantity", decimal_to_pydecimal(py, quantity.value())?)?;
                     d.set_item("timestamp", timestamp.to_rfc3339())?;
                 }
                 tantra_exec_paper::ExchangeEvent::Fill { fill } => {
@@ -317,8 +317,12 @@ impl PaperExchange {
         let inst = instrument.borrow().inner.clone();
         match self.inner.depth(&inst) {
             Some((bid, ask)) => {
-                let bid = bid.map(|p| decimal_to_pydecimal(py, p.0)).transpose()?;
-                let ask = ask.map(|p| decimal_to_pydecimal(py, p.0)).transpose()?;
+                let bid = bid
+                    .map(|p| decimal_to_pydecimal(py, p.value()))
+                    .transpose()?;
+                let ask = ask
+                    .map(|p| decimal_to_pydecimal(py, p.value()))
+                    .transpose()?;
                 Ok(Some((bid, ask)))
             }
             None => Ok(None),
@@ -335,15 +339,21 @@ impl PaperExchange {
             d.set_item("side", side_code(&wo.side))?;
             d.set_item("order_type", order_type_code(&wo.order_type))?;
             d.set_item("tif", tif_code(&wo.tif))?;
-            d.set_item("original_qty", decimal_to_pydecimal(py, wo.original_qty.0)?)?;
-            d.set_item("filled_qty", decimal_to_pydecimal(py, wo.filled_qty.0)?)?;
+            d.set_item(
+                "original_qty",
+                decimal_to_pydecimal(py, wo.original_qty.value())?,
+            )?;
+            d.set_item(
+                "filled_qty",
+                decimal_to_pydecimal(py, wo.filled_qty.value())?,
+            )?;
             d.set_item(
                 "remaining_qty",
-                decimal_to_pydecimal(py, wo.remaining_qty.0)?,
+                decimal_to_pydecimal(py, wo.remaining_qty.value())?,
             )?;
             d.set_item(
                 "avg_fill_price",
-                decimal_to_pydecimal(py, wo.avg_fill_price.0)?,
+                decimal_to_pydecimal(py, wo.avg_fill_price.value())?,
             )?;
             d.set_item("state", state_code(&wo.state))?;
             d.set_item(

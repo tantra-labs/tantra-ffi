@@ -72,9 +72,9 @@ impl Decision {
                 dict.set_item("action", "place_order")?;
                 dict.set_item("symbol", symbol)?;
                 dict.set_item("side", side_code(*side))?;
-                dict.set_item("qty", qty.0.to_string())?;
+                dict.set_item("qty", qty.value().to_string())?;
                 if let Some(price) = price_limit {
-                    dict.set_item("price_limit", price.0.to_string())?;
+                    dict.set_item("price_limit", price.value().to_string())?;
                 }
                 dict.set_item("algo_id", algo_id)?;
                 if let Some(reason) = rationale {
@@ -91,10 +91,10 @@ impl Decision {
                 dict.set_item("action", "modify_order")?;
                 dict.set_item("instrument", instrument.to_string())?;
                 if let Some(qty) = new_qty {
-                    dict.set_item("new_qty", qty.0.to_string())?;
+                    dict.set_item("new_qty", qty.value().to_string())?;
                 }
                 if let Some(price) = new_price {
-                    dict.set_item("new_price", price.0.to_string())?;
+                    dict.set_item("new_price", price.value().to_string())?;
                 }
                 dict.set_item("algo_id", algo_id)?;
                 if let Some(reason) = rationale {

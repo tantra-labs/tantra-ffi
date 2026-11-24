@@ -26,4 +26,4 @@ The zero-floats policy (`.agents/rules/interface-first-and-modularity.md` sectio
 ## Related
 
 - [0007](0007-typed-python-exceptions.md), [0008](0008-arrow-decimal-rescale.md).
-- `tantra-core/docs/gaps/0003-value-objects-constructible-invalid.md` (value-object invariants at construction).
+- `tantra-core/docs/gaps/README.md#closed-gaps` gap `0003` (value-object invariants at construction).

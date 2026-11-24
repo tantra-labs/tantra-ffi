@@ -52,12 +52,12 @@ fn decimal_to_scaled_i128(d: &Decimal) -> i128 {
 
 /// `Price` -> scale-8 unscaled `i128` mantissa.
 fn price_to_i128(p: &Price) -> i128 {
-    decimal_to_scaled_i128(&p.0)
+    decimal_to_scaled_i128(&p.value())
 }
 
 /// `Quantity` -> scale-8 unscaled `i128` mantissa.
 fn quantity_to_i128(q: &Quantity) -> i128 {
-    decimal_to_scaled_i128(&q.0)
+    decimal_to_scaled_i128(&q.value())
 }
 
 /// Build a non-nullable scale-8 `Decimal128Array`.
@@ -186,10 +186,10 @@ fn tick_exchange_ts_micros(tick: &tantra_core::Tick) -> i64 {
 /// quote, and `Decimal::ZERO` for depth ticks.
 fn tick_volume(tick: &tantra_core::Tick) -> Decimal {
     match tick {
-        tantra_core::Tick::Ltp { volume, .. } => volume.0,
+        tantra_core::Tick::Ltp { volume, .. } => volume.value(),
         tantra_core::Tick::Quote {
             bid_qty, ask_qty, ..
-        } => bid_qty.0 + ask_qty.0,
+        } => bid_qty.value() + ask_qty.value(),
         tantra_core::Tick::Depth { .. } => Decimal::ZERO,
     }
 }

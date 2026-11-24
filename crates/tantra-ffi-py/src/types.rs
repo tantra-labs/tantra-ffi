@@ -77,12 +77,12 @@ impl Price {
     /// The exact decimal value as a Python `decimal.Decimal`.
     #[getter]
     fn value<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.0)
+        decimal_to_pydecimal(py, self.inner.value())
     }
 
     /// Exact decimal string form.
     fn to_str(&self) -> String {
-        self.inner.0.to_string()
+        self.inner.value().to_string()
     }
 
     fn is_positive(&self) -> bool {
@@ -95,11 +95,11 @@ impl Price {
     }
 
     fn __str__(&self) -> String {
-        format!("Price({})", self.inner.0)
+        format!("Price({})", self.inner.value())
     }
 
     fn __repr__(&self) -> String {
-        format!("Price({})", self.inner.0)
+        format!("Price({})", self.inner.value())
     }
 
     fn __eq__(&self, other: &Bound<'_, PyAny>) -> bool {
@@ -127,12 +127,12 @@ impl Quantity {
     /// The exact decimal value as a Python `decimal.Decimal`.
     #[getter]
     fn value<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.0)
+        decimal_to_pydecimal(py, self.inner.value())
     }
 
     /// Exact decimal string form.
     fn to_str(&self) -> String {
-        self.inner.0.to_string()
+        self.inner.value().to_string()
     }
 
     fn is_positive(&self) -> bool {
@@ -144,11 +144,11 @@ impl Quantity {
     }
 
     fn __str__(&self) -> String {
-        format!("Quantity({})", self.inner.0)
+        format!("Quantity({})", self.inner.value())
     }
 
     fn __repr__(&self) -> String {
-        format!("Quantity({})", self.inner.0)
+        format!("Quantity({})", self.inner.value())
     }
 
     fn __eq__(&self, other: &Bound<'_, PyAny>) -> bool {
@@ -247,7 +247,7 @@ impl InstrumentId {
         isin: Option<String>,
     ) -> PyResult<Self> {
         let ex = tantra_core::Exchange::from_str(exchange).map_err(conversion_err)?;
-        let mut inner = tantra_core::InstrumentId::new(ex, symbol);
+        let mut inner = tantra_core::InstrumentId::try_new(ex, symbol).map_err(conversion_err)?;
         if let Some(token) = token {
             inner = inner.with_token(token);
         }
@@ -259,22 +259,22 @@ impl InstrumentId {
 
     #[getter]
     fn exchange(&self) -> &'static str {
-        self.inner.exchange.as_str()
+        self.inner.exchange().as_str()
     }
 
     #[getter]
     fn symbol(&self) -> &str {
-        &self.inner.symbol
+        self.inner.symbol()
     }
 
     #[getter]
     fn token(&self) -> Option<&str> {
-        self.inner.token.as_deref()
+        self.inner.token()
     }
 
     #[getter]
     fn isin(&self) -> Option<&str> {
-        self.inner.isin.as_deref()
+        self.inner.isin()
     }
 
     fn to_str(&self) -> String {
@@ -290,7 +290,7 @@ impl InstrumentId {
         })?;
         let ex = tantra_core::Exchange::from_str(exchange).map_err(conversion_err)?;
         Ok(InstrumentId {
-            inner: tantra_core::InstrumentId::new(ex, symbol),
+            inner: tantra_core::InstrumentId::try_new(ex, symbol).map_err(conversion_err)?,
         })
     }
 }

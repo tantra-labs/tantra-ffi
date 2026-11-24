@@ -53,12 +53,12 @@ impl DepthLevel {
 
     #[getter]
     fn price<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.price.0)
+        decimal_to_pydecimal(py, self.inner.price.value())
     }
 
     #[getter]
     fn quantity<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.quantity.0)
+        decimal_to_pydecimal(py, self.inner.quantity.value())
     }
 
     #[getter]
@@ -117,27 +117,27 @@ impl Bar {
 
     #[getter]
     fn open<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.open.0)
+        decimal_to_pydecimal(py, self.inner.open.value())
     }
 
     #[getter]
     fn high<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.high.0)
+        decimal_to_pydecimal(py, self.inner.high.value())
     }
 
     #[getter]
     fn low<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.low.0)
+        decimal_to_pydecimal(py, self.inner.low.value())
     }
 
     #[getter]
     fn close<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.close.0)
+        decimal_to_pydecimal(py, self.inner.close.value())
     }
 
     #[getter]
     fn volume<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.volume.0)
+        decimal_to_pydecimal(py, self.inner.volume.value())
     }
 
     #[getter]
@@ -149,11 +149,11 @@ impl Bar {
     fn to_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
         let dict = PyDict::new(py);
         dict.set_item("instrument", self.inner.instrument.to_string())?;
-        dict.set_item("open", self.inner.open.0.to_string())?;
-        dict.set_item("high", self.inner.high.0.to_string())?;
-        dict.set_item("low", self.inner.low.0.to_string())?;
-        dict.set_item("close", self.inner.close.0.to_string())?;
-        dict.set_item("volume", self.inner.volume.0.to_string())?;
+        dict.set_item("open", self.inner.open.value().to_string())?;
+        dict.set_item("high", self.inner.high.value().to_string())?;
+        dict.set_item("low", self.inner.low.value().to_string())?;
+        dict.set_item("close", self.inner.close.value().to_string())?;
+        dict.set_item("volume", self.inner.volume.value().to_string())?;
         dict.set_item("timestamp", self.inner.timestamp.to_rfc3339())?;
         Ok(dict.into_any())
     }
@@ -251,8 +251,8 @@ impl Tick {
             } => {
                 dict.set_item("kind", "ltp")?;
                 dict.set_item("instrument", instrument.to_string())?;
-                dict.set_item("price", price.0.to_string())?;
-                dict.set_item("volume", volume.0.to_string())?;
+                dict.set_item("price", price.value().to_string())?;
+                dict.set_item("volume", volume.value().to_string())?;
                 dict.set_item("exchange_ts", exchange_ts.to_rfc3339())?;
                 dict.set_item("receive_ts", receive_ts.to_rfc3339())?;
             }
@@ -269,12 +269,12 @@ impl Tick {
             } => {
                 dict.set_item("kind", "quote")?;
                 dict.set_item("instrument", instrument.to_string())?;
-                dict.set_item("bid", bid.0.to_string())?;
-                dict.set_item("ask", ask.0.to_string())?;
-                dict.set_item("bid_qty", bid_qty.0.to_string())?;
-                dict.set_item("ask_qty", ask_qty.0.to_string())?;
+                dict.set_item("bid", bid.value().to_string())?;
+                dict.set_item("ask", ask.value().to_string())?;
+                dict.set_item("bid_qty", bid_qty.value().to_string())?;
+                dict.set_item("ask_qty", ask_qty.value().to_string())?;
                 match last_price {
-                    Some(lp) => dict.set_item("last_price", lp.0.to_string())?,
+                    Some(lp) => dict.set_item("last_price", lp.value().to_string())?,
                     None => dict.set_item("last_price", "")?,
                 }
                 dict.set_item("exchange_ts", exchange_ts.to_rfc3339())?;
@@ -293,7 +293,7 @@ impl Tick {
                 dict.set_item("bid_levels", bids.len())?;
                 dict.set_item("ask_levels", asks.len())?;
                 match last_price {
-                    Some(lp) => dict.set_item("last_price", lp.0.to_string())?,
+                    Some(lp) => dict.set_item("last_price", lp.value().to_string())?,
                     None => dict.set_item("last_price", "")?,
                 }
                 dict.set_item("exchange_ts", exchange_ts.to_rfc3339())?;

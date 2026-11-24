@@ -7,7 +7,7 @@
 use std::fs;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use tantra_ffi_codegen::{domain_schema, openapi_document, pyi_stubs, write_all};
+use tantra_ffi_codegen::{SCHEMA_VERSION, domain_schema, openapi_document, pyi_stubs, write_all};
 
 #[test]
 fn domain_schema_has_definitions() {
@@ -17,7 +17,7 @@ fn domain_schema_has_definitions() {
         obj["$schema"],
         "https://json-schema.org/draft/2020-12/schema"
     );
-    assert_eq!(obj["version"], 8);
+    assert_eq!(obj["version"], SCHEMA_VERSION);
 
     let definitions = obj["definitions"]
         .as_object()

@@ -144,13 +144,13 @@ impl OrderRequest {
 
     #[getter]
     fn quantity<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.quantity.0)
+        decimal_to_pydecimal(py, self.inner.quantity.value())
     }
 
     #[getter]
     fn limit_price<'py>(&self, py: Python<'py>) -> PyResult<Option<Bound<'py, PyAny>>> {
         match self.inner.order_type.limit_price() {
-            Some(price) => decimal_to_pydecimal(py, price.0).map(Some),
+            Some(price) => decimal_to_pydecimal(py, price.value()).map(Some),
             None => Ok(None),
         }
     }
@@ -181,9 +181,9 @@ impl OrderRequest {
         dict.set_item("instrument", self.inner.instrument.to_string())?;
         dict.set_item("side", side_code(self.inner.side))?;
         dict.set_item("order_type", self.order_type())?;
-        dict.set_item("quantity", self.inner.quantity.0.to_string())?;
+        dict.set_item("quantity", self.inner.quantity.value().to_string())?;
         match self.inner.order_type.limit_price() {
-            Some(price) => dict.set_item("limit_price", price.0.to_string())?,
+            Some(price) => dict.set_item("limit_price", price.value().to_string())?,
             None => dict.set_item("limit_price", "")?,
         }
         dict.set_item("tif", self.tif())?;
@@ -333,12 +333,12 @@ impl FillReport {
 
     #[getter]
     fn price<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.price.0)
+        decimal_to_pydecimal(py, self.inner.price.value())
     }
 
     #[getter]
     fn quantity<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyAny>> {
-        decimal_to_pydecimal(py, self.inner.quantity.0)
+        decimal_to_pydecimal(py, self.inner.quantity.value())
     }
 
     #[getter]
@@ -359,8 +359,8 @@ impl FillReport {
         dict.set_item("client_order_id", self.inner.client_order_id.to_string())?;
         dict.set_item("instrument", self.inner.instrument.to_string())?;
         dict.set_item("side", side_code(self.inner.side))?;
-        dict.set_item("price", self.inner.price.0.to_string())?;
-        dict.set_item("quantity", self.inner.quantity.0.to_string())?;
+        dict.set_item("price", self.inner.price.value().to_string())?;
+        dict.set_item("quantity", self.inner.quantity.value().to_string())?;
         dict.set_item("algo_id", &self.inner.algo_id)?;
         dict.set_item("timestamp", self.inner.timestamp.to_rfc3339())?;
         Ok(dict.into_any())
@@ -413,8 +413,8 @@ impl OrderEvent {
                 dict.set_item("client_order_id", fill.client_order_id.to_string())?;
                 dict.set_item("instrument", fill.instrument.to_string())?;
                 dict.set_item("side", side_code(fill.side))?;
-                dict.set_item("price", fill.price.0.to_string())?;
-                dict.set_item("quantity", fill.quantity.0.to_string())?;
+                dict.set_item("price", fill.price.value().to_string())?;
+                dict.set_item("quantity", fill.quantity.value().to_string())?;
                 dict.set_item("algo_id", &fill.algo_id)?;
                 dict.set_item("timestamp", fill.timestamp.to_rfc3339())?;
             }

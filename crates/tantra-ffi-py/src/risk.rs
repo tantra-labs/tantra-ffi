@@ -95,11 +95,12 @@ impl RiskEngine {
         upper: &Bound<'_, PyAny>,
         reference: &Bound<'_, PyAny>,
     ) -> PyResult<()> {
-        let band = tantra_core::PriceBand::new(
+        let band = tantra_core::PriceBand::try_new(
             price_from_any(lower)?,
             price_from_any(upper)?,
             price_from_any(reference)?,
-        );
+        )
+        .map_err(crate::error::conversion_err)?;
         self.inner
             .set_price_band(instrument.borrow().inner.clone(), band);
         Ok(())
