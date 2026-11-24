@@ -7,10 +7,10 @@ import urllib.error
 import urllib.request
 from collections.abc import Mapping
 from decimal import Decimal
-from typing import Any
+from typing import Any, Protocol, runtime_checkable
 from urllib.parse import urlencode
 
-__all__ = ["ClientError", "HttpTransport"]
+__all__ = ["ClientError", "HttpTransport", "Transport"]
 
 
 class ClientError(Exception):
@@ -30,6 +30,22 @@ class ClientError(Exception):
         self.code = code
         self.message = message
         self.reason = reason
+
+
+@runtime_checkable
+class Transport(Protocol):
+    """A way to issue ``/api/v2`` calls and unwrap the envelope."""
+
+    def request(
+        self,
+        method: str,
+        path: str,
+        *,
+        query: Mapping[str, str | None] | None = None,
+        body: Mapping[str, Any] | None = None,
+    ) -> Any: ...
+
+    def close(self) -> None: ...
 
 
 class _NoRedirect(urllib.request.HTTPRedirectHandler):
@@ -57,6 +73,9 @@ class HttpTransport:
     def __repr__(self) -> str:
         tok = "[REDACTED]" if self._token else None
         return f"HttpTransport(base={self._base!r}, token={tok!r})"
+
+    def close(self) -> None:
+        """No persistent connection is held."""
 
     def request(
         self,

@@ -14,6 +14,11 @@ crate-type = ["cdylib", "lib"]
 tantra-core = { workspace = true }
 tantra-risk = { workspace = true }
 tantra-exec-paper = { workspace = true }
+tantra-runtime-api-rest = { workspace = true }
+tokio = { workspace = true }
+axum = { workspace = true }
+tower = { workspace = true }
+http = { workspace = true }
 pyo3 = { workspace = true }
 arrow = { workspace = true }
 rust_decimal = { workspace = true }

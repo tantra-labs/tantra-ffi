@@ -26,6 +26,7 @@ LoopTimeframe = Literal["1m", "5m", "15m", "1h", "1d"]
 MarkerKindDto = Literal["breakout", "reversal", "retest", "stop_line", "sweep", "sweep_saved", "target_hit", "elephant_bar"]
 MarkerSideDto = Literal["buy", "sell"]
 MarkovState = Literal["short_positive", "medium_positive", "long_positive", "short_negative", "medium_negative", "long_negative"]
+OptionChainSource = Literal["live_chain", "theoretical_bs"]
 OptionOverlayStrategy = Literal["covered_call", "bull_call_spread", "bear_put_spread", "iron_condor", "calendar_spread"]
 OrderSide = Literal["BUY", "SELL"]
 OrderStatus = Literal["pending_new", "new", "partially_filled", "filled", "cancelled", "rejected", "expired"]
@@ -900,6 +901,46 @@ class ModulesResponse(TypedDict, total=False):
     modules: dict[str, Any]
 
 
+class OptionChainRowDto(TypedDict, total=False):
+    """Symmetrical Call + Strike + Put row for an option chain table."""
+
+    call: OptionLegSnapshotDto
+    call_itm: bool
+    is_atm: bool
+    put: OptionLegSnapshotDto
+    put_itm: bool
+    strike: str
+
+
+class OptionExpiryDto(TypedDict, total=False):
+    """One expiry entry in the option chain's expiry selector."""
+
+    dte: int
+    expiry: str
+    is_weekly: bool
+    label: str
+    short_label: str
+
+
+class OptionLegSnapshotDto(TypedDict, total=False):
+    """Call or Put contract leg metrics at one strike price."""
+
+    ask: str | None
+    bid: str | None
+    contract_symbol: str
+    delta: str
+    gamma: str
+    iv_pct: str
+    live_quoted: bool
+    ltp: str
+    ltp_change_pct: str
+    oi: str
+    oi_change_pct: str
+    theta: str
+    vega: str
+    volume: str
+
+
 class OptionLegSpec(TypedDict, total=False):
     """Single option or underlying leg inside a multi-leg structure."""
 
@@ -913,6 +954,29 @@ class OptionLegSpec(TypedDict, total=False):
     spread_abs: str | None
     spread_bps: str | None
     strike: str
+
+
+class OptionsChainResponse(TypedDict, total=False):
+    """Full option-chain snapshot returned by `GET /api/v2/options/chain`."""
+
+    active_expiry: str
+    atm_iv_pct: str
+    atm_strike: str
+    availability_note: str
+    currency: str
+    expiries: list[OptionExpiryDto]
+    instrument_id: str
+    iv_percentile: str
+    iv_percentile_regime: str
+    live_contract_count: int
+    lot_size: str
+    max_pain_strike: str
+    pcr: str
+    rows: list[OptionChainRowDto]
+    source: OptionChainSource
+    spot_change: str
+    spot_change_pct: str
+    spot_price: str
 
 
 class OrbBacktestResult(TypedDict, total=False):

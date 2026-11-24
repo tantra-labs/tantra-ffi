@@ -218,11 +218,6 @@ def test_token_redacted_in_repr(server: _Server) -> None:
     assert "s3cret" not in repr(Client.http(server.url, token="s3cret"))
 
 
-def test_inproc_not_available() -> None:
-    with pytest.raises(NotImplementedError):
-        Client.inproc("data")
-
-
 def test_models_check_is_current() -> None:
     script = Path(__file__).resolve().parents[2] / "scripts" / "gen_client_models.py"
     schema = (

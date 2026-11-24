@@ -17,7 +17,8 @@ from typing import Any
 from urllib.parse import quote
 
 from ._config import RuntimeConfigError, RuntimeEndpoint, load_runtime_endpoint
-from ._http import ClientError, HttpTransport
+from ._http import ClientError, HttpTransport, Transport
+from ._inproc import InprocTransport
 from ._models import (
     ExpiryHedgeRequest,
     ExpiryHedgeResponse,
@@ -33,6 +34,7 @@ __all__ = [
     "ClientError",
     "RuntimeConfigError",
     "RuntimeEndpoint",
+    "Transport",
     "load_runtime_endpoint",
 ]
 
@@ -66,7 +68,7 @@ def _money(name: str, value: object) -> str:
 class Client:
     """Synchronous client for ``/api/v2``. Build with :meth:`http` or :meth:`from_config`."""
 
-    def __init__(self, transport: HttpTransport) -> None:
+    def __init__(self, transport: Transport) -> None:
         self._t = transport
 
     def __repr__(self) -> str:
@@ -92,15 +94,32 @@ class Client:
         return cls.http(ep.url, token=ep.token, timeout=timeout)
 
     @classmethod
-    def inproc(cls, *args: Any, **kwargs: Any) -> Client:
-        raise NotImplementedError(
-            "in-process transport is not available in the wheel yet; "
-            "use Client.http(...) against `tantra serve`"
+    def inproc(
+        cls,
+        data_dir: str | os.PathLike[str],
+        *,
+        token: str | None = None,
+        journals_dir: str | os.PathLike[str] | None = None,
+        profiles_dir: str | os.PathLike[str] | None = None,
+        portfolios_dir: str | os.PathLike[str] | None = None,
+        tokens_file: str | os.PathLike[str] | None = None,
+    ) -> Client:
+        """Run the runtime in-process (same ``/api/v2`` contract and errors)."""
+        return cls(
+            InprocTransport(
+                data_dir,
+                token=token,
+                journals_dir=journals_dir,
+                profiles_dir=profiles_dir,
+                portfolios_dir=portfolios_dir,
+                tokens_file=tokens_file,
+            )
         )
 
     # -- lifecycle ---------------------------------------------------------------------
     def close(self) -> None:
-        """No persistent connection is held; kept for API symmetry."""
+        """Release the transport (the in-process runtime drains its run workers)."""
+        self._t.close()
 
     def __enter__(self) -> Client:  # noqa: PYI034 (Self needs 3.11)
         return self

@@ -25,6 +25,7 @@ pub mod arrow_bridge;
 pub mod decimal;
 pub mod decision;
 pub mod error;
+pub mod inproc;
 pub mod market;
 pub mod orders;
 pub mod paper;
@@ -61,6 +62,7 @@ pub fn init_module(m: &Bound<'_, PyModule>) -> PyResult<()> {
     risk::init(m)?;
     runner::init(m)?;
     arrow_bridge::init(m)?;
+    inproc::init(m)?;
     Ok(())
 }
 

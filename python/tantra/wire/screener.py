@@ -400,7 +400,7 @@ class ScreenerSortSpec(_Command):
 
 
 class ScreenerScanRequest(_Command):
-    """Request payload for POST /api/v1/screener/scan."""
+    """Request payload for GET /api/v2/screener/scans."""
 
     market: Str
     types: list[Str] = Field(default_factory=lambda: ["EQUITY"])
@@ -422,7 +422,7 @@ class ScreenerRow(_Command):
 
 
 class ScreenerScanResponse(_Command):
-    """Response payload for POST /api/v1/screener/scan."""
+    """Response payload for GET /api/v2/screener/scans."""
 
     total: Annotated[int, Strict()]
     range: tuple[int, int]

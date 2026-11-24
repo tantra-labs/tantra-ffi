@@ -18,6 +18,12 @@ repository = "https://github.com/tantra-labs/tantra-ffi"
 tantra-core = { path = "../tantra-core" }
 tantra-risk = { path = "../tantra-risk" }
 tantra-exec-paper = { path = "../tantra-exec/crates/tantra-exec-paper" }
+# In-process runtime (Client.inproc, root design 0006 6.8).
+tantra-runtime-api-rest = { path = "../tantra-runtime/crates/tantra-runtime-api-rest" }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+axum = "0.7"
+tower = { version = "0.4", features = ["util"] }
+http = "1"
 # Facade of this workspace (repo-named convention, root plan 0003 Phase 4).
 tantra-ffi = { path = "crates/tantra-ffi" }
 tantra-ffi-codegen = { path = "crates/tantra-ffi-codegen" }

@@ -21,5 +21,8 @@ with Client.http("http://127.0.0.1:8000", token="...") as c:   # or Client.from_
 `Client.from_config()` reads the `runtime` block (`url`, `token`; supports `{env:VAR}` and
 `{file:path}`) of `tantra.jsonc` found by walking up from the cwd, merged over
 `~/.config/tantra/tantra.jsonc`. Failures raise `ClientError(status, code, message, reason)`.
-`Client.inproc` is not available yet. Regenerate typed models with
+`Client.inproc(data_dir, ...)` runs the runtime in-process (same `/api/v2` contract and
+errors as `Client.http`); journals/profiles/portfolios default to `data/*` under the cwd
+like `tantra serve` (override with `journals_dir=`, `profiles_dir=`, `portfolios_dir=`;
+`tokens_file=` enables auth). Use it as a context manager or call `close()`. Regenerate typed models with
 `python3 scripts/gen_client_models.py` (`--check` in CI).
