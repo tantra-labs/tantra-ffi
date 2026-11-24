@@ -25,7 +25,9 @@ fn rt_err(e: impl std::fmt::Display) -> PyErr {
 /// The runtime's `/api/v2` router, served in-process.
 #[pyclass(module = "tantra._tantra", name = "InprocRuntime")]
 pub struct InprocRuntime {
-    rt: tokio::runtime::Runtime,
+    /// `None` once closed; dropped with `shutdown_background` so a drop under the GIL never
+    /// blocks on worker threads that may themselves need the GIL.
+    rt: Option<tokio::runtime::Runtime>,
     router: Router,
     state: Option<AppState>,
 }
@@ -65,7 +67,7 @@ impl InprocRuntime {
             .map_err(|e| PyRuntimeError::new_err(format!("{e:#}")))?;
         let (router, state) = prepared.into_router();
         Ok(Self {
-            rt,
+            rt: Some(rt),
             router,
             state: Some(state),
         })
@@ -83,9 +85,9 @@ impl InprocRuntime {
         if !path.starts_with("/api/v2/") {
             return Err(PyValueError::new_err("path must start with /api/v2/"));
         }
-        if self.state.is_none() {
+        let (Some(rt), Some(_)) = (self.rt.as_ref(), self.state.as_ref()) else {
             return Err(PyRuntimeError::new_err("in-process runtime is closed"));
-        }
+        };
         let mut builder = http::Request::builder().method(method).uri(path);
         for (k, v) in headers {
             builder = builder.header(k, v);
@@ -95,7 +97,7 @@ impl InprocRuntime {
             .map_err(|e| PyValueError::new_err(e.to_string()))?;
         let router = self.router.clone();
         py.detach(|| {
-            self.rt.block_on(async move {
+            rt.block_on(async move {
                 let resp = router.oneshot(req).await.map_err(rt_err)?;
                 let status = resp.status().as_u16();
                 let bytes = axum::body::to_bytes(resp.into_body(), MAX_BODY)
@@ -108,10 +110,25 @@ impl InprocRuntime {
 
     /// Drain run workers; idempotent.
     fn close(&mut self, py: Python<'_>) {
-        if let Some(state) = self.state.take() {
-            py.detach(move || {
+        let state = self.state.take();
+        let rt = self.rt.take();
+        py.detach(move || {
+            if let Some(state) = state {
                 let _ = state.shutdown_runs();
-            });
+            }
+            if let Some(rt) = rt {
+                rt.shutdown_background();
+            }
+        });
+    }
+}
+
+impl Drop for InprocRuntime {
+    fn drop(&mut self) {
+        // Never block in drop (it may run with the GIL held): run workers are left to the
+        // process, and the runtime is shut down without waiting. `close()` drains cleanly.
+        if let Some(rt) = self.rt.take() {
+            rt.shutdown_background();
         }
     }
 }

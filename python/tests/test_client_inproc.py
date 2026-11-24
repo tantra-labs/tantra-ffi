@@ -34,3 +34,38 @@ def test_close_twice(tmp_path):
     c = _client(tmp_path)
     c.close()
     c.close()
+
+
+_DROP_WITHOUT_CLOSE = """
+import gc, sys
+from pathlib import Path
+from tantra.client import Client
+
+root = Path(sys.argv[1])
+c = Client.inproc(
+    root,
+    journals_dir=root / "journals",
+    profiles_dir=root / "profiles",
+    portfolios_dir=root / "portfolios",
+)
+assert c.health() is not None
+del c  # dropped under the GIL without close()
+gc.collect()
+print("dropped")
+"""
+
+
+def test_drop_without_close_does_not_hang(tmp_path):
+    # Regression: dropping InprocRuntime without close() blocked on worker threads
+    # under the GIL. A subprocess + timeout turns a deadlock into a test failure.
+    import subprocess
+    import sys
+
+    out = subprocess.run(
+        [sys.executable, "-c", _DROP_WITHOUT_CLOSE, str(tmp_path)],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    assert out.returncode == 0, out.stderr
+    assert "dropped" in out.stdout
