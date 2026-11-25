@@ -4310,6 +4310,7 @@ dependencies = [
  "chrono",
  "rust_decimal",
  "serde",
+ "sha2 0.10.9",
  "tantra-core",
 ]
 
