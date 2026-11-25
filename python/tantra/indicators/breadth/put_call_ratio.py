@@ -32,4 +32,6 @@ class PutCallRatio(Indicator):
 
     def update(self, put_volume: Decimal, call_volume: Decimal) -> Decimal | None:
         put_volume, call_volume = to_decimal(put_volume), to_decimal(call_volume)
-        return self._sma.update(put_volume / call_volume if call_volume > 0 else Decimal("1"))
+        return self._sma.update(
+            put_volume / call_volume if call_volume > 0 else Decimal(1)
+        )

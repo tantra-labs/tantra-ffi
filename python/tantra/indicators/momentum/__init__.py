@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Momentum oscillators: RSI, KDJ, Stochastic, StochRSI, Williams %R, CCI, ROC, Momentum, TSI, AO, UO, Fisher, KST, Coppock, CMO, Connors RSI, RVGI."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from tantra.indicators.momentum.awesome_oscillator import AwesomeOscillator

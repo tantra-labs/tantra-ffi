@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Moving-average envelope (volatility family)."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -33,7 +32,7 @@ class Envelope(Indicator):
     """Envelope: MA(close, length) * (1 +/- percent/100); ``ma_type`` is 'sma' (default) or 'ema' (SMA-seeded)."""
 
     def __init__(
-        self, length: int = 20, percent: Decimal = Decimal("10"), ma_type: str = "sma"
+        self, length: int = 20, percent: Decimal = Decimal(10), ma_type: str = "sma"
     ) -> None:
         self.length = _check(length)
         percent = to_decimal(percent)
@@ -49,5 +48,5 @@ class Envelope(Indicator):
         m = self._ma.update(close)
         if m is None:
             return None
-        k = self.percent / Decimal("100")
+        k = self.percent / Decimal(100)
         return EnvelopeValue(m * (1 + k), m, m * (1 - k))

@@ -1,8 +1,6 @@
 # wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
 # stand-in closure for tantra-examples gap 0006
 
-# ruff: noqa: E501
-# ruff: noqa: B905
 # mirror: kernel-verbatim port (gap 0006)
 from __future__ import annotations
 
@@ -29,7 +27,9 @@ class KstValue:
     warmup=lambda s: (
         max(
             a + b
-            for a, b in zip((s.roc1, s.roc2, s.roc3, s.roc4), (s.sma1, s.sma2, s.sma3, s.sma4))
+            for a, b in zip(
+                (s.roc1, s.roc2, s.roc3, s.roc4), (s.sma1, s.sma2, s.sma3, s.sma4)
+            )
         )
         + s.signal
         - 1
@@ -72,12 +72,14 @@ class Kst(Indicator):
 
     def update(self, close: Decimal) -> KstValue | None:
         close = to_decimal(close)
-        parts = []
+        parts: list[Decimal] = []
         for roc, sma in zip(self._rocs, self._smas):
             r = roc.update(close)
-            parts.append(sma.update(r) if r is not None else None)
-        if any(p is None for p in parts):
+            v = sma.update(r) if r is not None else None
+            if v is not None:
+                parts.append(v)
+        if len(parts) < len(self._rocs):
             return None
-        kst = sum(w * p for w, p in enumerate(parts, 1))
+        kst = sum((w * p for w, p in enumerate(parts, 1)), Decimal(0))
         s = self._sig.update(kst)
         return KstValue(kst, s) if s is not None else None

@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Volatility and range indicators: ATR, ADR%, Bollinger (+%B, bandwidth), Chandelier Exit, Donchian, Keltner, envelope, stdev, HV, Chaikin, CHOP, volatility stop."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from tantra.indicators.volatility.adr_pct import AdrPct

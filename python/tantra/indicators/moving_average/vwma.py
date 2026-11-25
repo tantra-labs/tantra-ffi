@@ -14,7 +14,9 @@ from tantra.indicators._util import check as _check
 from tantra.types import to_decimal
 
 
-@indicator("vwma", "moving_average", inputs=("close", "volume"), warmup=lambda s: s.period)
+@indicator(
+    "vwma", "moving_average", inputs=("close", "volume"), warmup=lambda s: s.period
+)
 class Vwma(Indicator):
     """VWMA: sum(close*volume) / sum(volume) over ``period`` bars.
 
@@ -32,6 +34,6 @@ class Vwma(Indicator):
         self._vol.append(volume)
         if len(self._cv) < self.period:
             return None
-        num = sum(self._cv, Decimal("0"))
-        vol = sum(self._vol, Decimal("0"))
+        num = sum(self._cv, Decimal(0))
+        vol = sum(self._vol, Decimal(0))
         return close if vol == 0 else num / vol

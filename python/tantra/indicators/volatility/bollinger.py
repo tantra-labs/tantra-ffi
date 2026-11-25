@@ -35,7 +35,7 @@ class Bollinger(Indicator):
     def __init__(
         self,
         period: int = 20,
-        mult: Decimal = Decimal("2"),
+        mult: Decimal = Decimal(2),
         mult_lower: Decimal | None = None,
     ) -> None:
         self.period = _check(period)
@@ -52,4 +52,6 @@ class Bollinger(Indicator):
         if r is None:
             return None
         mean, _, std = r
-        return BollingerValue(mean + self.mult * std, mean, mean - self.mult_lower * std)
+        return BollingerValue(
+            mean + self.mult * std, mean, mean - self.mult_lower * std
+        )

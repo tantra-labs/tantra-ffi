@@ -29,4 +29,4 @@ class Roc(Indicator):
         if len(self._w) < self.length + 1:
             return None
         base = self._w[0]
-        return Decimal("100") * (x - base) / base if base != 0 else Decimal("0")
+        return Decimal(100) * (x - base) / base if base != 0 else Decimal(0)

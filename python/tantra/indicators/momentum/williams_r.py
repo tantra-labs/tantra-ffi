@@ -1,7 +1,6 @@
 # wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
 # stand-in closure for tantra-examples gap 0006
 
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 from __future__ import annotations
 
@@ -13,7 +12,9 @@ from tantra.indicators._util import check as _check
 from tantra.types import to_decimal
 
 
-@indicator("williams_r", "momentum", inputs=("high", "low", "close"), warmup=lambda s: s.length)
+@indicator(
+    "williams_r", "momentum", inputs=("high", "low", "close"), warmup=lambda s: s.length
+)
 class WilliamsR(Indicator):
     """Williams %R (TradingView): 100 * (close - highest high) / (highest high - lowest low), range -100..0.
 
@@ -32,4 +33,4 @@ class WilliamsR(Indicator):
         if len(self._h) < self.length:
             return None
         hh, ll = max(self._h), min(self._l)
-        return Decimal("100") * (close - hh) / (hh - ll) if hh != ll else Decimal("-50")
+        return Decimal(100) * (close - hh) / (hh - ll) if hh != ll else Decimal(-50)

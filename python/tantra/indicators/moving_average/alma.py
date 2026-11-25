@@ -2,8 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Arnaud Legoux moving average."""
-# ruff: noqa: E501
-# ruff: noqa: B905
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -27,11 +25,11 @@ class Alma(Indicator):
         self,
         period: int = 9,
         offset: Decimal = Decimal("0.85"),
-        sigma: Decimal = Decimal("6"),
+        sigma: Decimal = Decimal(6),
     ) -> None:
         self.period = _check(period)
         offset, sigma = to_decimal(offset), to_decimal(sigma)
-        if not Decimal("0") <= offset <= Decimal("1"):
+        if not Decimal(0) <= offset <= Decimal(1):
             raise ValueError(f"offset must be in [0, 1], got {offset}")
         if sigma <= 0:
             raise ValueError(f"sigma must be > 0, got {sigma}")
@@ -39,7 +37,7 @@ class Alma(Indicator):
         m = (offset * (period - 1)).to_integral_value(rounding=ROUND_FLOOR)
         s = Decimal(period) / sigma
         w = [(-((Decimal(i) - m) ** 2) / (2 * s * s)).exp() for i in range(period)]
-        tot = sum(w, Decimal("0"))
+        tot = sum(w, Decimal(0))
         self._w = [v / tot for v in w]
         self._x: deque[Decimal] = deque(maxlen=period)
 
@@ -48,4 +46,4 @@ class Alma(Indicator):
         self._x.append(x)
         if len(self._x) < self.period:
             return None
-        return sum((w * v for w, v in zip(self._w, self._x)), Decimal("0"))
+        return sum((w * v for w, v in zip(self._w, self._x)), Decimal(0))

@@ -26,10 +26,11 @@ from tantra.indicators import (  # noqa: F401  (importing registers the indicato
     volume,
 )
 from tantra.indicators._base import FAMILIES, Indicator
+from tantra.indicators._legacy import EMA, RSI, SMA
 from tantra.indicators.bank import IndicatorBank
+from tantra.indicators.momentum import Kdj, Rsi
 from tantra.indicators.moving_average import Ema, Rma, Sma, Wma, make_ma
 from tantra.indicators.trend import Ichimoku, Macd, MacdValue
-from tantra.indicators.momentum import Kdj, Rsi
 from tantra.indicators.volatility import (
     AdrPct,
     Atr,
@@ -40,7 +41,6 @@ from tantra.indicators.volatility import (
     Donchian,
     DonchianValue,
 )
-from tantra.indicators._legacy import SMA, EMA, RSI
 
 # case-compat alias: the statistical family class is ``ZScore``, but the
 # ``zscore`` kind is commonly imported as ``Zscore`` (mirror accommodation, gap 0006)
@@ -51,7 +51,7 @@ def indicator_family(kind: str) -> str:
     return _base.get(kind).family
 
 
-def indicator_spec(kind: str) -> dict:
+def indicator_spec(kind: str) -> dict[str, Any]:
     """JSON-serialisable description of an indicator (params, inputs, outputs, family)."""
     return _base.spec(kind)
 
@@ -60,7 +60,9 @@ def list_indicators(family: str | None = None) -> list[str]:
     """Indicator kinds, optionally only those in ``family``."""
     if family is not None and family not in FAMILIES:
         raise ValueError(f"unknown family {family!r}; choose from {list(FAMILIES)}")
-    return sorted(k for k, c in _base._REGISTRY.items() if family is None or c.family == family)
+    return sorted(
+        k for k, c in _base._REGISTRY.items() if family is None or c.family == family
+    )
 
 
 def build_indicator(kind: str, **params: Any) -> Any:  # mirror accommodation (gap 0006)
@@ -73,7 +75,10 @@ def build_indicator(kind: str, **params: Any) -> Any:  # mirror accommodation (g
 
 
 __all__ = [
+    "EMA",
     "FAMILIES",
+    "RSI",
+    "SMA",
     "AdrPct",
     "Atr",
     "Bollinger",
@@ -98,9 +103,6 @@ __all__ = [
     "indicator_spec",
     "list_indicators",
     "make_ma",
-    "SMA",
-    "EMA",
-    "RSI",
 ]
 
 

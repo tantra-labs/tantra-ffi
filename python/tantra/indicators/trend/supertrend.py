@@ -17,7 +17,9 @@ from tantra.types import to_decimal
 @dataclass(frozen=True, slots=True)
 class SupertrendValue:
     value: Decimal
-    direction: Decimal  # +1 uptrend (value is the lower band), -1 downtrend (upper band)
+    direction: (
+        Decimal  # +1 uptrend (value is the lower band), -1 downtrend (upper band)
+    )
 
 
 @indicator(
@@ -34,7 +36,7 @@ class Supertrend(Indicator):
     The first value starts in a downtrend (TradingView convention), after ``atr_period`` bars.
     """
 
-    def __init__(self, atr_period: int = 10, factor: Decimal = Decimal("3")) -> None:
+    def __init__(self, atr_period: int = 10, factor: Decimal = Decimal(3)) -> None:
         factor = to_decimal(factor)
         if factor <= 0:
             raise ValueError(f"factor must be > 0, got {factor}")
@@ -45,7 +47,9 @@ class Supertrend(Indicator):
         self._upper: Decimal | None = None
         self._dir = 0
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal) -> SupertrendValue | None:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal
+    ) -> SupertrendValue | None:
         high, low, close = to_decimal(high), to_decimal(low), to_decimal(close)
         pc, self._prev_close = self._prev_close, close
         atr = self._atr.update(high, low, close)
@@ -73,4 +77,6 @@ class Supertrend(Indicator):
             else:
                 self._dir = -1 if close < lower else 1
         self._lower, self._upper = lower, upper
-        return SupertrendValue(lower if self._dir == 1 else upper, to_decimal(self._dir))
+        return SupertrendValue(
+            lower if self._dir == 1 else upper, to_decimal(self._dir)
+        )

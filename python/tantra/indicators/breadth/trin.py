@@ -42,5 +42,5 @@ class Trin(Indicator):
             to_decimal(dec_volume),
         )
         if declines <= 0 or adv_volume <= 0 or dec_volume <= 0:
-            return Decimal("1")
+            return Decimal(1)
         return (advances / declines) / (adv_volume / dec_volume)

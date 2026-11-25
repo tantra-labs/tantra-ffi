@@ -51,14 +51,16 @@ class Adx(Indicator):
             return None
         ph, pl, pc = prev
         up, down = high - ph, pl - low
-        pdm = up if up > down and up > 0 else Decimal("0")
-        mdm = down if down > up and down > 0 else Decimal("0")
+        pdm = up if up > down and up > 0 else Decimal(0)
+        mdm = down if down > up and down > 0 else Decimal(0)
         tr = max(high - low, abs(high - pc), abs(low - pc))
         t, p, m = self._tr.update(tr), self._pdm.update(pdm), self._mdm.update(mdm)
         if t is None or p is None or m is None:
             return None
-        pdi = Decimal("100") * p / t if t > 0 else Decimal("0")
-        mdi = Decimal("100") * m / t if t > 0 else Decimal("0")
+        pdi = Decimal(100) * p / t if t > 0 else Decimal(0)
+        mdi = Decimal(100) * m / t if t > 0 else Decimal(0)
         s = pdi + mdi
-        a = self._adx.update(Decimal("100") * abs(pdi - mdi) / (s if s != 0 else Decimal("1")))
+        a = self._adx.update(
+            Decimal(100) * abs(pdi - mdi) / (s if s != 0 else Decimal(1))
+        )
         return None if a is None else AdxValue(a, pdi, mdi)

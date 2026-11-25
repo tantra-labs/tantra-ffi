@@ -1,7 +1,6 @@
 # wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
 # stand-in closure for tantra-examples gap 0006
 
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 from __future__ import annotations
 
@@ -32,8 +31,8 @@ class ChandeMomentum(Indicator):
         if prev is None:
             return None
         d = close - prev
-        up = self._up.update(d if d > 0 else Decimal("0"))
-        dn = self._dn.update(-d if d < 0 else Decimal("0"))
+        up = self._up.update(d if d > 0 else Decimal(0))
+        dn = self._dn.update(-d if d < 0 else Decimal(0))
         if up is None or dn is None:
             return None
-        return Decimal("100") * (up - dn) / (up + dn) if up + dn != 0 else Decimal("0")
+        return Decimal(100) * (up - dn) / (up + dn) if up + dn != 0 else Decimal(0)

@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Force index."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -15,7 +14,9 @@ from tantra.indicators.moving_average import Ema
 from tantra.types import to_decimal
 
 
-@indicator("force_index", "volume", inputs=("close", "volume"), warmup=lambda s: s.period + 1)
+@indicator(
+    "force_index", "volume", inputs=("close", "volume"), warmup=lambda s: s.period + 1
+)
 class ForceIndex(Indicator):
     """Elder force index: EMA(change(close) * volume, n), SMA-seeded; first value after ``period + 1`` bars."""
 

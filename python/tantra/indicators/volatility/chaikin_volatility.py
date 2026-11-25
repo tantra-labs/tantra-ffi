@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Chaikin volatility (volatility family)."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -41,4 +40,4 @@ class ChaikinVolatility(Indicator):
         if len(self._hist) <= self.roc_length:
             return None
         old = self._hist[0]
-        return Decimal("0") if old == 0 else Decimal("100") * (e - old) / old
+        return Decimal(0) if old == 0 else Decimal(100) * (e - old) / old

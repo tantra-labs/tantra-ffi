@@ -27,13 +27,13 @@ class FibonacciRetracementValue:
 
 
 _RATIOS = (
-    Decimal("0"),
+    Decimal(0),
     Decimal("0.236"),
     Decimal("0.382"),
     Decimal("0.5"),
     Decimal("0.618"),
     Decimal("0.786"),
-    Decimal("1"),
+    Decimal(1),
 )
 
 

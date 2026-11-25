@@ -20,7 +20,7 @@ class BollingerPercentB(Indicator):
 
     0 = at the lower band, 1 = at the upper band. Zero-width bands (flat window) return 0.5."""
 
-    def __init__(self, period: int = 20, mult: Decimal = Decimal("2")) -> None:
+    def __init__(self, period: int = 20, mult: Decimal = Decimal(2)) -> None:
         self.period = _check(period)
         mult = to_decimal(mult)
         if mult < 0:

@@ -41,8 +41,8 @@ class LinearRegression(Indicator):
     def __init__(
         self,
         length: int = 100,
-        upper_deviation: Decimal = Decimal("2"),
-        lower_deviation: Decimal = Decimal("2"),
+        upper_deviation: Decimal = Decimal(2),
+        lower_deviation: Decimal = Decimal(2),
     ) -> None:
         if length < 2:
             raise ValueError(f"length must be >= 2, got {length}")

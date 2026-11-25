@@ -33,4 +33,4 @@ class ZScore(Indicator):
         if r is None:
             return None
         std = r[2]
-        return (close - r[0]) / std if std > 0 else Decimal("0")
+        return (close - r[0]) / std if std > 0 else Decimal(0)

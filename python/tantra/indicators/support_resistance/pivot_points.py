@@ -2,8 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Session pivot points (support_resistance family)."""
-# ruff: noqa: SIM108
-# ruff: noqa: E741
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -53,7 +51,7 @@ class PivotPoints(Indicator):
             raise ValueError(f"mode must be one of {MODES}, got {mode!r}")
         self.mode = mode
         self._day: int | None = None
-        self._h = self._l = self._c = Decimal("0")
+        self._h = self._l = self._c = Decimal(0)
         self._levels: PivotPointsValue | None = None
 
     @property

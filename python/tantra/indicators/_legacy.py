@@ -7,6 +7,7 @@ No floating-point math anywhere: all prices are stored and smoothed as
 ``decimal.Decimal``. ``SMA``/``EMA`` also track the previous value so
 ``crosses_above``/``crosses_below`` can be evaluated incrementally.
 """
+
 from collections import deque
 from decimal import Decimal
 
@@ -57,7 +58,7 @@ class SMA:
     def value(self) -> Decimal | None:
         if not self._history:
             return None
-        return sum(self._history, Decimal("0")) / Decimal(self.period)
+        return sum(self._history, Decimal(0)) / Decimal(self.period)
 
     def crosses_above(self, other) -> bool:
         return _crosses_above(self._previous, self.value(), _series_value(other))
@@ -104,7 +105,7 @@ class RSI:
             raise ValueError("period must be positive")
         self.period = period
         self._last: Decimal | None = None
-        self._deltas = deque()
+        self._deltas: deque[tuple[Decimal, Decimal]] = deque()
         self._avg_gain: Decimal | None = None
         self._avg_loss: Decimal | None = None
         self._previous: Decimal | None = None
@@ -114,13 +115,17 @@ class RSI:
         price = to_decimal(price)
         if self._last is not None:
             diff = price - self._last
-            gain = diff if diff > 0 else Decimal("0")
-            loss = -diff if diff < 0 else Decimal("0")
-            if self._avg_gain is None:
+            gain = diff if diff > 0 else Decimal(0)
+            loss = -diff if diff < 0 else Decimal(0)
+            if self._avg_gain is None or self._avg_loss is None:
                 self._deltas.append((gain, loss))
                 if len(self._deltas) >= self.period:
-                    self._avg_gain = sum(g for g, _ in self._deltas) / Decimal(self.period)
-                    self._avg_loss = sum(l for _, l in self._deltas) / Decimal(self.period)
+                    self._avg_gain = sum(
+                        (g for g, _ in self._deltas), Decimal(0)
+                    ) / Decimal(self.period)
+                    self._avg_loss = sum(
+                        (l for _, l in self._deltas), Decimal(0)
+                    ) / Decimal(self.period)
                     self._deltas.clear()
             else:
                 smooth = Decimal(self.period - 1) / Decimal(self.period)
@@ -130,9 +135,9 @@ class RSI:
         return self.value()
 
     def value(self) -> Decimal | None:
-        if self._avg_gain is None:
+        if self._avg_gain is None or self._avg_loss is None:
             return None
         if self._avg_loss == 0:
-            return Decimal("100") if self._avg_gain > 0 else Decimal("50")
+            return Decimal(100) if self._avg_gain > 0 else Decimal(50)
         rs = self._avg_gain / self._avg_loss
-        return Decimal("100") - (Decimal("100") / (Decimal("1") + rs))
+        return Decimal(100) - (Decimal(100) / (Decimal(1) + rs))

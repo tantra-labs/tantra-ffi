@@ -22,7 +22,7 @@ class Rsi(Indicator):
         self._prev: Decimal | None = None
         self._gains: list[Decimal] = []
         self._losses: list[Decimal] = []
-        self._avg_gain = self._avg_loss = Decimal("0")
+        self._avg_gain = self._avg_loss = Decimal(0)
         self.value: Decimal | None = None
 
     def update(self, x: Decimal) -> Decimal | None:
@@ -31,19 +31,24 @@ class Rsi(Indicator):
             self._prev = x
             return None
         change, self._prev = x - self._prev, x
-        gain, loss = max(change, Decimal("0")), max(-change, Decimal("0"))
+        gain, loss = max(change, Decimal(0)), max(-change, Decimal(0))
         n = self.period
         if len(self._gains) < n:
             self._gains.append(gain)
             self._losses.append(loss)
             if len(self._gains) < n:
                 return None
-            self._avg_gain, self._avg_loss = sum(self._gains) / n, sum(self._losses) / n
+            self._avg_gain, self._avg_loss = (
+                sum(self._gains, Decimal(0)) / n,
+                sum(self._losses, Decimal(0)) / n,
+            )
         else:
             self._avg_gain = (self._avg_gain * (n - 1) + gain) / n
             self._avg_loss = (self._avg_loss * (n - 1) + loss) / n
         if self._avg_loss == 0:
-            self.value = Decimal("100")
+            self.value = Decimal(100)
         else:
-            self.value = Decimal("100") - Decimal("100") / (Decimal("1") + self._avg_gain / self._avg_loss)
+            self.value = Decimal(100) - Decimal(100) / (
+                Decimal(1) + self._avg_gain / self._avg_loss
+            )
         return self.value

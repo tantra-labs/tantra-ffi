@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Keltner channels (volatility family)."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -37,7 +36,7 @@ class Keltner(Indicator):
     The EMA is SMA-seeded; ATR needs a previous close so it appears after ``atr_length + 1`` bars."""
 
     def __init__(
-        self, length: int = 20, atr_length: int = 10, mult: Decimal = Decimal("2")
+        self, length: int = 20, atr_length: int = 10, mult: Decimal = Decimal(2)
     ) -> None:
         self.length, self.atr_length = _check(length), _check(atr_length)
         mult = to_decimal(mult)
@@ -46,7 +45,9 @@ class Keltner(Indicator):
         self.mult = mult
         self._ema, self._atr = Ema(length), Atr(atr_length)
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal) -> KeltnerValue | None:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal
+    ) -> KeltnerValue | None:
         high, low, close = to_decimal(high), to_decimal(low), to_decimal(close)
         mid, atr = self._ema.update(close), self._atr.update(high, low, close)
         if mid is None or atr is None:

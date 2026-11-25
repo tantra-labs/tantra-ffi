@@ -42,7 +42,7 @@ class Covariance(Indicator):
             return None
         # simple_return inlined (hot path): cur / prev - 1, 0.0 when prev <= 0
         m = self._update(
-            close / prev[0] - Decimal("1") if prev[0] > 0 else Decimal("0"),
-            benchmark / prev[1] - Decimal("1") if prev[1] > 0 else Decimal("0"),
+            close / prev[0] - Decimal(1) if prev[0] > 0 else Decimal(0),
+            benchmark / prev[1] - Decimal(1) if prev[1] > 0 else Decimal(0),
         )
         return None if m is None else m[4]

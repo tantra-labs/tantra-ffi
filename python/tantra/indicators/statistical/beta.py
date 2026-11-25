@@ -13,7 +13,9 @@ from tantra.indicators._rolling import RollingPairMoments
 from tantra.types import to_decimal
 
 
-@indicator("beta", "statistical", inputs=("close", "benchmark"), warmup=lambda s: s.length + 1)
+@indicator(
+    "beta", "statistical", inputs=("close", "benchmark"), warmup=lambda s: s.length + 1
+)
 class Beta(Indicator):
     """Slope of asset simple returns on benchmark simple returns over ``length`` returns.
 
@@ -40,12 +42,12 @@ class Beta(Indicator):
             return None
         # simple_return inlined (hot path): cur / prev - 1, 0.0 when prev <= 0
         m = self._update(
-            close / prev[0] - Decimal("1") if prev[0] > 0 else Decimal("0"),
-            benchmark / prev[1] - Decimal("1") if prev[1] > 0 else Decimal("0"),
+            close / prev[0] - Decimal(1) if prev[0] > 0 else Decimal(0),
+            benchmark / prev[1] - Decimal(1) if prev[1] > 0 else Decimal(0),
         )
         if m is None:
             return None
         cov, vy = m[4], m[3]
-        if cov != cov:
+        if cov.is_nan():
             return Decimal("NaN")
-        return cov / vy if vy > 0 else Decimal("0")
+        return cov / vy if vy > 0 else Decimal(0)

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import date
-from decimal import Decimal, ROUND_CEILING
+from decimal import ROUND_CEILING, Decimal
 from enum import Enum
 
 from tantra.money import Currency, Money
@@ -50,7 +50,7 @@ class OptionType(Enum):
         return "CE" if self is OptionType.CALL else "PE"
 
     @classmethod
-    def from_code(cls, code: str) -> "OptionType":
+    def from_code(cls, code: str) -> OptionType:
         code = code.upper()
         if code in ("CE", "CALL"):
             return cls.CALL

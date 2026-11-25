@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Williams fractals (support_resistance family)."""
-# ruff: noqa: E741
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -49,6 +48,6 @@ class WilliamsFractals(Indicator):
         up = all(h[2] > h[i] for i in (0, 1, 3, 4))
         down = all(l[2] < l[i] for i in (0, 1, 3, 4))
         return WilliamsFractalsValue(
-            Decimal("1") if up else Decimal("0"),
-            Decimal("1") if down else Decimal("0"),
+            Decimal(1) if up else Decimal(0),
+            Decimal(1) if down else Decimal(0),
         )

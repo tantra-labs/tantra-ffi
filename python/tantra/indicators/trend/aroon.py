@@ -49,5 +49,5 @@ class Aroon(Indicator):
         hh, ll = max(self._h), min(self._l)
         since_h = next(i for i, v in enumerate(reversed(self._h)) if v == hh)
         since_l = next(i for i, v in enumerate(reversed(self._l)) if v == ll)
-        up, down = Decimal("100") * (n - since_h) / n, Decimal("100") * (n - since_l) / n
+        up, down = Decimal(100) * (n - since_h) / n, Decimal(100) * (n - since_l) / n
         return AroonValue(up, down, up - down)

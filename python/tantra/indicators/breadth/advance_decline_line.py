@@ -22,7 +22,7 @@ class AdvanceDeclineLine(Indicator):
     """Cumulative sum of (advances - declines); starts at the first bar's net advances."""
 
     def __init__(self) -> None:
-        self._total = Decimal("0")
+        self._total = Decimal(0)
 
     def update(self, advances: Decimal, declines: Decimal) -> Decimal:
         advances, declines = to_decimal(advances), to_decimal(declines)

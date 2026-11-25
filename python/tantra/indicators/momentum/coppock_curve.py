@@ -1,7 +1,6 @@
 # wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
 # stand-in closure for tantra-examples gap 0006
 
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 from __future__ import annotations
 
@@ -22,7 +21,9 @@ from tantra.types import to_decimal
 class CoppockCurve(Indicator):
     """Coppock Curve (TradingView): WMA(ROC(long_roc) + ROC(short_roc), wma_length), ROC in percent."""
 
-    def __init__(self, wma_length: int = 10, long_roc: int = 14, short_roc: int = 11) -> None:
+    def __init__(
+        self, wma_length: int = 10, long_roc: int = 14, short_roc: int = 11
+    ) -> None:
         self.wma_length = _check(wma_length)
         self.long_roc = _check(long_roc)
         self.short_roc = _check(short_roc)

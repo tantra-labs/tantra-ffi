@@ -2,8 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Volume oscillator."""
-# ruff: noqa: E741
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -36,4 +34,4 @@ class VolumeOscillator(Indicator):
         s, l = self._s.update(volume), self._l.update(volume)
         if s is None or l is None:
             return None
-        return Decimal("100") * (s - l) / l if l != 0 else Decimal("0")
+        return Decimal(100) * (s - l) / l if l != 0 else Decimal(0)

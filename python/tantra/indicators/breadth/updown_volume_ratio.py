@@ -26,4 +26,4 @@ class UpDownVolumeRatio(Indicator):
 
     def update(self, adv_volume: Decimal, dec_volume: Decimal) -> Decimal:
         adv_volume, dec_volume = to_decimal(adv_volume), to_decimal(dec_volume)
-        return adv_volume / dec_volume if dec_volume > 0 else Decimal("1")
+        return adv_volume / dec_volume if dec_volume > 0 else Decimal(1)

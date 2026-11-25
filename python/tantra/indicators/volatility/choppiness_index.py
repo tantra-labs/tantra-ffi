@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Choppiness index (volatility family)."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -38,14 +37,18 @@ class ChoppinessIndex(Indicator):
     def update(self, high: Decimal, low: Decimal, close: Decimal) -> Decimal | None:
         high, low, close = to_decimal(high), to_decimal(low), to_decimal(close)
         prev, self._prev = self._prev, close
-        tr = high - low if prev is None else max(high - low, abs(high - prev), abs(low - prev))
+        tr = (
+            high - low
+            if prev is None
+            else max(high - low, abs(high - prev), abs(low - prev))
+        )
         self._tr.append(tr)
         self._h.append(high)
         self._l.append(low)
         if len(self._tr) < self.length:
             return None
         rng = max(self._h) - min(self._l)
-        total = sum(self._tr, Decimal("0"))
+        total = sum(self._tr, Decimal(0))
         if rng <= 0 or total <= 0:
-            return Decimal("0")
-        return Decimal("100") * (total / rng).log10() / Decimal(self.length).log10()
+            return Decimal(0)
+        return Decimal(100) * (total / rng).log10() / Decimal(self.length).log10()

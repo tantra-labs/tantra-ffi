@@ -9,7 +9,6 @@ it returns ``None`` until warmed up. Indicators declare, as class metadata, thei
 ``kind`` (config name), ``family``, ``inputs`` and ``outputs``, and expose a JSON
 ``spec()`` so configs, the CLI and AI agents (MCP) can discover and parameterise them.
 """
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -17,7 +16,7 @@ from __future__ import annotations
 import inspect
 from collections.abc import Callable
 from decimal import Decimal
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 
 FAMILIES = (
     "moving_average",
@@ -53,12 +52,15 @@ class Indicator:
         """Number of updates before the first value, or ``None`` if data-dependent."""
         raise NotImplementedError(f"{type(self).__name__} must define warmup")
 
-    def update(self, *values: Decimal) -> Any:
-        raise NotImplementedError
+    if not TYPE_CHECKING:
+
+        def update(self, *values: Decimal) -> Any:
+            raise NotImplementedError
 
     def update_bar(self, bar: Any) -> Any:  # mirror accommodation (gap 0006)
         """Feeds the fields named in ``inputs`` from a Bar (``ts`` is unix ns)."""
-        return self.update(*(getattr(bar, f) for f in self.inputs))
+        update_fn: Callable[..., Any] = object.__getattribute__(self, "update")
+        return update_fn(*(getattr(bar, f) for f in self.inputs))
 
     def reset(self) -> None:
         """Returns to the freshly constructed state."""
@@ -103,10 +105,12 @@ def get(kind: str) -> type[Indicator]:
     try:
         return _REGISTRY[kind]
     except KeyError:
-        raise ValueError(f"unknown indicator {kind!r}; choose from {sorted(_REGISTRY)}") from None
+        raise ValueError(
+            f"unknown indicator {kind!r}; choose from {sorted(_REGISTRY)}"
+        ) from None
 
 
-def spec(kind: str) -> dict:
+def spec(kind: str) -> dict[str, Any]:
     """JSON-serialisable description: kind, family, inputs, outputs, params (name/default/type), summary."""
     cls = get(kind)
     params = []

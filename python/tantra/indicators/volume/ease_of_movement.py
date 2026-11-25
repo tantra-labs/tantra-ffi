@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Ease of movement."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -24,7 +23,7 @@ from tantra.types import to_decimal
 class EaseOfMovement(Indicator):
     """Ease of movement (TradingView): SMA(divisor * change(hl2) * (high-low) / volume, n); a bar with zero volume contributes 0."""
 
-    def __init__(self, period: int = 14, divisor: Decimal = Decimal("10000")) -> None:
+    def __init__(self, period: int = 14, divisor: Decimal = Decimal(10000)) -> None:
         self.period = _check(period)
         divisor = to_decimal(divisor)
         if divisor <= 0:
@@ -33,7 +32,9 @@ class EaseOfMovement(Indicator):
         self._sma = Sma(period)
         self._prev: Decimal | None = None
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal) -> Decimal | None:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal
+    ) -> Decimal | None:
         high, low, close, volume = (
             to_decimal(high),
             to_decimal(low),
@@ -44,5 +45,9 @@ class EaseOfMovement(Indicator):
         prev, self._prev = self._prev, hl2
         if prev is None:
             return None
-        eom = self.divisor * (hl2 - prev) * (high - low) / volume if volume != 0 else Decimal("0")
+        eom = (
+            self.divisor * (hl2 - prev) * (high - low) / volume
+            if volume != 0
+            else Decimal(0)
+        )
         return self._sma.update(eom)

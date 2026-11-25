@@ -19,7 +19,7 @@ def linreg_fit(ys: Sequence[Decimal]) -> tuple[Decimal, Decimal]:
     n = len(ys)
     sx = Decimal(n * (n - 1)) / 2
     sxx = Decimal((n - 1) * n * (2 * n - 1)) / 6
-    sy = sxy = Decimal("0")
+    sy = sxy = Decimal(0)
     for i, y in enumerate(ys):
         y = to_decimal(y)
         sy += y

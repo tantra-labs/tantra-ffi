@@ -28,7 +28,11 @@ class ParabolicSar(Indicator):
         increment: Decimal = Decimal("0.02"),
         maximum: Decimal = Decimal("0.2"),
     ) -> None:
-        start, increment, maximum = to_decimal(start), to_decimal(increment), to_decimal(maximum)
+        start, increment, maximum = (
+            to_decimal(start),
+            to_decimal(increment),
+            to_decimal(maximum),
+        )
         if start <= 0 or increment <= 0:
             raise ValueError("start and increment must be > 0")
         if maximum < start:
@@ -37,7 +41,7 @@ class ParabolicSar(Indicator):
         self._p1: tuple[Decimal, Decimal] | None = None  # previous bar (high, low)
         self._p2: tuple[Decimal, Decimal] | None = None  # bar before that
         self._long = True
-        self._sar = self._ep = Decimal("0")
+        self._sar = self._ep = Decimal(0)
         self._af = self.start
 
     def update(self, high: Decimal, low: Decimal) -> Decimal | None:

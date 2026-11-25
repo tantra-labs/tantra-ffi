@@ -45,5 +45,5 @@ class Atr(Indicator):
         else:
             self._trs.append(tr)
             if len(self._trs) == self.period:
-                self.value = sum(self._trs, Decimal("0")) / self.period
+                self.value = sum(self._trs, Decimal(0)) / self.period
         return self.value

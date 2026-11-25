@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Money flow index."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -32,7 +31,9 @@ class MoneyFlowIndex(Indicator):
         self._pos = RollingSum(period)
         self._neg = RollingSum(period)
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal) -> Decimal | None:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal
+    ) -> Decimal | None:
         high, low, close, volume = (
             to_decimal(high),
             to_decimal(low),
@@ -44,10 +45,10 @@ class MoneyFlowIndex(Indicator):
         if prev is None:
             return None
         raw = tp * volume
-        pos = self._pos.update(raw if tp > prev else Decimal("0"))
-        neg = self._neg.update(raw if tp < prev else Decimal("0"))
+        pos = self._pos.update(raw if tp > prev else Decimal(0))
+        neg = self._neg.update(raw if tp < prev else Decimal(0))
         if pos is None or neg is None:
             return None
         if neg == 0:
-            return Decimal("50") if pos == 0 else Decimal("100")
-        return Decimal("100") - Decimal("100") / (Decimal("1") + pos / neg)
+            return Decimal(50) if pos == 0 else Decimal(100)
+        return Decimal(100) - Decimal(100) / (Decimal(1) + pos / neg)

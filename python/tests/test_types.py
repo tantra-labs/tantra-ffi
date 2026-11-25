@@ -1,10 +1,9 @@
 """Tests for core domain value classes and helpers (tantra.types)."""
+
 from decimal import Decimal
 
 import pytest
-
-from tantra import _tantra
-from tantra import types
+from tantra import _tantra, types
 
 
 def test_price_roundtrip():
@@ -21,15 +20,15 @@ def test_price_rejects_negative():
 
 def test_quantity_roundtrip():
     q = _tantra.Quantity("10")
-    assert q.value == Decimal("10")
+    assert q.value == Decimal(10)
     assert q.to_str() == "10"
 
 
 def test_to_decimal_accepts_all_inputs():
     assert types.to_decimal("2450.75") == Decimal("2450.75")
-    assert types.to_decimal(Decimal("10")) == Decimal("10")
+    assert types.to_decimal(Decimal(10)) == Decimal(10)
     assert types.to_decimal(_tantra.Price("2450.75")) == Decimal("2450.75")
-    assert types.to_decimal(_tantra.Quantity("10")) == Decimal("10")
+    assert types.to_decimal(_tantra.Quantity("10")) == Decimal(10)
 
 
 def test_instrument_id_roundtrip():
@@ -56,11 +55,11 @@ def test_order_request_limit_with_decimal_quantity():
         iid,
         _tantra.OrderSide("BUY"),
         "LIMIT",
-        Decimal("10"),
+        Decimal(10),
         "algo-1",
         limit_price="2450.00",
     )
-    assert order.quantity == Decimal("10")
+    assert order.quantity == Decimal(10)
     assert order.limit_price == Decimal("2450.00")
     assert order.order_type == "LIMIT"
     assert order.algo_id == "algo-1"
@@ -69,12 +68,17 @@ def test_order_request_limit_with_decimal_quantity():
 def test_bar_construction():
     iid = _tantra.InstrumentId("NSE", "RELIANCE")
     bar = _tantra.Bar(
-        iid, "2450.75", "2455.00", "2448.00", "2452.00", "1000",
+        iid,
+        "2450.75",
+        "2455.00",
+        "2448.00",
+        "2452.00",
+        "1000",
         "2026-11-05T09:30:00+05:30",
     )
     assert bar.instrument.to_str() == "NSE:RELIANCE"
     assert bar.close == Decimal("2452.00")
-    assert bar.volume == Decimal("1000")
+    assert bar.volume == Decimal(1000)
 
 
 def test_decision_from_json():

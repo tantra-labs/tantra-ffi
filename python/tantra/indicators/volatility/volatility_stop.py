@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Volatility stop (volatility family)."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -35,7 +34,7 @@ class VolatilityStop(Indicator):
     Stop trails the extreme close since the last flip by ``mult * ATR`` (Wilder ATR, first TR = high - low);
     it only ratchets in the trend direction and flips when close crosses it. Starts as an uptrend at the first ATR bar."""
 
-    def __init__(self, length: int = 20, mult: Decimal = Decimal("2")) -> None:
+    def __init__(self, length: int = 20, mult: Decimal = Decimal(2)) -> None:
         self.length = _check(length)
         mult = to_decimal(mult)
         if mult <= 0:
@@ -44,9 +43,11 @@ class VolatilityStop(Indicator):
         self._atr = Atr(length, include_first_bar=True)
         self._started = False
         self._up = True
-        self._max = self._min = self._stop = Decimal("0")
+        self._max = self._min = self._stop = Decimal(0)
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal) -> VolatilityStopValue | None:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal
+    ) -> VolatilityStopValue | None:
         high, low, close = to_decimal(high), to_decimal(low), to_decimal(close)
         atr = self._atr.update(high, low, close)
         if atr is None:
@@ -66,4 +67,4 @@ class VolatilityStop(Indicator):
             self._max = self._min = close
             self._stop = close - m if up else close + m
             self._up = up
-        return VolatilityStopValue(self._stop, Decimal("1") if self._up else Decimal("-1"))
+        return VolatilityStopValue(self._stop, Decimal(1) if self._up else Decimal(-1))

@@ -43,14 +43,18 @@ class Kdj(Indicator):
         self._k = make_ma(slowk_ma, _check(slowk))
         self._d = make_ma(slowd_ma, _check(slowd))
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal) -> tuple[Decimal, Decimal, Decimal] | None:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal
+    ) -> tuple[Decimal, Decimal, Decimal] | None:
         high, low, close = to_decimal(high), to_decimal(low), to_decimal(close)
         self._h.append(high)
         self._l.append(low)
         if self._h.maxlen is None or len(self._h) < self._h.maxlen:
             return None
         hh, ll = max(self._h), min(self._l)
-        k = self._k.update((close - ll) / (hh - ll) * Decimal("100") if hh != ll else Decimal("0"))
+        k = self._k.update(
+            (close - ll) / (hh - ll) * Decimal(100) if hh != ll else Decimal(0)
+        )
         d = self._d.update(k) if k is not None else None
         if k is None or d is None:
             return None

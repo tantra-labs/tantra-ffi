@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Accumulation/distribution line."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -17,7 +16,7 @@ def clv_volume(high: Decimal, low: Decimal, close: Decimal, volume: Decimal) -> 
     """Money-flow volume ``((C-L)-(H-C))/(H-L) * V``; 0 when ``high == low``."""
     rng = high - low
     if rng == 0:
-        return Decimal("0")
+        return Decimal(0)
     return ((close - low) - (high - close)) / rng * volume
 
 
@@ -31,9 +30,11 @@ class AccumulationDistribution(Indicator):
     """Accumulation/distribution: cumulative close-location-value times volume (CLV = 0 when high == low)."""
 
     def __init__(self) -> None:
-        self.value = Decimal("0")
+        self.value = Decimal(0)
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal) -> Decimal:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal
+    ) -> Decimal:
         high, low, close, volume = (
             to_decimal(high),
             to_decimal(low),

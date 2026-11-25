@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Trend indicators: MACD, Ichimoku, ADX, Aroon, Parabolic SAR, SuperTrend, Vortex, Chande Kroll, linear regression."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from tantra.indicators.trend.adx import Adx, AdxValue

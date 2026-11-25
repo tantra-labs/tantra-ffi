@@ -25,7 +25,7 @@ class RollingSum:
     def __init__(self, period: int) -> None:
         self.period = _check(period)
         self._w: deque[Decimal] = deque(maxlen=period)
-        self._sum = Decimal("0")
+        self._sum = Decimal(0)
 
     def update(self, x: Decimal) -> Decimal | None:
         x = to_decimal(x)
@@ -50,9 +50,9 @@ class RollingLinReg:
             raise ValueError(f"length must be >= 2, got {length}")
         self.length = length
         self._w: deque[Decimal] = deque(maxlen=length)
-        self._sx = Decimal("0")
-        self._sxx = Decimal("0")
-        self._sxt = Decimal("0")
+        self._sx = Decimal(0)
+        self._sxx = Decimal(0)
+        self._sxt = Decimal(0)
         self._bad = 0
         self._dirty = False
         n = length
@@ -85,7 +85,7 @@ class RollingLinReg:
         if self._bad:
             return (Decimal("NaN"), Decimal("NaN"), Decimal("NaN"))
         if self._dirty:
-            self._sx = self._sxx = self._sxt = Decimal("0")
+            self._sx = self._sxx = self._sxt = Decimal(0)
             for i, v in enumerate(self._w):
                 self._sx += v
                 self._sxx += v * v
@@ -97,7 +97,7 @@ class RollingLinReg:
         intercept = (self._sx - slope * self._st) / n
         sse = self._sxx - intercept * self._sx - slope * self._sxt
         if sse < 0:
-            sse = Decimal("0")
+            sse = Decimal(0)
         return intercept, slope, sse
 
 
@@ -132,10 +132,12 @@ class RollingMoments:
             )
         self.ddof = ddof
         self._w: deque[Decimal] = deque(maxlen=period)
-        self._sum = Decimal("0")
-        self._sum2 = Decimal("0")
+        self._sum = Decimal(0)
+        self._sum2 = Decimal(0)
         self._bad = 0  # unsafe (non-finite or huge) values currently in the window
-        self._dirty = False  # running totals not trustworthy; rebuild once the window is safe
+        self._dirty = (
+            False  # running totals not trustworthy; rebuild once the window is safe
+        )
         self._d = period - ddof
 
     def update_raw(self, x: Decimal) -> tuple[Decimal, Decimal, Decimal] | None:
@@ -164,7 +166,7 @@ class RollingMoments:
         if self._bad:
             return _NAN_RAW3
         if self._dirty:  # exact rebuild once the last unsafe value has left
-            self._sum = self._sum2 = Decimal("0")
+            self._sum = self._sum2 = Decimal(0)
             for v in w:
                 self._sum += v
                 self._sum2 += v * v
@@ -173,7 +175,7 @@ class RollingMoments:
         mean = self._sum / n
         var = (self._sum2 - self._sum * self._sum / n) / self._d
         if var < 0:
-            var = Decimal("0")
+            var = Decimal(0)
         return mean, var, var.sqrt()
 
     def update(self, x: Decimal) -> Moments | None:
@@ -214,8 +216,8 @@ class RollingPairMoments:
         self.ddof = ddof
         self._wx: deque[Decimal] = deque(maxlen=period)
         self._wy: deque[Decimal] = deque(maxlen=period)
-        self._sx = self._sy = Decimal("0")
-        self._sx2 = self._sy2 = self._sxy = Decimal("0")
+        self._sx = self._sy = Decimal(0)
+        self._sx2 = self._sy2 = self._sxy = Decimal(0)
         self._bad = 0
         self._dirty = False
         self._d = period - ddof
@@ -262,7 +264,7 @@ class RollingPairMoments:
         if self._bad:
             return _NAN_RAW5
         if self._dirty:  # exact rebuild once the last unsafe pair has left
-            self._sx = self._sy = self._sx2 = self._sy2 = self._sxy = Decimal("0")
+            self._sx = self._sy = self._sx2 = self._sy2 = self._sxy = Decimal(0)
             for a, b in zip(wx, wy):
                 self._sx += a
                 self._sy += b
@@ -276,9 +278,9 @@ class RollingPairMoments:
         vx = (self._sx2 - self._sx * self._sx / n) / d
         vy = (self._sy2 - self._sy * self._sy / n) / d
         if vx < 0:
-            vx = Decimal("0")
+            vx = Decimal(0)
         if vy < 0:
-            vy = Decimal("0")
+            vy = Decimal(0)
         cov = (self._sxy - self._sx * self._sy / n) / d
         return mx, my, vx, vy, cov
 

@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Rolling standard deviation (volatility family)."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations

@@ -40,4 +40,4 @@ class McClellanOscillator(Indicator):
         net = advances - declines
         f = self._f.update(net)
         s = self._s.update(net)
-        return (f - s) if f is not None and s is not None else Decimal("0")
+        return (f - s) if f is not None and s is not None else Decimal(0)

@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Moving averages: SMA, EMA, Wilder's RMA, WMA, HMA, VWMA, DEMA, TEMA, KAMA, McGinley, ALMA, LSMA."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from tantra.indicators.moving_average.alma import Alma

@@ -1,7 +1,6 @@
 # wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
 # stand-in closure for tantra-examples gap 0006
 
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 from __future__ import annotations
 
@@ -56,6 +55,6 @@ class Tsi(Indicator):
         n2, d2 = self._n2.update(n), self._d2.update(d)
         if n2 is None or d2 is None:
             return None
-        t = Decimal("100") * n2 / d2 if d2 != 0 else Decimal("0")
+        t = Decimal(100) * n2 / d2 if d2 != 0 else Decimal(0)
         s = self._sig.update(t)
         return TsiValue(t, s) if s is not None else None

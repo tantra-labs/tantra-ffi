@@ -41,9 +41,9 @@ class Correlation(Indicator):
         if m is None:
             return None
         cov, vx, vy = m[4], m[2], m[3]
-        if cov != cov:
+        if cov.is_nan():
             return Decimal("NaN")
         if vx <= 0 or vy <= 0:
-            return Decimal("0")
+            return Decimal(0)
         r = cov / (vx * vy).sqrt()
-        return Decimal("1") if r > Decimal("1") else max(r, Decimal("-1"))
+        return Decimal(1) if r > Decimal(1) else max(r, Decimal(-1))

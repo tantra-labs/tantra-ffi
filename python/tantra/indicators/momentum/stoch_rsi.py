@@ -1,7 +1,6 @@
 # wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
 # stand-in closure for tantra-examples gap 0006
 
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 from __future__ import annotations
 
@@ -58,7 +57,9 @@ class StochRsi(Indicator):
         if len(self._w) < self.stoch_length:
             return None
         hi, lo = max(self._w), min(self._w)
-        k = self._k.update(Decimal("100") * (r - lo) / (hi - lo) if hi != lo else Decimal("0"))
+        k = self._k.update(
+            Decimal(100) * (r - lo) / (hi - lo) if hi != lo else Decimal(0)
+        )
         d = self._d.update(k) if k is not None else None
         if k is None or d is None:
             return None

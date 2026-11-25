@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Vortex indicator."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -54,5 +53,5 @@ class Vortex(Indicator):
         if p is None or m is None or t is None:
             return None
         if t <= 0:
-            return VortexValue(Decimal("0"), Decimal("0"))
+            return VortexValue(Decimal(0), Decimal(0))
         return VortexValue(p / t, m / t)

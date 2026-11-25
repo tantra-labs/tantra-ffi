@@ -1,7 +1,6 @@
 # wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
 # stand-in closure for tantra-examples gap 0006
 
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 from __future__ import annotations
 
@@ -46,9 +45,16 @@ class UltimateOscillator(Indicator):
         tm = self._tr_middle.update(tr)
         bs = self._bp_slow.update(bp)
         ts = self._tr_slow.update(tr)
-        if bf is None or tf is None or bm is None or tm is None or bs is None or ts is None:
+        if (
+            bf is None
+            or tf is None
+            or bm is None
+            or tm is None
+            or bs is None
+            or ts is None
+        ):
             return None
-        af = bf / tf if tf != 0 else Decimal("0")
-        am = bm / tm if tm != 0 else Decimal("0")
-        as_ = bs / ts if ts != 0 else Decimal("0")
-        return Decimal("100") * (4 * af + 2 * am + as_) / 7
+        af = bf / tf if tf != 0 else Decimal(0)
+        am = bm / tm if tm != 0 else Decimal(0)
+        as_ = bs / ts if ts != 0 else Decimal(0)
+        return Decimal(100) * (4 * af + 2 * am + as_) / 7

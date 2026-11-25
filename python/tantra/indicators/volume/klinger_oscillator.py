@@ -38,7 +38,9 @@ class KlingerOscillator(Indicator):
         self._f, self._s, self._sig = Ema(fast), Ema(slow), Ema(signal)
         self._prev: Decimal | None = None
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal) -> KlingerValue | None:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal
+    ) -> KlingerValue | None:
         high, low, close, volume = (
             to_decimal(high),
             to_decimal(low),

@@ -37,13 +37,13 @@ class HurstExponent(Indicator):
         w = list(self._w)
         d = [b - a for a, b in pairwise(w)]
         n = len(d)
-        m = sum(d) / n
-        s = (sum((v - m) ** 2 for v in d) / n).sqrt()
-        cum, lo, hi = Decimal("0"), Decimal("0"), Decimal("0")
+        m = sum(d, Decimal(0)) / n
+        s = (sum(((v - m) ** 2 for v in d), Decimal(0)) / n).sqrt()
+        cum, lo, hi = Decimal(0), Decimal(0), Decimal(0)
         for v in d:
             cum += v - m
             lo, hi = min(lo, cum), max(hi, cum)
         r = hi - lo
         if s <= 0 or r <= 0:
             return Decimal("0.5")
-        return max(Decimal("0"), min(Decimal("1"), (r / s).ln() / Decimal(n).ln()))
+        return max(Decimal(0), min(Decimal(1), (r / s).ln() / Decimal(n).ln()))

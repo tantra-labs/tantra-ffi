@@ -29,7 +29,7 @@ class Kama(Indicator):
         self.fast, self.slow = fast, slow
         self._fa, self._sa = Decimal(2) / (fast + 1), Decimal(2) / (slow + 1)
         self._w: deque[Decimal] = deque(maxlen=period + 1)
-        self._path = Decimal("0")  # sum of |diff| over the last `period` steps
+        self._path = Decimal(0)  # sum of |diff| over the last `period` steps
         self.value: Decimal | None = None
 
     def update(self, x: Decimal) -> Decimal | None:
@@ -42,7 +42,7 @@ class Kama(Indicator):
         w.append(x)
         if len(w) < self.period + 1:
             return None
-        er = abs(x - w[0]) / self._path if self._path > Decimal("0") else Decimal("0")
+        er = abs(x - w[0]) / self._path if self._path > Decimal(0) else Decimal(0)
         sc = (er * (self._fa - self._sa) + self._sa) ** 2
         prev = w[-2] if self.value is None else self.value
         self.value = prev + sc * (x - prev)

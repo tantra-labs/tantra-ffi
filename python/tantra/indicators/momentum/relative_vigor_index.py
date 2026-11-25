@@ -1,7 +1,6 @@
 # wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
 # stand-in closure for tantra-examples gap 0006
 
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 from __future__ import annotations
 
@@ -45,8 +44,15 @@ class RelativeVigorIndex(Indicator):
         self._num, self._den = Sma(length), Sma(length)
         self._r: deque[Decimal] = deque(maxlen=4)
 
-    def update(self, open: Decimal, high: Decimal, low: Decimal, close: Decimal) -> RvgiValue | None:
-        open, high, low, close = to_decimal(open), to_decimal(high), to_decimal(low), to_decimal(close)
+    def update(
+        self, open: Decimal, high: Decimal, low: Decimal, close: Decimal
+    ) -> RvgiValue | None:
+        open, high, low, close = (
+            to_decimal(open),
+            to_decimal(high),
+            to_decimal(low),
+            to_decimal(close),
+        )
         self._co.append(close - open)
         self._hl.append(high - low)
         if len(self._co) < 4:
@@ -55,7 +61,7 @@ class RelativeVigorIndex(Indicator):
         d = self._den.update(_swma(*self._hl))
         if n is None or d is None:
             return None
-        self._r.append(n / d if d != 0 else Decimal("0"))
+        self._r.append(n / d if d != 0 else Decimal(0))
         if len(self._r) < 4:
             return None
         return RvgiValue(self._r[-1], _swma(*self._r))

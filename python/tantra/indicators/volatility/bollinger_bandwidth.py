@@ -20,7 +20,7 @@ class BollingerBandwidth(Indicator):
 
     A zero middle band returns 0.0."""
 
-    def __init__(self, period: int = 20, mult: Decimal = Decimal("2")) -> None:
+    def __init__(self, period: int = 20, mult: Decimal = Decimal(2)) -> None:
         self.period = _check(period)
         mult = to_decimal(mult)
         if mult < 0:
@@ -33,4 +33,4 @@ class BollingerBandwidth(Indicator):
         if r is None:
             return None
         mean, sd = r
-        return Decimal("0") if mean == 0 else Decimal("100") * 2 * self.mult * sd / mean
+        return Decimal(0) if mean == 0 else Decimal(100) * 2 * self.mult * sd / mean

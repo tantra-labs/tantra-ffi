@@ -34,7 +34,7 @@ class McGinleyDynamic(Indicator):
             self.value = x
             return self.value
         md = self.value
-        ratio = x / md if md > 0 else Decimal("1")
+        ratio = x / md if md > 0 else Decimal(1)
         den = self.k * self.period * ratio**4
         if den > 0:
             self.value = md + (x - md) / den

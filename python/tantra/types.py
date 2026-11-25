@@ -4,6 +4,7 @@ The compiled ``tantra._tantra`` extension exposes canonical value objects
 (``Price``, ``Quantity``, ``InstrumentId``, ...) with exact decimal arithmetic.
 This module adds small ergonomic helpers on top of that surface.
 """
+
 from decimal import Decimal
 
 from tantra import _tantra
@@ -59,7 +60,7 @@ __all__ = [
 ]
 
 
-def to_decimal(value: Decimal | str | Price | Quantity) -> Decimal:
+def to_decimal(value: Decimal | int | str | Price | Quantity) -> Decimal:
     """Coerce ``value`` into an exact ``decimal.Decimal``.
 
     Accepts ``Decimal``, ``str``, and the compiled ``Price``/``Quantity`` value

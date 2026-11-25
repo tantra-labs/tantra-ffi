@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """On-balance volume."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -19,7 +18,7 @@ class Obv(Indicator):
 
     def __init__(self) -> None:
         self._prev: Decimal | None = None
-        self.value = Decimal("0")
+        self.value = Decimal(0)
 
     def update(self, close: Decimal, volume: Decimal) -> Decimal:
         close, volume = to_decimal(close), to_decimal(volume)

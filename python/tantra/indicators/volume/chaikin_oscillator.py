@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Chaikin oscillator."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -30,7 +29,9 @@ class ChaikinOscillator(Indicator):
         self._ad = AccumulationDistribution()
         self._f, self._s = Ema(fast), Ema(slow)
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal) -> Decimal | None:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal
+    ) -> Decimal | None:
         high, low, close, volume = (
             to_decimal(high),
             to_decimal(low),

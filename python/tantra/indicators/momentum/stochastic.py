@@ -1,7 +1,6 @@
 # wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
 # stand-in closure for tantra-examples gap 0006
 
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 from __future__ import annotations
 
@@ -34,7 +33,9 @@ class Stochastic(Indicator):
     raw = 100 * (close - lowest low) / (highest high - lowest low); a flat window (zero range) gives 0.
     """
 
-    def __init__(self, k_length: int = 14, k_smooth: int = 1, d_smooth: int = 3) -> None:
+    def __init__(
+        self, k_length: int = 14, k_smooth: int = 1, d_smooth: int = 3
+    ) -> None:
         self.k_length = _check(k_length)
         self.k_smooth = _check(k_smooth)
         self.d_smooth = _check(d_smooth)
@@ -42,14 +43,18 @@ class Stochastic(Indicator):
         self._l: deque[Decimal] = deque(maxlen=k_length)
         self._k, self._d = Sma(k_smooth), Sma(d_smooth)
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal) -> StochasticValue | None:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal
+    ) -> StochasticValue | None:
         high, low, close = to_decimal(high), to_decimal(low), to_decimal(close)
         self._h.append(high)
         self._l.append(low)
         if len(self._h) < self.k_length:
             return None
         hh, ll = max(self._h), min(self._l)
-        k = self._k.update(Decimal("100") * (close - ll) / (hh - ll) if hh != ll else Decimal("0"))
+        k = self._k.update(
+            Decimal(100) * (close - ll) / (hh - ll) if hh != ll else Decimal(0)
+        )
         d = self._d.update(k) if k is not None else None
         if k is None or d is None:
             return None

@@ -2,7 +2,6 @@
 # stand-in closure for tantra-examples gap 0006
 
 """Historical volatility (volatility family)."""
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations
@@ -24,7 +23,9 @@ class HistoricalVolatility(Indicator):
     (pass bars per year for intraday data). A non-positive price yields a 0.0 log return."""
 
     def __init__(
-        self, length: int = 10, periods_per_year: Decimal = Decimal(TRADING_DAYS_PER_YEAR)
+        self,
+        length: int = 10,
+        periods_per_year: Decimal = Decimal(TRADING_DAYS_PER_YEAR),
     ) -> None:
         self.length = _check(length)
         periods_per_year = to_decimal(periods_per_year)
@@ -39,6 +40,10 @@ class HistoricalVolatility(Indicator):
         prev, self._prev = self._prev, close
         if prev is None:
             return None
-        r = (close / prev).ln() if close > 0 and prev > 0 else Decimal("0")
+        r = (close / prev).ln() if close > 0 and prev > 0 else Decimal(0)
         out = self._s.update(r)
-        return None if out is None else Decimal("100") * out[1] * self.periods_per_year.sqrt()
+        return (
+            None
+            if out is None
+            else Decimal(100) * out[1] * self.periods_per_year.sqrt()
+        )

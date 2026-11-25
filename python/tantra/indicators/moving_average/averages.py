@@ -20,7 +20,7 @@ class Sma(Indicator):
     def __init__(self, period: int = 5) -> None:
         self.period = _check(period)
         self._w: deque[Decimal] = deque(maxlen=period)
-        self._sum = Decimal("0")
+        self._sum = Decimal(0)
 
     def update(self, x: Decimal) -> Decimal | None:
         x = to_decimal(x)
@@ -31,7 +31,9 @@ class Sma(Indicator):
         return self._sum / self.period if len(self._w) == self.period else None
 
 
-@indicator("ema", "moving_average", warmup=lambda s: 1 if s.seed == "first" else s.period)
+@indicator(
+    "ema", "moving_average", warmup=lambda s: 1 if s.seed == "first" else s.period
+)
 class Ema(Indicator):
     """EMA with alpha = 2/(period+1).
 
@@ -96,7 +98,7 @@ class Wma(Indicator):
             return None
         if any(not v.is_finite() for v in self._w):
             return Decimal("NaN")
-        num = sum((k * v for k, v in enumerate(self._w, 1)), Decimal("0"))
+        num = sum((k * v for k, v in enumerate(self._w, 1)), Decimal(0))
         return num / self._den
 
 

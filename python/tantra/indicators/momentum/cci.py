@@ -1,7 +1,6 @@
 # wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
 # stand-in closure for tantra-examples gap 0006
 
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 from __future__ import annotations
 
@@ -13,7 +12,9 @@ from tantra.indicators._util import check as _check
 from tantra.types import to_decimal
 
 
-@indicator("cci", "momentum", inputs=("high", "low", "close"), warmup=lambda s: s.length)
+@indicator(
+    "cci", "momentum", inputs=("high", "low", "close"), warmup=lambda s: s.length
+)
 class Cci(Indicator):
     """Commodity Channel Index (TradingView): (tp - SMA(tp)) / (0.015 * mean absolute deviation), tp = (high+low+close)/3.
 
@@ -30,6 +31,8 @@ class Cci(Indicator):
         if len(self._w) < self.length:
             return None
         n = self.length
-        mean = sum(self._w) / n
-        mad = sum(abs(v - mean) for v in self._w) / n
-        return (self._w[-1] - mean) / (Decimal("0.015") * mad) if mad != 0 else Decimal("0")
+        mean = sum(self._w, Decimal(0)) / n
+        mad = sum((abs(v - mean) for v in self._w), Decimal(0)) / n
+        return (
+            (self._w[-1] - mean) / (Decimal("0.015") * mad) if mad != 0 else Decimal(0)
+        )

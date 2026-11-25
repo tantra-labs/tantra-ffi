@@ -1,7 +1,6 @@
 # wheel surface (ex 0006): Decimal-canonical indicators registry (mirrors tantra_examples/_kernel/indicators public API)
 # stand-in closure for tantra-examples gap 0006
 
-# ruff: noqa: E501
 # mirror: kernel-verbatim port (gap 0006)
 from __future__ import annotations
 
@@ -26,7 +25,9 @@ class ConnorsRsi(Indicator):
     100 * (count of the previous ``rank_length`` 1-bar ROC values <= current) / rank_length.
     """
 
-    def __init__(self, rsi_length: int = 3, streak_length: int = 2, rank_length: int = 100) -> None:
+    def __init__(
+        self, rsi_length: int = 3, streak_length: int = 2, rank_length: int = 100
+    ) -> None:
         self.rsi_length = _check(rsi_length)
         self.streak_length = _check(streak_length)
         self.rank_length = _check(rank_length)
@@ -48,10 +49,12 @@ class ConnorsRsi(Indicator):
         else:
             self._streak = 0
         sr = self._srsi.update(to_decimal(self._streak))
-        roc = Decimal("100") * (close - prev) / prev if prev != 0 else Decimal("0")
+        roc = Decimal(100) * (close - prev) / prev if prev != 0 else Decimal(0)
         rank = None
         if len(self._rocs) == self.rank_length:
-            rank = Decimal("100") * sum(1 for v in self._rocs if v <= roc) / self.rank_length
+            rank = (
+                Decimal(100) * sum(1 for v in self._rocs if v <= roc) / self.rank_length
+            )
         self._rocs.append(roc)
         if r is None or sr is None or rank is None:
             return None

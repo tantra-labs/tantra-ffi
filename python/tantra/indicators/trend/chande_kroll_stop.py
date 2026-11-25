@@ -36,7 +36,7 @@ class ChandeKrollStop(Indicator):
     Note TradingView labels these two series the other way round ("stop short" is the higher one).
     """
 
-    def __init__(self, p: int = 10, x: Decimal = Decimal("1"), q: int = 9) -> None:
+    def __init__(self, p: int = 10, x: Decimal = Decimal(1), q: int = 9) -> None:
         self.p, self.q = _check(p), _check(q)
         x = to_decimal(x)
         if x <= 0:
@@ -48,7 +48,9 @@ class ChandeKrollStop(Indicator):
         self._hs: deque[Decimal] = deque(maxlen=q)
         self._ls: deque[Decimal] = deque(maxlen=q)
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal) -> ChandeKrollStopValue | None:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal
+    ) -> ChandeKrollStopValue | None:
         high, low, close = to_decimal(high), to_decimal(low), to_decimal(close)
         self._h.append(high)
         self._l.append(low)

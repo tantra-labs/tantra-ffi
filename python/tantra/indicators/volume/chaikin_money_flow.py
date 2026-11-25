@@ -29,7 +29,9 @@ class ChaikinMoneyFlow(Indicator):
         self._mf = RollingSum(period)
         self._vol = RollingSum(period)
 
-    def update(self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal) -> Decimal | None:
+    def update(
+        self, high: Decimal, low: Decimal, close: Decimal, volume: Decimal
+    ) -> Decimal | None:
         high, low, close, volume = (
             to_decimal(high),
             to_decimal(low),
@@ -40,4 +42,4 @@ class ChaikinMoneyFlow(Indicator):
         vol = self._vol.update(volume)
         if mf is None or vol is None:
             return None
-        return mf / vol if vol != 0 else Decimal("0")
+        return mf / vol if vol != 0 else Decimal(0)
