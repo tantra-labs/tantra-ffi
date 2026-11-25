@@ -1,4 +1,4 @@
-.PHONY: default build build-prod build-release build-dev prod release dev debug check check-prod check-dev test clippy fmt clean bootstrap-python codegen py-build py-test py all
+.PHONY: default build build-dev build-prod build-release build-debug dev prod release debug check check-dev check-prod test clippy fmt clean bootstrap-python codegen py-build py-test py all
 
 # Default target is 'prod' (no debug build unless asked for specifically)
 default: prod
@@ -56,7 +56,7 @@ bootstrap-python:
 # Regenerate schema/ (domain_schema.json, openapi.json) and the
 # python/tantra/_tantra.pyi type stubs from tantra-core wire types.
 codegen:
-	cargo run -q -p tantra-ffi-codegen --bin tantra-codegen
+	cargo run --profile prod -q -p tantra-ffi-codegen --bin tantra-codegen
 	@echo "Codegen wrote:"
 	@for f in schema/domain_schema.json schema/openapi.json python/tantra/_tantra.pyi; do \
 		test -f "$$f" && echo "  $$f"; \
@@ -64,7 +64,7 @@ codegen:
 
 # Build the `tantra` extension module into the local virtualenv (editable).
 py-build:
-	.venv/bin/maturin develop
+	.venv/bin/maturin develop --profile prod
 
 # Run the Python test suite (python/tests/).
 py-test:
