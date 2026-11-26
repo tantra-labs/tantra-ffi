@@ -10,13 +10,14 @@ from decimal import Decimal
 
 from tantra.instrument import InstrumentId
 from tantra.money import Currency, Money
-from tantra.types import OrderSide
+from tantra.order import OrderSide as WheelOrderSide
+from tantra.types import OrderSide as CompiledOrderSide
 
 
 @dataclass(frozen=True, slots=True)
 class Trade:
     instrument_id: InstrumentId
-    side: OrderSide
+    side: WheelOrderSide | CompiledOrderSide
     quantity: Decimal
     price: Decimal
     ts: int = 0

@@ -36,5 +36,5 @@ def return_stdev(
         return None
     n = len(returns)
     mean = sum(returns, Decimal(0)) / n
-    variance = sum((r - mean) ** 2 for r in returns) / n
+    variance = sum(((r - mean) ** 2 for r in returns), Decimal(0)) / n
     return variance.sqrt()

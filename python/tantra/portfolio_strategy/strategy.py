@@ -60,7 +60,7 @@ class PortfolioStrategy(TargetWeightStrategy):
         history_len: int = 64,
     ) -> None:
         alloc = to_decimal(allocation)
-        if not (alloc.is_finite() and Decimal("0") < alloc <= Decimal("1")):
+        if not (alloc.is_finite() and Decimal(0) < alloc <= Decimal(1)):
             raise ValueError(f"allocation must be in (0, 1], got {allocation}")
         if history_len < 1:
             raise ValueError(f"history_len must be >= 1, got {history_len}")
@@ -74,7 +74,7 @@ class PortfolioStrategy(TargetWeightStrategy):
         self.weighting = weighting if weighting is not None else EqualWeight()
         self.schedule = schedule if schedule is not None else EveryNDays(15)
         self.selector = selector if selector is not None else SelectAll()
-        self.allocation = alloc  # shadows the ClassVar default
+        object.__setattr__(self, "allocation", alloc)  # shadows the ClassVar default
         self._history = PriceHistory(history_len)
         self._current_day: int | None = None
         self._previous_day: date | None = None
@@ -113,7 +113,8 @@ class PortfolioStrategy(TargetWeightStrategy):
         state = ScheduleState(day, done, st.days_since, priced, drift, self._previous_day)
         return self.schedule.due(state)
 
-    def on_bar(self, bar: Bar) -> None:
+    def on_bar(self, bar: Bar, ctx: Any = None) -> None:
+        del ctx
         self._history.record(bar.instrument_id, bar.close)
         today = bar.ts // _NS_PER_DAY
         if today != self._current_day:

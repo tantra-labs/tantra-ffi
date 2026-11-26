@@ -12,7 +12,6 @@ The wheel surface is Decimal-canonical (zero-floats policy): every quantity is
 an exact ``decimal.Decimal``, unlike the float kernel mirror. Cash is
 Decimal major-unit ``Money`` (see ``tantra.money``).
 """
-# ruff: noqa: B027
 
 from __future__ import annotations
 
@@ -24,6 +23,7 @@ from tantra.instrument import Instrument, InstrumentId
 from tantra.money import Currency, Money
 from tantra.order import OrderIntent, OrderSide, validate_intent
 from tantra.trade import Trade
+from tantra.types import OrderSide as CompiledOrderSide
 
 _EPSILON = Decimal("1e-9")
 
@@ -42,7 +42,7 @@ def _is_valid(intent: OrderIntent) -> bool:
     return True
 
 
-def _is_buy(side: OrderSide) -> bool:
+def _is_buy(side: OrderSide | CompiledOrderSide) -> bool:
     """True for a BUY fill side, whether it carries the wheel or the compiled enum.
 
     The wheel ``Trade`` accepts either ``tantra.order.OrderSide`` (what intents
@@ -113,7 +113,7 @@ class StrategyContext(ABC):
 
         Default for contexts that cannot tell: unbounded while ``busy``, else zero.
         """
-        return Decimal("Infinity") if self.busy(instrument_id) else Decimal("0")
+        return Decimal("Infinity") if self.busy(instrument_id) else Decimal(0)
 
 
 class LedgerContext(StrategyContext):

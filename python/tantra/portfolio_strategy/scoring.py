@@ -5,7 +5,7 @@
 
 Higher is better. ``None`` means "cannot score yet" (insufficient or invalid history) and
 makes ``TopN`` drop the instrument. Each score carries a ``lookback`` attribute (closes
-required) so factories can size the strategy's history buffer.
+required) so factories can size the history buffer.
 """
 
 from __future__ import annotations
@@ -63,7 +63,7 @@ class _MeanReversion:
         n = len(window)
         mean = sum(window, Decimal(0)) / n
         # Population stdev in exact Decimal (no `statistics` module).
-        variance = sum((c - mean) ** 2 for c in window) / n
+        variance = sum(((c - mean) ** 2 for c in window), Decimal(0)) / n
         stdev = variance.sqrt()
         if stdev == 0:
             return Decimal(0)

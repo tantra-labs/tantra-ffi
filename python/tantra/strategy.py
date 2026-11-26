@@ -12,7 +12,7 @@ flushed by ``run()`` *after* the bars finish, when it is safe to submit.
 """
 import logging
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any, cast
 
 from tantra import _tantra
 from tantra import indicators as indicators_module
@@ -24,9 +24,9 @@ class Parameter:
     """Declarative strategy hyper-parameter with bounds validation."""
 
     default: Any
-    min: Optional[Any] = None
-    max: Optional[Any] = None
-    step: Optional[Any] = None
+    min: Any | None = None
+    max: Any | None = None
+    step: Any | None = None
 
     def __post_init__(self) -> None:
         if self.min is not None and self.default < self.min:
@@ -72,12 +72,12 @@ class Strategy:
     """
 
     def __init__(self) -> None:
-        self._runner: Optional[_tantra.StrategyRunner] = None
-        self._algo_id: Optional[str] = None
+        self._runner: _tantra.StrategyRunner | None = None
+        self._algo_id: str | None = None
         self.logger = logging.getLogger(self.__class__.__name__)
         self.indicators: Any = None  # set by run()
         self._in_callback = False
-        self._pending_orders = []
+        self._pending_orders: list[_tantra.OrderRequest] = []
         self._orders_filled = 0
         self._refusals = 0
         self._events = 0
@@ -124,6 +124,7 @@ class Strategy:
             # execute, so buffer the order and let run() flush it afterwards.
             self._pending_orders.append(order)
             return None
+        assert self._runner is not None
         try:
             ack = self._runner.submit_order(order, _tantra.now_iso())
         except _tantra.RiskRefused:
@@ -160,7 +161,7 @@ def run(strategy: Strategy, bars, *, algo_id: str = "default-algo", on_start: bo
     strategy._events = 0
     runner = _tantra.StrategyRunner(strategy, algo_id)
     strategy._runner = runner
-    runner.register_algo(algo_id)
+    cast(Any, runner).register_algo(algo_id)
     strategy.indicators = indicators_module
     if on_start:
         strategy.on_start()

@@ -35,7 +35,6 @@ Shims (ADR 0019 decision 4; present in 0.1.x and 0.2.x, removed in 0.3.0):
 Pure contract: no I/O, no wall clock. Zero-floats invariant: every quantity, price and
 cumulative fill quantity is an exact ``decimal.Decimal``.
 """
-# ruff: noqa: B027
 # mirror: kernel-verbatim port (gap 0006)
 
 from __future__ import annotations

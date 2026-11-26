@@ -15,9 +15,9 @@ loaded by ``import tantra`` alone.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
-from typing import Any
+from typing import Any, cast
 
 import tantra.indicators as _indicators
 from tantra._tantra import (
@@ -50,7 +50,7 @@ _LATENCY_STD_US = 5
 def _ts_iso(ts_ns: int) -> str:
     """Unix-nanosecond timestamp as an RFC3339 UTC string."""
     return (
-        datetime.fromtimestamp(ts_ns / 1_000_000_000, tz=timezone.utc)
+        datetime.fromtimestamp(ts_ns / 1_000_000_000, tz=UTC)
         .isoformat()
         .replace("+00:00", "Z")
     )
@@ -62,7 +62,7 @@ def _compiled_instrument(inst: Any) -> _CompiledInstrumentId:
         return _CompiledInstrumentId.from_str(inst)
     to_compiled = getattr(inst, "to_compiled", None)
     if callable(to_compiled):
-        return to_compiled()
+        return cast(_CompiledInstrumentId, to_compiled())
     return inst
 
 

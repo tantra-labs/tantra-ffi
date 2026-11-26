@@ -102,7 +102,7 @@ class MarketImpact:
         if len(returns) < 2:
             return Decimal(0)
         mean = sum(returns, Decimal(0)) / len(returns)
-        variance = sum((x - mean) ** 2 for x in returns) / (len(returns) - 1)
+        variance = sum(((x - mean) ** 2 for x in returns), Decimal(0)) / (len(returns) - 1)
         return variance.sqrt()
 
     def fraction(self, instrument_id: InstrumentId, quantity: Decimal) -> Decimal:

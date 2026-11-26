@@ -12,8 +12,9 @@ integer minor-unit string for display.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 from enum import Enum
+from typing import cast
 
 
 @dataclass(frozen=True)
@@ -81,18 +82,18 @@ class Money:
     @staticmethod
     def from_major(
         major: Decimal | int | str, currency: Currency = Currency.INR
-    ) -> "Money":
-        return Money(major, currency)
+    ) -> Money:
+        return Money(cast(Decimal, major), currency)
 
     @staticmethod
     def from_minor(
         minor: Decimal | int | str, currency: Currency = Currency.INR
-    ) -> "Money":
+    ) -> Money:
         """Exact ``minor`` minor-unit count in major units (``amount = minor / 100``)."""
         return Money(Decimal(minor) / currency.minor_per_major, currency)
 
     @staticmethod
-    def zero(currency: Currency = Currency.INR) -> "Money":
+    def zero(currency: Currency = Currency.INR) -> Money:
         return Money(Decimal(0), currency)
 
     @staticmethod
@@ -100,14 +101,14 @@ class Money:
         quantity: Decimal | int | str,
         price: Decimal | int | str,
         currency: Currency = Currency.INR,
-    ) -> "Money":
+    ) -> Money:
         """Exact `quantity * price` in major units (Decimal arithmetic)."""
         return Money(Decimal(str(quantity)) * Decimal(str(price)), currency)
 
     def to_major(self) -> Decimal:
         return self.amount
 
-    def _checked(self, other: "Money") -> "Money":
+    def _checked(self, other: Money) -> Money:
         if not isinstance(other, Money):
             raise TypeError(f"cannot combine Money with {type(other).__name__}")
         if other.currency is not self.currency:
@@ -116,15 +117,15 @@ class Money:
             )
         return other
 
-    def __add__(self, other: "Money") -> "Money":
+    def __add__(self, other: Money) -> Money:
         o = self._checked(other)
         return Money(self.amount + o.amount, self.currency)
 
-    def __sub__(self, other: "Money") -> "Money":
+    def __sub__(self, other: Money) -> Money:
         o = self._checked(other)
         return Money(self.amount - o.amount, self.currency)
 
-    def __neg__(self) -> "Money":
+    def __neg__(self) -> Money:
         return Money(-self.amount, self.currency)
 
     def __str__(self) -> str:

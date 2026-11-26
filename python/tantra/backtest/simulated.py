@@ -67,7 +67,7 @@ import os
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from decimal import ROUND_FLOOR, Decimal
 from typing import Any, Literal
 
@@ -679,7 +679,7 @@ _INTRADAY = re.compile(
     re.IGNORECASE,
 )
 _IST_OFFSET = timedelta(hours=5, minutes=30)
-_EPOCH = datetime(1970, 1, 1)
+_EPOCH = datetime(1970, 1, 1, tzinfo=UTC)
 
 
 def is_intraday(timeframe: str) -> bool:

@@ -2,7 +2,6 @@
 from decimal import Decimal
 
 import pytest
-
 import tantra
 from tantra import _tantra
 
@@ -71,4 +70,4 @@ def test_run_raises_riskrefused_for_unregistered_algo():
     strategy = RefusingStrategy()
     with pytest.raises(_tantra.RiskRefused):
         tantra.run(strategy, make_bars(), algo_id="refusal-test-algo")
-    assert strategy._refusals == 1
+    assert vars(strategy)["_refusals"] == 1

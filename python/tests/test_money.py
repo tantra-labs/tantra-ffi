@@ -1,9 +1,11 @@
 """Tests for the Decimal-canonical wheel `tantra.money` (gap 0006 root slice)."""
 
+from __future__ import annotations
+
 from decimal import Decimal
+from typing import cast
 
 import pytest
-
 from tantra.money import Currency, MinorUnit, Money
 
 
@@ -32,7 +34,7 @@ def test_currency_mismatch_raises() -> None:
     usd = Money.from_major("1", Currency.USD)
     inr = Money.from_major("1", Currency.INR)
     with pytest.raises(ValueError):
-        usd + inr
+        _ = usd + inr
 
 
 def test_combining_non_money_raises() -> None:
@@ -63,14 +65,14 @@ def test_currency_minor_metadata() -> None:
 
 
 def test_mul_qty_exact_decimal() -> None:
-    m = Money.mul_qty(Decimal("7"), Decimal("0.33"), Currency.INR)
+    m = Money.mul_qty(Decimal(7), Decimal("0.33"), Currency.INR)
     assert m.amount == Decimal("2.31")
     assert m.currency is Currency.INR
 
 
 def test_non_numeric_rejected() -> None:
     with pytest.raises(TypeError):
-        Money("abc", Currency.INR)
+        Money(cast(Decimal, "abc"), Currency.INR)
 
 
 def test_equality_is_value_based() -> None:
